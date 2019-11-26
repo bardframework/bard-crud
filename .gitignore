@@ -1,0 +1,13 @@
+# Folders
+target/
+.idea/
+static/
+logs/
+
+# files
+*.iml
+*.log
+*.zip
+
+# test
+TCE_BACKUP_IS_UNDEFINED/
