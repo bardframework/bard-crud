@@ -4,25 +4,38 @@
     <modelVersion>4.0.0</modelVersion>
     <parent>
         <groupId>org.bardframework</groupId>
-        <artifactId>bardframework-parent</artifactId>
-        <version>1398.08.17</version>
-        <relativePath>../pom.xml</relativePath>
+        <artifactId>bard-parent</artifactId>
+        <version>1</version>
+        <relativePath/>
     </parent>
 
-    <groupId>org.bardframework.base</groupId>
-    <artifactId>base</artifactId>
-
+    <groupId>org.bardframework.crud</groupId>
+    <artifactId>crud-parent</artifactId>
+    <version>0.2</version>
     <packaging>pom</packaging>
 
-    <modules>
-        <module>activable-entity</module>
-        <module>crud-entity</module>
-        <module>datatable-entity</module>
-        <module>orderable-entity</module>
-        <module>searchable-entity</module>
-        <module>tree-entity</module>
-    </modules>
-    <dependencies>
+    <properties>
+        <spring.version>5.2.5.RELEASE</spring.version>
+        <jakarta-servlet.version>4.0.3</jakarta-servlet.version>
+    </properties>
 
+    <modules>
+        <module>crud-api</module>
+        <module>crud-common</module>
+        <module>crud-querydsl-sql</module>
+    </modules>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <version>3.13.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 </project>
