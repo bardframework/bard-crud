@@ -1,11 +1,11 @@
 package org.bardframework.base.crud;
 
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import javax.validation.Valid;
 import java.io.Serializable;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -24,7 +24,7 @@ public interface ReadRestController<M extends BaseModelAbstract<I>, C extends Ba
     }
 
     @PostMapping(value = FILTER_URL, consumes = APPLICATION_JSON_VALUE)
-    default DataTableModel<M> FILTER(@RequestBody @Valid C criteria) {
+    default DataTableModel<M> FILTER(@RequestBody @Validated C criteria) {
         return this.getService().filter(criteria, this.getUser());
     }
 

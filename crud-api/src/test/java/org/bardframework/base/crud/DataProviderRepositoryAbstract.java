@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -17,7 +18,7 @@ import java.util.stream.Collectors;
 /**
  * Created by Sama-PC on 08/05/2017.
  */
-public abstract class DataProviderRepositoryAbstract<M extends BaseModelAbstract<I>, C extends BaseCriteriaAbstract<I>, R extends BaseRepository<M, C, I, U>, I extends Number & Comparable<I>, U> {
+public abstract class DataProviderRepositoryAbstract<M extends BaseModelAbstract<I>, C extends BaseCriteriaAbstract<I>, R extends BaseRepository<M, C, I, U>, I extends Serializable, U> {
 
     protected final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
@@ -103,10 +104,10 @@ public abstract class DataProviderRepositoryAbstract<M extends BaseModelAbstract
     //...Filter
 
 
-    protected <I extends Number & Comparable<I>> void assertNullOrEqualIds(BaseModelAbstract<I> first, BaseModelAbstract<I> second) {
+    protected <I extends Serializable> void assertNullOrEqualIds(BaseModelAbstract<I> first, BaseModelAbstract<I> second) {
         Assertions.assertThat(first == null ^ second == null).isFalse();
         if (first != null) {
-            Assertions.assertThat(first.getId()).isEqualByComparingTo(second.getId());
+            Assertions.assertThat(first.getId()).isEqualTo(second.getId());
         }
     }
 

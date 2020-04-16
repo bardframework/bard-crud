@@ -30,12 +30,6 @@ public interface WebTest {
 
     /**
      * set <code>request.accept(MediaType.APPLICATION_JSON)</code>
-     *
-     * @param request
-     * @param returnType
-     * @param <T>
-     * @return
-     * @throws Exception
      */
     default <T> T execute(MockHttpServletRequestBuilder request, TypeReference<T> returnType, HttpStatus expectedStatus)
             throws Exception {

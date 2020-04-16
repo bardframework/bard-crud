@@ -8,13 +8,15 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import java.io.Serializable;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.bardframework.base.crud.ReadRestController.FILTER_URL;
 
 /**
  * Created by Sama-PC on 14/05/2017.
  */
-public interface RestControllerTestAbstract<M extends BaseModelAbstract<I>, C extends BaseCriteriaAbstract<I>, D, P extends DataProviderServiceAbstract<M, C, D, ?, ?, I, U>, I extends Number & Comparable<I>, U> extends WebTest {
+public interface RestControllerTestAbstract<M extends BaseModelAbstract<I>, C extends BaseCriteriaAbstract<I>, D, P extends DataProviderServiceAbstract<M, C, D, ?, ?, I, U>, I extends Serializable, U> extends WebTest {
 
     default String GET_URL(I id) {
         return BASE_URL() + "/";
@@ -115,7 +117,7 @@ public interface RestControllerTestAbstract<M extends BaseModelAbstract<I>, C ex
     @Test
     default void testSAVE()
             throws Exception {
-        D dto = this.getDataProvider().getUnsavedDto(this.getUser());
+        D dto = this.getDataProvider().getDto(this.getUser());
         MockHttpServletRequestBuilder request = this.SAVE(dto);
         M result = executeOk(request, getModelTypeReference());
         assertThat(result.getId()).isNotNull();
@@ -174,5 +176,5 @@ public interface RestControllerTestAbstract<M extends BaseModelAbstract<I>, C ex
 
     TypeReference<M> getModelTypeReference();
 
-    <D extends DataTableModel<M>> TypeReference<D> getDataModelTypeReference();
+    <DM extends DataTableModel<M>> TypeReference<DM> getDataModelTypeReference();
 }

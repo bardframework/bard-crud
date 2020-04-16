@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.io.Serializable;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -14,7 +15,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 /**
  * Created by Sama-PC on 09/05/2017.
  */
-public abstract class RepositoryTestAbstract<M extends BaseModelAbstract<I>, C extends BaseCriteriaAbstract<I>, R extends BaseRepository<M, C, I, U>, P extends DataProviderRepositoryAbstract<M, C, R, I, U>, I extends Number & Comparable<I>, U> {
+public abstract class RepositoryTestAbstract<M extends BaseModelAbstract<I>, C extends BaseCriteriaAbstract<I>, R extends BaseRepository<M, C, I, U>, P extends DataProviderRepositoryAbstract<M, C, R, I, U>, I extends Serializable, U> {
 
     protected final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
     @Autowired
@@ -28,7 +29,7 @@ public abstract class RepositoryTestAbstract<M extends BaseModelAbstract<I>, C e
         LOGGER.debug("test get by id '{}'.", id);
         M result = repository.get(id, this.getUser());
         LOGGER.debug("get by id '{}', result is '{}'.", id, result);
-        assertThat(id).isEqualByComparingTo(result.getId());
+        assertThat(id).isEqualTo(result.getId());
     }
 
     @Test

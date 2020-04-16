@@ -11,7 +11,7 @@
 
     <groupId>org.bardframework.crud</groupId>
     <artifactId>crud-parent</artifactId>
-    <version>1399.01.25</version>
+    <version>0.2</version>
     <packaging>pom</packaging>
 
     <properties>
@@ -20,9 +20,9 @@
         <hibernate-jpa.version>1.0.2.Final</hibernate-jpa.version>
         <jakarta-servlet.version>4.0.3</jakarta-servlet.version>
         <jakarta-validation.version>2.0.2</jakarta-validation.version>
+        <maven-jar-plugin.version>3.2.0</maven-jar-plugin.version>
         <querydsl.version>4.3.1</querydsl.version>
         <spring.version>5.2.5.RELEASE</spring.version>
-
     </properties>
 
     <modules>

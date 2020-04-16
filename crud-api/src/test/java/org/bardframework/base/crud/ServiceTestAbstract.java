@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -17,7 +18,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 /**
  * Created by Sama-PC on 10/05/2017.
  */
-public abstract class ServiceTestAbstract<M extends BaseModelAbstract<I>, C extends BaseCriteriaAbstract<I>, D, S extends BaseServiceAbstract<M, C, D, ?, I, U>, P extends DataProviderServiceAbstract<M, C, D, ?, ?, I, U>, I extends Number & Comparable<I>, U> {
+public abstract class ServiceTestAbstract<M extends BaseModelAbstract<I>, C extends BaseCriteriaAbstract<I>, D, S extends BaseServiceAbstract<M, C, D, ?, I, U>, P extends DataProviderServiceAbstract<M, C, D, ?, ?, I, U>, I extends Serializable, U> {
 
     protected final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
     @Autowired
@@ -39,7 +40,7 @@ public abstract class ServiceTestAbstract<M extends BaseModelAbstract<I>, C exte
         I id = this.getDataProvider().getId(this.getUser());
         M foundModel = service.get(id, this.getUser());
         assertThat(foundModel).isNotNull();
-        assertThat(foundModel.getId()).isEqualByComparingTo(id);
+        assertThat(foundModel.getId()).isEqualTo(id);
     }
 
     @Test
@@ -155,7 +156,7 @@ public abstract class ServiceTestAbstract<M extends BaseModelAbstract<I>, C exte
 
     @Test
     public void testSave() {
-        D dto = this.getDataProvider().getUnsavedDto(this.getUser());
+        D dto = this.getDataProvider().getDto(this.getUser());
         LOGGER.debug("saving '{}'", dto);
         M result = service.save(dto, this.getUser());
         LOGGER.debug("save '{}', result is '{}'.", dto, result);
