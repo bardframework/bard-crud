@@ -143,7 +143,6 @@ public abstract class DataProviderRepositoryAbstract<M extends BaseModelAbstract
     /**
      * save <count>count<count/> new entities
      *
-     * @param count
      * @return saved entities
      */
     @Transactional
@@ -156,9 +155,6 @@ public abstract class DataProviderRepositoryAbstract<M extends BaseModelAbstract
     }
 
     /**
-     * @param unsavedModel
-     * @param user
-     * @param validateFunction
      * @return a model that pass <code>validateFunction</code>, saved <code>unsavedModel</code> otherwise.
      */
     public M getOrSave(M unsavedModel, U user, Function<M, Boolean> validateFunction) {
@@ -167,7 +163,6 @@ public abstract class DataProviderRepositoryAbstract<M extends BaseModelAbstract
     }
 
     /**
-     * @param validateFunction
      * @return a model that pass <code>validateFunction</code>, null otherwise
      */
     public M getModel(Function<M, Boolean> validateFunction, U user) {

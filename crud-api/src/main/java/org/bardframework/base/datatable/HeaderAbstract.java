@@ -28,16 +28,16 @@ public abstract class HeaderAbstract {
     protected boolean sortable = false;
     protected Sort sort;
     protected String mask;
-    protected Converter inputConverter;
-    protected Converter outputConverter;
+    protected Converter<?, ?> inputConverter;
+    protected Converter<?, ?> outputConverter;
     protected List<String> messageKeys;
 
     public HeaderAbstract() {
     }
 
     public void validate(Class<?> mainClazz) {
-        /**
-         * check HeaderAbstract parameters are valid and consistent
+        /*
+          check HeaderAbstract parameters are valid and consistent
          */
         if (this.filterType == FilteringType.NONE) {
 //            if (this.queryType != QueryType.NONE) {
@@ -57,8 +57,8 @@ public abstract class HeaderAbstract {
     }
 
     public void determineConverters(Class<?> valueType) {
-        /**
-         * set outputConverter according field type
+        /*
+          set outputConverter according field type
          */
         Class<? extends Converter> inputConverterClazz = null, outputConverterClazz = null;
         if (Enum.class.isAssignableFrom(valueType)) {
@@ -141,19 +141,19 @@ public abstract class HeaderAbstract {
         this.resultType = resultType;
     }
 
-    public Converter getInputConverter() {
+    public Converter<?, ?> getInputConverter() {
         return inputConverter;
     }
 
-    public void setInputConverter(Converter inputConverter) {
+    public void setInputConverter(Converter<?, ?> inputConverter) {
         this.inputConverter = inputConverter;
     }
 
-    public Converter getOutputConverter() {
+    public Converter<?, ?> getOutputConverter() {
         return outputConverter;
     }
 
-    public void setOutputConverter(Converter outputConverter) {
+    public void setOutputConverter(Converter<?, ?> outputConverter) {
         this.outputConverter = outputConverter;
     }
 

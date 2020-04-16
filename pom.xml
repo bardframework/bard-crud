@@ -11,12 +11,18 @@
 
     <groupId>org.bardframework.crud</groupId>
     <artifactId>crud-parent</artifactId>
-    <version>0.2</version>
+    <version>1399.01.25</version>
     <packaging>pom</packaging>
 
     <properties>
-        <spring.version>5.2.5.RELEASE</spring.version>
+        <bard.commons.version>0.2</bard.commons.version>
+        <guava.version>28.2-jre</guava.version>
+        <hibernate-jpa.version>1.0.2.Final</hibernate-jpa.version>
         <jakarta-servlet.version>4.0.3</jakarta-servlet.version>
+        <jakarta-validation.version>2.0.2</jakarta-validation.version>
+        <querydsl.version>4.3.1</querydsl.version>
+        <spring.version>5.2.5.RELEASE</spring.version>
+
     </properties>
 
     <modules>
@@ -38,4 +44,59 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>jakarta.validation</groupId>
+                <artifactId>jakarta.validation-api</artifactId>
+                <version>${jakarta-validation.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.bardframework.crud</groupId>
+                <artifactId>crud-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.bardframework.crud</groupId>
+                <artifactId>crud-common</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.bardframework.commons</groupId>
+                <artifactId>common-utils</artifactId>
+                <version>${bard.commons.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.bardframework.commons</groupId>
+                <artifactId>common-reflection</artifactId>
+                <version>${bard.commons.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.bardframework.commons</groupId>
+                <artifactId>common-jackson</artifactId>
+                <version>${bard.commons.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-web</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
+                <artifactId>spring-tx</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>jcl-over-slf4j</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>jakarta.servlet</groupId>
+                <artifactId>jakarta.servlet-api</artifactId>
+                <version>${jakarta-servlet.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 </project>

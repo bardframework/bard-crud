@@ -5,33 +5,41 @@
     <parent>
         <groupId>org.bardframework.crud</groupId>
         <artifactId>crud-parent</artifactId>
-        <version>0.2</version>
+        <version>1399.01.25</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <artifactId>crud-querydsl-sql</artifactId>
     <packaging>jar</packaging>
 
-    <properties>
-        <hibernate-jpa.version>1.0.2.Final</hibernate-jpa.version>
-        <querydsl.version>4.3.1</querydsl.version>
-    </properties>
-
     <dependencies>
         <dependency>
             <groupId>com.querydsl</groupId>
             <artifactId>querydsl-sql-codegen</artifactId>
             <version>${querydsl.version}</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.google.guava</groupId>
+                    <artifactId>guava</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>javax.validation</groupId>
+                    <artifactId>validation-api</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.validation</groupId>
+            <artifactId>jakarta.validation-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>${guava.version}</version>
         </dependency>
         <dependency>
             <groupId>org.bardframework.crud</groupId>
             <artifactId>crud-api</artifactId>
-            <version>0.2</version>
-        </dependency>
-        <dependency>
-            <groupId>org.bardframework.commons</groupId>
-            <artifactId>common-querydsl</artifactId>
-            <version>1399.01.20</version>
         </dependency>
         <dependency>
             <groupId>org.hibernate.javax.persistence</groupId>
