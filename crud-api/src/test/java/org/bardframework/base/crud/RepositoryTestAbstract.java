@@ -113,7 +113,7 @@ public abstract class RepositoryTestAbstract<M extends BaseModelAbstract<I>, C e
         LOGGER.debug("get by criteria '{}'.", criteria);
         List<M> foundEntities = repository.get(criteria, this.getUser());
         LOGGER.debug("get by criteria '{}', result is '{}'.", criteria, foundEntities);
-        assertThat(foundEntities).extracting("id").doesNotContain((Long[]) ids.toArray(new Long[0]));
+        assertThat(foundEntities).extracting("id").doesNotContain(ids);
     }
 
     @Test
@@ -159,20 +159,6 @@ public abstract class RepositoryTestAbstract<M extends BaseModelAbstract<I>, C e
         assertThatExceptionOfType(Exception.class).isThrownBy(() -> {
             M result = repository.save((M) null, this.getUser());
             LOGGER.debug("save null model, expect exception but result is '{}'.", result);
-        });
-    }
-
-    /**
-     * Save a model that its id field is set, must throw exception
-     */
-
-    @Test
-    public void testSaveWithIdFailed() {
-        M model = this.getDataProvider().getUnsavedModel(this.getUser());
-        model.setId(this.getDataProvider().getId(this.getUser()));
-        assertThatExceptionOfType(Exception.class).isThrownBy(() -> {
-            M result = repository.save(model, this.getUser());
-            LOGGER.debug("save model with id, expect exception but result is '{}'.", result);
         });
     }
 

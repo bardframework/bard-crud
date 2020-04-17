@@ -2,10 +2,11 @@ package org.bardframework.base.crud;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.bardframework.commons.utils.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
+import org.springframework.boot.test.web.client.TestRestTemplate;
+import org.springframework.http.*;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
@@ -20,21 +21,17 @@ public interface WebTest {
 
     default <T> T executeOk(MockHttpServletRequestBuilder request, TypeReference<T> returnType)
             throws Exception {
-        return this.execute(request, returnType, HttpStatus.OK);
+        MvcResult result = this.execute(request, HttpStatus.OK);
+        if (StringUtils.isNotBlank(result.getResponse().getContentAsString())) {
+            return this.getObjectMapper().readValue(result.getResponse().getContentAsString(), returnType);
+        } else {
+            return null;
+        }
     }
 
-    default <T> T executeNotAcceptable(MockHttpServletRequestBuilder request, TypeReference<T> returnType)
+    default MvcResult executeNotAcceptable(MockHttpServletRequestBuilder request)
             throws Exception {
-        return this.execute(request, returnType, HttpStatus.NOT_ACCEPTABLE);
-    }
-
-    /**
-     * set <code>request.accept(MediaType.APPLICATION_JSON)</code>
-     */
-    default <T> T execute(MockHttpServletRequestBuilder request, TypeReference<T> returnType, HttpStatus expectedStatus)
-            throws Exception {
-        MvcResult result = this.execute(request, expectedStatus);
-        return this.getObjectMapper().readValue(result.getResponse().getContentAsString(), returnType);
+        return this.execute(request, HttpStatus.NOT_ACCEPTABLE);
     }
 
     default MvcResult execute(MockHttpServletRequestBuilder request, HttpStatus expectedStatus)
@@ -50,6 +47,16 @@ public interface WebTest {
         LOGGER.info("calling '{}', status: {},result:\n{}", result.getRequest().getRequestURI(), result.getResponse().getStatus(), result.getResponse().getContentAsString());
         return result;
     }
+
+    default <T> ResponseEntity<T> post(String uri, Object dto, Class<T> responseType, HttpStatus status) {
+        ResponseEntity<T> responseEntity;
+        responseEntity = this.getRestTemplate().exchange(uri, HttpMethod.POST, new HttpEntity<>(dto), responseType);
+        LOGGER.info("response of calling [{}] is [{}]", uri, responseEntity.getBody());
+        org.assertj.core.api.Assertions.assertThat(responseEntity.getStatusCodeValue()).isEqualTo(status.value());
+        return responseEntity;
+    }
+
+    TestRestTemplate getRestTemplate();
 
     MockMvc getMockMvc();
 

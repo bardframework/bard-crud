@@ -173,11 +173,6 @@ public abstract class ServiceTestAbstract<M extends BaseModelAbstract<I>, C exte
     public void testSaveNull() {
         assertThatExceptionOfType(Exception.class).isThrownBy(() -> service.save((D) null, this.getUser()));
     }
-
-    @Test
-    public void testSaveSavedDto() {
-        assertThatExceptionOfType(Exception.class).isThrownBy(() -> service.save(this.getDataProvider().getDto(this.getUser()), this.getUser()));
-    }
     /*------------------------------- Update ------------------------------*/
 
     @Test

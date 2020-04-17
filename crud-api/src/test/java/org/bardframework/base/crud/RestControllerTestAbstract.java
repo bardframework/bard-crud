@@ -5,6 +5,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
@@ -19,7 +20,7 @@ import static org.bardframework.base.crud.ReadRestController.FILTER_URL;
 public interface RestControllerTestAbstract<M extends BaseModelAbstract<I>, C extends BaseCriteriaAbstract<I>, D, P extends DataProviderServiceAbstract<M, C, D, ?, ?, I, U>, I extends Serializable, U> extends WebTest {
 
     default String GET_URL(I id) {
-        return BASE_URL() + "/";
+        return BASE_URL() + "/" + id;
     }
 
     default String DELETE_URL(I id) {
@@ -62,7 +63,7 @@ public interface RestControllerTestAbstract<M extends BaseModelAbstract<I>, C ex
     }
 
     default MockHttpServletRequestBuilder DELETE(I id) {
-        return MockMvcRequestBuilders.delete(this.DELETE_URL(id) + id);
+        return MockMvcRequestBuilders.delete(this.DELETE_URL(id));
     }
 
     default TypeReference<Long> getDeleteTypeReference() {
@@ -83,11 +84,10 @@ public interface RestControllerTestAbstract<M extends BaseModelAbstract<I>, C ex
     }
 
     @Test
-    default void testFilterUnsuccessful()
-            throws Exception {
+    default void testFilterUnsuccessful() throws Exception {
         MockHttpServletRequestBuilder request = this.FILTER(this.getDataProvider().getInvalidCriteria());
-        DataTableModel<M> response = execute(request, getDataModelTypeReference(), HttpStatus.NOT_ACCEPTABLE);
-        assertThat(response).isNull();
+        MvcResult response = executeNotAcceptable(request);
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.NOT_ACCEPTABLE.value());
     }
 
     @Test
@@ -97,13 +97,6 @@ public interface RestControllerTestAbstract<M extends BaseModelAbstract<I>, C ex
         MockHttpServletRequestBuilder request = this.GET(id);
         M result = executeOk(request, getModelTypeReference());
         assertThat(result.getId()).isEqualTo(id);
-    }
-
-    @Test
-    default void testGETNullId()
-            throws Exception {
-        MockHttpServletRequestBuilder request = this.GET(null);
-        execute(request, HttpStatus.UNPROCESSABLE_ENTITY);
     }
 
     @Test
@@ -128,8 +121,8 @@ public interface RestControllerTestAbstract<M extends BaseModelAbstract<I>, C ex
     default void testSAVEUnsuccessful()
             throws Exception {
         MockHttpServletRequestBuilder request = this.SAVE(this.getDataProvider().getUnsavedInvalidDto(this.getUser()));
-        M response = execute(request, getModelTypeReference(), HttpStatus.NOT_ACCEPTABLE);
-        assertThat(response).isNull();
+        MvcResult response = executeNotAcceptable(request);
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.NOT_ACCEPTABLE.value());
     }
 
     @Test
@@ -147,8 +140,8 @@ public interface RestControllerTestAbstract<M extends BaseModelAbstract<I>, C ex
             throws Exception {
         I id = this.getDataProvider().getId(this.getUser());
         MockHttpServletRequestBuilder request = this.UPDATE(id, this.getDataProvider().getInvalidDto(this.getUser()));
-        M response = execute(request, getModelTypeReference(), HttpStatus.NOT_ACCEPTABLE);
-        assertThat(response).isNull();
+        MvcResult response = executeNotAcceptable(request);
+        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.NOT_ACCEPTABLE.value());
     }
 
     @Test
@@ -176,5 +169,5 @@ public interface RestControllerTestAbstract<M extends BaseModelAbstract<I>, C ex
 
     TypeReference<M> getModelTypeReference();
 
-    <DM extends DataTableModel<M>> TypeReference<DM> getDataModelTypeReference();
+    TypeReference<? extends DataTableModel<M>> getDataModelTypeReference();
 }
