@@ -3,7 +3,6 @@ package org.bardframework.base.crud;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
@@ -11,7 +10,7 @@ import java.util.function.Function;
 /**
  * Created by Sama-PC on 08/05/2017.
  */
-public abstract class DataProviderServiceAbstract<M extends BaseModelAbstract<I>, C extends BaseCriteriaAbstract<I>, D, S extends BaseServiceAbstract<M, C, D, R, I, U>, R extends BaseRepository<M, C, I, U>, I extends Serializable, U> extends DataProviderRepositoryAbstract<M, C, R, I, U> {
+public abstract class DataProviderServiceAbstract<M extends BaseModelAbstract<I>, C extends BaseCriteriaAbstract<I>, D, S extends BaseServiceAbstract<M, C, D, R, I, U>, R extends BaseRepository<M, C, I, U>, I extends Comparable<? super I>, U> extends DataProviderRepositoryAbstract<M, C, R, I, U> {
 
     @Autowired
     protected S service;

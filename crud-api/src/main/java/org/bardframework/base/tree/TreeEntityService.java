@@ -5,7 +5,6 @@ import org.bardframework.base.crud.BaseModelAbstract;
 import org.bardframework.base.crud.BaseRepository;
 import org.slf4j.Logger;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -15,7 +14,7 @@ import java.util.stream.Collectors;
 /**
  * Created by vahid (va.zafari@gmail.com) on 11/12/17.
  */
-public interface TreeEntityService<M extends BaseModelAbstract<I> & TreeEntityModel<M>, C extends BaseCriteria<I> & TreeEntityCriteria<I>, R extends BaseRepository<M, C, I, U> & TreeEntityRepository<M, I, U>, I extends Serializable, U> {
+public interface TreeEntityService<M extends BaseModelAbstract<I> & TreeEntityModel<M>, C extends BaseCriteria<I> & TreeEntityCriteria<I>, R extends BaseRepository<M, C, I, U> & TreeEntityRepository<M, I, U>, I extends Comparable<? super I>, U> {
 
     M getEmptyModel();
 

@@ -3,9 +3,7 @@ package org.bardframework.base.activable;
 import org.bardframework.base.crud.BaseModelAbstract;
 import org.bardframework.base.crud.BaseRepository;
 
-import java.io.Serializable;
-
-public interface ActivableEntityService<M extends BaseModelAbstract<I>, R extends ActivableEntityRepository<I, U> & BaseRepository<M, ?, I, U>, I extends Serializable, U> {
+public interface ActivableEntityService<M extends BaseModelAbstract<I>, R extends ActivableEntityRepository<I, U> & BaseRepository<M, ?, I, U>, I extends Comparable<? super I>, U> {
 
     default M enable(I id, U user) {
         this.getRepository().setEnable(id, true, user);

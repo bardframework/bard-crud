@@ -9,9 +9,7 @@ import org.bardframework.base.crud.BaseCriteria;
 import org.bardframework.base.crud.ReadExtendedRepositoryQdslSql;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.Serializable;
-
-public interface ActivableEntityRepositoryQdslSql<C extends BaseCriteria<I> & ActivableEntityCriteria, I extends Serializable, U> extends ActivableEntityRepository<I, U>, ReadExtendedRepositoryQdslSql<C, I, U> {
+public interface ActivableEntityRepositoryQdslSql<C extends BaseCriteria<I> & ActivableEntityCriteria, I extends Comparable<? super I>, U> extends ActivableEntityRepository<I, U>, ReadExtendedRepositoryQdslSql<C, I, U> {
 
     @Transactional
     @Override

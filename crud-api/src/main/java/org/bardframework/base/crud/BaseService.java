@@ -1,11 +1,12 @@
 package org.bardframework.base.crud;
 
-import java.io.Serializable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 /**
  * Created by vahid (va.zafari@gmail.com) on 11/6/17.
  */
-public interface BaseService<M extends BaseModelAbstract<I>, C extends BaseCriteria<I>, D, I extends Serializable, U> {
+public interface BaseService<M extends BaseModelAbstract<I>, C extends BaseCriteria<I>, D, I extends Comparable<? super I>, U> {
     M get(I id, U user);
 
     long delete(I id, U user);
@@ -14,5 +15,5 @@ public interface BaseService<M extends BaseModelAbstract<I>, C extends BaseCrite
 
     M update(I id, D dto, U user);
 
-    DataTableModel<M> filter(C criteria, U user);
+    Page<M> get(C criteria, Pageable pageable, U user);
 }

@@ -1,12 +1,14 @@
 package org.bardframework.base.crud;
 
+import org.bardframework.base.filter.IdFilter;
 import org.bardframework.commons.utils.RandomUtils;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 
-import java.io.Serializable;
 import java.util.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -15,7 +17,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 /**
  * Created by Sama-PC on 09/05/2017.
  */
-public abstract class RepositoryTestAbstract<M extends BaseModelAbstract<I>, C extends BaseCriteriaAbstract<I>, R extends BaseRepository<M, C, I, U>, P extends DataProviderRepositoryAbstract<M, C, R, I, U>, I extends Serializable, U> {
+public abstract class RepositoryTestAbstract<M extends BaseModelAbstract<I>, C extends BaseCriteriaAbstract<I>, R extends BaseRepository<M, C, I, U>, P extends DataProviderRepositoryAbstract<M, C, R, I, U>, I extends Comparable<? super I>, U> {
 
     protected final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
     @Autowired
@@ -109,7 +111,7 @@ public abstract class RepositoryTestAbstract<M extends BaseModelAbstract<I>, C e
         List<I> ids = Collections.singletonList(model.getId());
         /* Page & size are neutral for get(Criteria c) method. */
         C criteria = this.getDataProvider().getEmptyCriteria();
-        criteria.setExcludes(ids);
+        criteria.setId((IdFilter<I>) new IdFilter<I>().setNotIn(ids));
         LOGGER.debug("get by criteria '{}'.", criteria);
         List<M> foundEntities = repository.get(criteria, this.getUser());
         LOGGER.debug("get by criteria '{}', result is '{}'.", criteria, foundEntities);
@@ -243,22 +245,20 @@ public abstract class RepositoryTestAbstract<M extends BaseModelAbstract<I>, C e
         int dataCount = RandomUtils.nextInt(1, 3);
         this.getDataProvider().getModels(dataCount, this.getUser());
         C validFilter = this.getDataProvider().getEmptyCriteria();
-        validFilter.setPage(1);
-        validFilter.setSize(dataCount);
-        DataTableModel<M> filterResult = repository.filter(validFilter, this.getUser());
-        assertThat(filterResult.getTotal()).isGreaterThanOrEqualTo(dataCount);
-        assertThat(filterResult.getList()).isNotEmpty();
-        assertThat(validFilter.getSize()).isEqualByComparingTo((long) filterResult.getList().size());
+        Page<M> filterResult = repository.get(validFilter, PageRequest.of(1, dataCount), this.getUser());
+        assertThat(filterResult.getTotalElements()).isGreaterThanOrEqualTo(dataCount);
+        assertThat(filterResult.getContent()).isNotEmpty();
+        assertThat(dataCount).isEqualByComparingTo(filterResult.getSize());
     }
 
     @Test
     public void testFilterInvalid() {
-        assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> repository.filter(this.getDataProvider().getInvalidCriteria(), this.getUser()));
+        assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> repository.get(this.getDataProvider().getCriteria(), this.getDataProvider().getInvalidPageable(), this.getUser()));
     }
 
     @Test
     public void testFilterNull() {
-        assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> repository.filter(null, this.getUser()));
+        assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> repository.get(null, PageRequest.of(1, Integer.MAX_VALUE), this.getUser()));
     }
 
     @Test
@@ -289,7 +289,7 @@ public abstract class RepositoryTestAbstract<M extends BaseModelAbstract<I>, C e
         List<I> ids = Collections.singletonList(model.getId());
         /* Page & size are neutral for filterIds(). */
         C criteria = this.getDataProvider().getEmptyCriteria();
-        criteria.setExcludes(ids);
+        criteria.setId((IdFilter<I>) new IdFilter<I>().setNotIn(ids));
         List<I> list = repository.getIds(criteria, this.getUser());
         assertThat(list).doesNotContain(model.getId());
     }

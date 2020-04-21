@@ -1,23 +1,27 @@
 package org.bardframework.base.crud;
 
+import org.bardframework.base.filter.IdFilter;
 import org.bardframework.commons.utils.AssertionUtils;
 import org.bardframework.commons.utils.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.repository.support.PageableExecutionUtils;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.function.LongSupplier;
 import java.util.stream.Collectors;
 
 /**
  * Created by vahid on 1/17/17.
  */
-public abstract class BaseServiceAbstract<M extends BaseModelAbstract<I>, C extends BaseCriteriaAbstract<I>, D, R extends BaseRepository<M, C, I, U>, I extends Serializable, U> implements BaseService<M, C, D, I, U> {
+public abstract class BaseServiceAbstract<M extends BaseModelAbstract<I>, C extends BaseCriteriaAbstract<I>, D, R extends BaseRepository<M, C, I, U>, I extends Comparable<? super I>, U> implements BaseService<M, C, D, I, U> {
 
     protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
     protected final Class<M> modelClazz;
@@ -59,17 +63,6 @@ public abstract class BaseServiceAbstract<M extends BaseModelAbstract<I>, C exte
             throw new IllegalArgumentException("can't instantiate criteria class using empty constructor" + this.criteriaClazz, e);
         }
         return criteria;
-    }
-
-    /**
-     * get by id
-     *
-     * @param id
-     * @return
-     */
-    @Override
-    public M get(I id, U user) {
-        return this.getRepository().get(id, user);
     }
 
     public List<M> get(List<I> ids, U user) {
@@ -122,7 +115,7 @@ public abstract class BaseServiceAbstract<M extends BaseModelAbstract<I>, C exte
     @Transactional
     public long delete(List<I> ids, U user) {
         C criteria = this.getEmptyCriteria();
-        criteria.setIds(ids);
+        criteria.setId((IdFilter<I>) new IdFilter<I>().setIn(ids));
         return this.delete(criteria, user);
     }
 
@@ -137,7 +130,8 @@ public abstract class BaseServiceAbstract<M extends BaseModelAbstract<I>, C exte
     @Override
     public long delete(I id, U user) {
         C criteria = this.getEmptyCriteria();
-        criteria.setIds(Collections.singletonList(id));
+        criteria.setId((IdFilter<I>) new IdFilter<I>().setEquals(id));
+
         return this.delete(criteria, user);
     }
 
@@ -232,11 +226,6 @@ public abstract class BaseServiceAbstract<M extends BaseModelAbstract<I>, C exte
     protected void postUpdate(M updatedModel, D dto, U user) {
     }
 
-    @Override
-    public DataTableModel<M> filter(C criteria, U user) {
-        return this.getRepository().filter(criteria, user);
-    }
-
     public List<I> getIds(C criteria, U user) {
         return this.getRepository().getIds(criteria, user);
     }
@@ -259,5 +248,45 @@ public abstract class BaseServiceAbstract<M extends BaseModelAbstract<I>, C exte
 
     public Logger getLogger() {
         return LOGGER;
+    }
+
+
+    @Override
+    public final Page<M> get(C criteria, Pageable pageable, U user) {
+        Page<M> list = repository.get(criteria, pageable, user);
+        return this.postFetch(list, pageable, user);
+    }
+
+    protected Page<M> postFetch(Page<M> page, Pageable pageable, U user) {
+        return page;
+    }
+
+    protected M postFetch(M model, U user) {
+        return model;
+    }
+
+    /**
+     * get by id
+     *
+     * @param id
+     * @return
+     */
+    @Override
+    public final M get(I id, U user) {
+        M model = repository.get(id, user);
+
+        if (model == null) {
+            return null; // TODO will change to 404 in rest controller
+        }
+
+        return postFetch(model, user);
+    }
+
+    protected Page<M> paging(List<M> list, Pageable pageable, LongSupplier supplier) {
+        return pageable.isUnpaged() ? new PageImpl<>(list) : PageableExecutionUtils.getPage(list, pageable, supplier);
+    }
+
+    public List<M> getAll(U user) {
+        return this.getRepository().get(this.getEmptyCriteria(), user);
     }
 }

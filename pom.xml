@@ -11,7 +11,7 @@
 
     <groupId>org.bardframework.crud</groupId>
     <artifactId>crud-parent</artifactId>
-    <version>0.2</version>
+    <version>0.3</version>
     <packaging>pom</packaging>
 
     <properties>
@@ -23,11 +23,13 @@
         <maven-jar-plugin.version>3.2.0</maven-jar-plugin.version>
         <querydsl.version>4.3.1</querydsl.version>
         <spring.version>5.2.5.RELEASE</spring.version>
+        <spring-data.version>2.2.6.RELEASE</spring-data.version>
     </properties>
 
     <modules>
         <module>crud-api</module>
         <module>crud-common</module>
+        <module>crud-jhipster-filter</module>
         <module>crud-querydsl-sql</module>
     </modules>
 
@@ -63,6 +65,11 @@
                 <version>${project.version}</version>
             </dependency>
             <dependency>
+                <groupId>org.bardframework.crud</groupId>
+                <artifactId>crud-jhipster-filter</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
                 <groupId>org.bardframework.commons</groupId>
                 <artifactId>common-utils</artifactId>
                 <version>${bard.commons.version}</version>
@@ -84,8 +91,23 @@
             </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
+                <artifactId>spring-context</artifactId>
+                <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework</groupId>
                 <artifactId>spring-tx</artifactId>
                 <version>${spring.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.data</groupId>
+                <artifactId>spring-data-commons</artifactId>
+                <version>${spring-data.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.fasterxml.jackson.core</groupId>
+                <artifactId>jackson-databind</artifactId>
+                <version>2.10.3</version>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>

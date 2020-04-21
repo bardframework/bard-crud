@@ -5,12 +5,10 @@ import org.bardframework.base.crud.BaseModelAbstract;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
-import java.io.Serializable;
-
 /**
  * Created by vahid (va.zafari@gmail.com) on 11/12/17.
  */
-public interface TreeEntityRestController<M extends BaseModelAbstract<I> & TreeEntityModel<M>, C extends BaseCriteria<I> & TreeEntityCriteria<I>, S extends TreeEntityService<M, C, ?, I, U>, I extends Serializable, U> {
+public interface TreeEntityRestController<M extends BaseModelAbstract<I> & TreeEntityModel<M>, C extends BaseCriteria<I> & TreeEntityCriteria<I>, S extends TreeEntityService<M, C, ?, I, U>, I extends Comparable<? super I>, U> {
     String TREE_URL = "tree";
 
     @GetMapping(value = TREE_URL)

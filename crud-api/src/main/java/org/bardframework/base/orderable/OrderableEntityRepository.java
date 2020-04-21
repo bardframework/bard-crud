@@ -3,9 +3,7 @@ package org.bardframework.base.orderable;
 import org.bardframework.base.crud.BaseCriteriaAbstract;
 import org.bardframework.base.crud.BaseModelAbstract;
 
-import java.io.Serializable;
-
-public interface OrderableEntityRepository<M extends BaseModelAbstract<I>, C extends BaseCriteriaAbstract<I>, I extends Serializable, U> {
+public interface OrderableEntityRepository<M extends BaseModelAbstract<I>, C extends BaseCriteriaAbstract<I>, I extends Comparable<? super I>, U> {
 
     /**
      * @param criteria
