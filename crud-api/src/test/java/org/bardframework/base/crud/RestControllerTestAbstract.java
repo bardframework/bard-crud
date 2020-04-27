@@ -96,8 +96,7 @@ public interface RestControllerTestAbstract<M extends BaseModelAbstract<I>, C ex
     default void testGETInvalidId()
             throws Exception {
         MockHttpServletRequestBuilder request = this.GET(this.getDataProvider().getInvalidId());
-        M result = executeOk(request, getModelTypeReference());
-        assertThat(result).isNull();
+        execute(request, getModelTypeReference(), HttpStatus.NOT_FOUND);
     }
 
     @Test

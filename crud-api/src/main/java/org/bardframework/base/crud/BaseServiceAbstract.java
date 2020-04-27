@@ -89,7 +89,7 @@ public abstract class BaseServiceAbstract<M extends BaseModelAbstract<I>, C exte
 
     @Transactional
     public long delete(C criteria, U user) {
-        List<M> models = this.repository.get(criteria, user);
+        List<M> models = this.getRepository().get(criteria, user);
         if (CollectionUtils.isEmpty(models)) {
             return 0;
         }
@@ -100,7 +100,7 @@ public abstract class BaseServiceAbstract<M extends BaseModelAbstract<I>, C exte
         call directDelete(List) instead of delete(List).
         maybe some joined part has been deleted in preDelete (like status change)
          */
-        long deletedCount = repository.directDelete(models.stream().map(M::getId).collect(Collectors.toList()), user);
+        long deletedCount = this.getRepository().directDelete(models.stream().map(M::getId).collect(Collectors.toList()), user);
         if (deletedCount > 0) {
             for (M model : models) {
                 this.postDelete(model, user);
@@ -253,7 +253,7 @@ public abstract class BaseServiceAbstract<M extends BaseModelAbstract<I>, C exte
 
     @Override
     public final Page<M> get(C criteria, Pageable pageable, U user) {
-        Page<M> list = repository.get(criteria, pageable, user);
+        Page<M> list = this.getRepository().get(criteria, pageable, user);
         return this.postFetch(list, pageable, user);
     }
 
@@ -273,7 +273,7 @@ public abstract class BaseServiceAbstract<M extends BaseModelAbstract<I>, C exte
      */
     @Override
     public final M get(I id, U user) {
-        M model = repository.get(id, user);
+        M model = this.getRepository().get(id, user);
 
         if (model == null) {
             return null; // TODO will change to 404 in rest controller

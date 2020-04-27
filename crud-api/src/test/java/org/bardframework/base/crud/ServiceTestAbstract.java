@@ -254,7 +254,7 @@ public abstract class ServiceTestAbstract<M extends BaseModelAbstract<I>, C exte
         long count = service.getCount(this.getDataProvider().getCriteria(), this.getUser());
         C onePageCriteria = this.getDataProvider().getCriteria();
 
-        Page<M> dataTable = service.get(onePageCriteria, PageRequest.of(1, (int) count), this.getUser());
+        Page<M> dataTable = service.get(onePageCriteria, PageRequest.of(0, (int) count), this.getUser());
 
         assertThat(dataTable).isNotNull();
         assertThat(dataTable.getTotalElements()).isGreaterThanOrEqualTo(savedList.size());
@@ -268,7 +268,7 @@ public abstract class ServiceTestAbstract<M extends BaseModelAbstract<I>, C exte
 
     @Test
     public void testFilterNull() {
-        assertThatExceptionOfType(Exception.class).isThrownBy(() -> service.get(null, PageRequest.of(1, Integer.MAX_VALUE), this.getUser()));
+        assertThatExceptionOfType(Exception.class).isThrownBy(() -> service.get(null, PageRequest.of(0, Integer.MAX_VALUE), this.getUser()));
     }
 
     public P getDataProvider() {

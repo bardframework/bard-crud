@@ -93,7 +93,7 @@ public abstract class DataProviderRepositoryAbstract<M extends BaseModelAbstract
     }
 
     public Pageable getPageable() {
-        return PageRequest.of(1, 5);
+        return PageRequest.of(0, 5);
     }
 
     //...Filter
@@ -120,7 +120,7 @@ public abstract class DataProviderRepositoryAbstract<M extends BaseModelAbstract
             criteria.setId((IdFilter<I>) new IdFilter<I>().setNotIn(Arrays.asList(excludeIds)));
         }
         this.saveNew(count - repository.getCount(criteria, user), user);
-        return this.repository.get(criteria, PageRequest.of(1, count), user).getContent();
+        return this.repository.get(criteria, PageRequest.of(0, count), user).getContent();
     }
 
     public M getModel(C criteria, M unsavedModel, U user) {
@@ -129,7 +129,7 @@ public abstract class DataProviderRepositoryAbstract<M extends BaseModelAbstract
             //TODO save model that pass give criteria restrictions
             return repository.save(unsavedModel, user);
         }
-        return repository.get(criteria, PageRequest.of(RandomUtils.nextInt(1, (int) count), 1), user).getContent().get(0);
+        return repository.get(criteria, PageRequest.of(RandomUtils.nextInt(0, (int) count), 1), user).getContent().get(0);
     }
 
     /**
@@ -164,7 +164,7 @@ public abstract class DataProviderRepositoryAbstract<M extends BaseModelAbstract
             return null;
         }
         for (int i = 0; i < count; i++) {
-            M model = repository.get(criteria, PageRequest.of(i + 1, 1), user).getContent().get(0);
+            M model = repository.get(criteria, PageRequest.of(i, 1), user).getContent().get(0);
             if (validateFunction.apply(model)) {
                 return model;
             }

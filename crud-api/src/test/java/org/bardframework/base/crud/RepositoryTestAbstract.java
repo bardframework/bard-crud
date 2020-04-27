@@ -166,7 +166,7 @@ public abstract class RepositoryTestAbstract<M extends BaseModelAbstract<I>, C e
 
     @Test
     public void testSaveCollection() {
-        List<M> list = this.getDataProvider().getUnsavedModels(RandomUtils.nextInt(2, 10), this.getUser());
+        List<M> list = this.getDataProvider().getUnsavedModels(RandomUtils.nextInt(1, 10), this.getUser());
         Collection<M> result = repository.save(list, this.getUser());
         assertThat(result.size()).isEqualTo(list.size());
         for (M savedEntity : result) {
@@ -187,7 +187,7 @@ public abstract class RepositoryTestAbstract<M extends BaseModelAbstract<I>, C e
 
     @Test
     public void testSaveCollectionInvalidMember() {
-        final int count = RandomUtils.nextInt(2, 10);
+        final int count = RandomUtils.nextInt(1, 10);
         List<M> list = new ArrayList<>();
         for (int i = 0; i < count; i++) {
             list.add(this.getDataProvider().getUnsavedModel(this.getUser()));
@@ -245,7 +245,7 @@ public abstract class RepositoryTestAbstract<M extends BaseModelAbstract<I>, C e
         int dataCount = RandomUtils.nextInt(1, 3);
         this.getDataProvider().getModels(dataCount, this.getUser());
         C validFilter = this.getDataProvider().getEmptyCriteria();
-        Page<M> filterResult = repository.get(validFilter, PageRequest.of(1, dataCount), this.getUser());
+        Page<M> filterResult = repository.get(validFilter, PageRequest.of(0, dataCount), this.getUser());
         assertThat(filterResult.getTotalElements()).isGreaterThanOrEqualTo(dataCount);
         assertThat(filterResult.getContent()).isNotEmpty();
         assertThat(dataCount).isEqualByComparingTo(filterResult.getSize());
