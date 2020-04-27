@@ -96,9 +96,6 @@ public abstract class DataProviderRepositoryAbstract<M extends BaseModelAbstract
         return PageRequest.of(1, 5);
     }
 
-    public Pageable getInvalidPageable() {
-        return PageRequest.of(-1, -1);
-    }
     //...Filter
 
 

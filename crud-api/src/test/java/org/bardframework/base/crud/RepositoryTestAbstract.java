@@ -252,11 +252,6 @@ public abstract class RepositoryTestAbstract<M extends BaseModelAbstract<I>, C e
     }
 
     @Test
-    public void testFilterInvalid() {
-        assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> repository.get(this.getDataProvider().getCriteria(), this.getDataProvider().getInvalidPageable(), this.getUser()));
-    }
-
-    @Test
     public void testFilterNull() {
         assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> repository.get(null, PageRequest.of(1, Integer.MAX_VALUE), this.getUser()));
     }

@@ -15,6 +15,7 @@ import io.github.jhipster.service.filter.Filter;
 import io.github.jhipster.service.filter.RangeFilter;
 import io.github.jhipster.service.filter.StringFilter;
 import org.bardframework.base.filter.IdFilter;
+import org.bardframework.base.util.PageableExecutionUtils;
 import org.bardframework.commons.utils.AssertionUtils;
 import org.bardframework.commons.utils.CollectionUtils;
 import org.slf4j.Logger;
@@ -23,7 +24,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.repository.support.PageableExecutionUtils;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.reflect.ParameterizedType;
@@ -199,19 +199,19 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModelAbstract<
             return Page.empty();
         }
         query = this.prepareQuery(criteria, user);
-        return isUnpaged(pageable) ? new PageImpl<>(this.getList(query)) : this.readPage(query, pageable);
+        return isUnpaged(pageable) ? new PageImpl<>(this.getList(query)) : this.readPage(query, pageable, count);
     }
 
     private List<M> getList(SQLQuery<?> query) {
         return query.select(this.getQBean()).fetch();
     }
 
-    protected Page<M> readPage(SQLQuery<?> query, Pageable pageable) {
+    protected Page<M> readPage(SQLQuery<?> query, Pageable pageable, long count) {
         if (pageable.isPaged()) {
             query = this.setPageAndSize(query, pageable);
         }
 
-        return PageableExecutionUtils.getPage(this.getList(query), pageable, query::fetchCount);
+        return PageableExecutionUtils.getPage(this.getList(query), pageable, count);
     }
 
     public <T> SQLQuery<T> setPageAndSize(SQLQuery<T> query, Pageable pageable) {
@@ -316,6 +316,8 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModelAbstract<
             return query.where(expression.in(filter.getIn()));
         } else if (filter.getNotEquals() != null) {
             return query.where(expression.ne(filter.getNotEquals()));
+        } else if (filter.getNotIn() != null) {
+            return query.where(expression.notIn(filter.getNotIn()));
         } else if (filter.getSpecified() != null) {
             if (filter.getSpecified()) {
                 return query.where(expression.isNotNull());
@@ -338,6 +340,8 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModelAbstract<
             return query.where(expression.notLike(filter.getDoesNotContain()));
         } else if (filter.getNotEquals() != null) {
             return query.where(expression.ne(filter.getNotEquals()));
+        } else if (filter.getNotIn() != null) {
+            return query.where(expression.notIn(filter.getNotIn()));
         } else if (filter.getSpecified() != null) {
             if (filter.getSpecified()) {
                 return query.where(expression.isNotNull());
@@ -384,6 +388,8 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModelAbstract<
         }
         if (filter.getNotEquals() != null) {
             query.where(expression.ne(filter.getNotEquals()));
+        } else if (filter.getNotIn() != null) {
+            query.where(expression.notIn(filter.getNotIn()));
         }
         return query;
     }

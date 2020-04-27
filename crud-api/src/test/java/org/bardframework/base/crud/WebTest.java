@@ -29,6 +29,16 @@ public interface WebTest {
         }
     }
 
+    default <T> T execute(MockHttpServletRequestBuilder request, TypeReference<T> returnType, HttpStatus expectedStatus)
+            throws Exception {
+        MvcResult result = this.execute(request, expectedStatus);
+        if (StringUtils.isNotBlank(result.getResponse().getContentAsString())) {
+            return this.getObjectMapper().readValue(result.getResponse().getContentAsString(), returnType);
+        } else {
+            return null;
+        }
+    }
+
     default MvcResult executeNotAcceptable(MockHttpServletRequestBuilder request)
             throws Exception {
         return this.execute(request, HttpStatus.NOT_ACCEPTABLE);
