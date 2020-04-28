@@ -1,8 +1,6 @@
 package org.bardframework.base.activable;
 
-import java.io.Serializable;
-
-public interface ActivableEntityRepository<I extends Serializable, U> {
+public interface ActivableEntityRepository<I extends Comparable<? super I>, U> {
 
     /**
      * @param id

@@ -2,20 +2,30 @@ package org.bardframework.base.crud;
 
 import com.querydsl.core.dml.StoreClause;
 import com.querydsl.core.types.QBean;
-import com.querydsl.core.types.dsl.SimpleExpression;
+import com.querydsl.core.types.dsl.ComparableExpression;
+import com.querydsl.core.types.dsl.ComparableExpressionBase;
+import com.querydsl.core.types.dsl.NumberExpression;
+import com.querydsl.core.types.dsl.StringExpression;
 import com.querydsl.sql.RelationalPathBase;
 import com.querydsl.sql.SQLQuery;
 import com.querydsl.sql.SQLQueryFactory;
 import com.querydsl.sql.dml.SQLInsertClause;
 import com.querydsl.sql.dml.SQLUpdateClause;
+import io.github.jhipster.service.filter.Filter;
+import io.github.jhipster.service.filter.RangeFilter;
+import io.github.jhipster.service.filter.StringFilter;
+import org.bardframework.base.filter.IdFilter;
+import org.bardframework.base.util.PageableExecutionUtils;
 import org.bardframework.commons.utils.AssertionUtils;
 import org.bardframework.commons.utils.CollectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
 import java.util.Collections;
 import java.util.List;
@@ -23,7 +33,9 @@ import java.util.List;
 /**
  * Created by vahid on 1/17/17.
  */
-public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModelAbstract<I>, C extends BaseCriteriaAbstract<I>, I extends Serializable, U> implements BaseRepository<M, C, I, U> {
+public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModelAbstract<I>, C extends BaseCriteriaAbstract<I>, I extends Comparable<? super I>, U> implements BaseRepository<M, C, I, U> {
+
+    private static int DEFAULT_SIZE = 20;
 
     protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
     protected final Class<M> modelClazz;
@@ -58,7 +70,9 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModelAbstract<
 
     protected abstract M setIdentifier(M model, U user);
 
-    public abstract <T extends SimpleExpression<I>> T getIdentifierPath();
+    private static boolean isUnpaged(Pageable pageable) {
+        return pageable.isUnpaged();
+    }
 
     public M getEmptyModel() {
         try {
@@ -136,12 +150,14 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModelAbstract<
         return model;
     }
 
+    public abstract <T extends ComparableExpression<I>> T getIdentifierPath();
+
     @Transactional(readOnly = true)
     @Override
     public M get(I identifier, U user) {
         AssertionUtils.notNull(identifier, "Given Identifier cannot be null.");
         C criteria = this.getEmptyCriteria();
-        criteria.setIds(Collections.singletonList(identifier));
+        criteria.setId((IdFilter<I>) new IdFilter<I>().setEquals(identifier));
         return this.getOne(criteria, user);
     }
 
@@ -150,17 +166,8 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModelAbstract<
     public List<M> get(List<I> ids, U user) {
         AssertionUtils.notNull(ids, "Given Identifiers cannot be null.");
         C criteria = this.getEmptyCriteria();
-        criteria.setIds(ids);
+        criteria.setId((IdFilter<I>) new IdFilter<I>().setIn(ids));
         return this.get(criteria, user);
-    }
-
-    public <T> SQLQuery<T> setPageAndSize(C criteria, SQLQuery<T> query, U user) {
-        if (criteria.getSize() < 1 || criteria.getPage() < 1) {
-            throw new IllegalArgumentException("page and size must be greater than 1");
-        }
-        query.limit(criteria.getSize());
-        query.offset((criteria.getPage() - 1) * criteria.getSize());
-        return query;
     }
 
     public SQLQuery<?> prepareQuery(C criteria, U user) {
@@ -168,12 +175,11 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModelAbstract<
         query.from(this.getEntity());
         query = this.setJoins(query, user);
         query = this.setCriteria(criteria, query, user);
-        if (null != criteria.getExcludes()) {
-            query.where(this.getIdentifierPath().notIn(criteria.getExcludes()));
+
+        if (null != criteria.getId()) {
+            this.buildQuery(query, criteria.getId(), (ComparableExpression<I>) this.getIdentifierPath());
         }
-        if (null != criteria.getIds()) {
-            query.where(this.getIdentifierPath().in(criteria.getIds()));
-        }
+
         for (Class clazz : this.getClass().getInterfaces()) {
             if (ReadExtendedRepositoryQdslSql.class.isAssignableFrom(clazz)) {
                 ((ReadExtendedRepositoryQdslSql) this).process(criteria, query, user);
@@ -185,16 +191,33 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModelAbstract<
 
     @Transactional(readOnly = true)
     @Override
-    public DataTableModel<M> filter(C criteria, U user) {
+    public Page<M> get(C criteria, Pageable pageable, U user) {
         AssertionUtils.notNull(criteria, "null criteria not acceptable");
         SQLQuery<?> query = this.prepareQuery(criteria, user);
         long count = query.fetchCount();
         if (0 > count) {
-            return new DataTableModel<>();
+            return Page.empty();
         }
         query = this.prepareQuery(criteria, user);
-        query = this.setPageAndSize(criteria, query, user);
-        return new DataTableModel<>(query.select(this.getQBean()).fetch(), count);
+        return isUnpaged(pageable) ? new PageImpl<>(this.getList(query)) : this.readPage(query, pageable, count);
+    }
+
+    private List<M> getList(SQLQuery<?> query) {
+        return query.select(this.getQBean()).fetch();
+    }
+
+    protected Page<M> readPage(SQLQuery<?> query, Pageable pageable, long count) {
+        if (pageable.isPaged()) {
+            query = this.setPageAndSize(query, pageable);
+        }
+
+        return PageableExecutionUtils.getPage(this.getList(query), pageable, count);
+    }
+
+    public <T> SQLQuery<T> setPageAndSize(SQLQuery<T> query, Pageable pageable) {
+        query.limit(pageable.getOffset() < 1 ? DEFAULT_SIZE : (int) pageable.getOffset());
+        query.offset((Math.max(pageable.getPageNumber(), 0)) * pageable.getPageSize());
+        return query;
     }
 
     @Transactional(readOnly = true)
@@ -227,7 +250,8 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModelAbstract<
     public long delete(List<I> ids, U user) {
         AssertionUtils.notNull(ids, "ids should not be null.");
         C criteria = this.getEmptyCriteria();
-        criteria.setIds(ids);
+        criteria.setId((IdFilter<I>) new IdFilter<I>().setIn(ids));
+
         return this.delete(criteria, user);
     }
 
@@ -281,8 +305,111 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModelAbstract<
         return queryFactory;
     }
 
-    protected <T extends Serializable> T safeFetchId(BaseModelAbstract<T> model) {
+    protected <I extends Comparable<? super I>> I safeFetchId(BaseModelAbstract<I> model) {
         return null == model ? null : model.getId();
     }
 
+    protected <T, X extends Comparable<? super X>> SQLQuery<T> buildQuery(SQLQuery<T> query, Filter<X> filter, ComparableExpression<X> expression) {
+        if (filter.getEquals() != null) {
+            return query.where(expression.eq(filter.getEquals()));
+        } else if (filter.getIn() != null) {
+            return query.where(expression.in(filter.getIn()));
+        } else if (filter.getNotEquals() != null) {
+            return query.where(expression.ne(filter.getNotEquals()));
+        } else if (filter.getNotIn() != null) {
+            return query.where(expression.notIn(filter.getNotIn()));
+        } else if (filter.getSpecified() != null) {
+            if (filter.getSpecified()) {
+                return query.where(expression.isNotNull());
+            } else {
+                return query.where(expression.isNull());
+            }
+        }
+        return query;
+    }
+
+    protected <T> SQLQuery<T> buildQuery(SQLQuery<T> query, StringFilter filter, StringExpression expression) {
+        if (filter.getEquals() != null) {
+            return query.where(expression.eq(filter.getEquals()));
+        } else if (filter.getIn() != null) {
+            return query.where(expression.in(filter.getIn()));
+        } else if (filter.getContains() != null) {
+//            return likeUpperSpecification(metaclassFunction, filter.getContains());
+            return query.where(expression.likeIgnoreCase("%" + filter.getContains() + "%"));
+        } else if (filter.getDoesNotContain() != null) {
+            return query.where(expression.notLike(filter.getDoesNotContain()));
+        } else if (filter.getNotEquals() != null) {
+            return query.where(expression.ne(filter.getNotEquals()));
+        } else if (filter.getNotIn() != null) {
+            return query.where(expression.notIn(filter.getNotIn()));
+        } else if (filter.getSpecified() != null) {
+            if (filter.getSpecified()) {
+                return query.where(expression.isNotNull());
+            } else {
+                return query.where(expression.isNull());
+            }
+        }
+        return query;
+    }
+
+    protected <T, X extends Comparable<? super X>> SQLQuery<T> buildQuery(SQLQuery<T> query, RangeFilter<X> filter,
+                                                                          ComparableExpression<X> expression) {
+        query = this.buildQueryInternal(query, filter, expression);
+
+        if (filter.getGreaterThan() != null) {
+            query.where(expression.gt(filter.getGreaterThan()));
+        }
+        if (filter.getGreaterThanOrEqual() != null) {
+            query.where(expression.goe(filter.getGreaterThanOrEqual()));
+        }
+        if (filter.getLessThan() != null) {
+            query.where(expression.lt(filter.getLessThan()));
+        }
+        if (filter.getLessThanOrEqual() != null) {
+            query.where(expression.loe(filter.getLessThanOrEqual()));
+        }
+        return query;
+    }
+
+    private <T, X extends Comparable<? super X>> SQLQuery<T> buildQueryInternal(SQLQuery<T> query, RangeFilter<X> filter,
+                                                                                ComparableExpressionBase<X> expression) {
+        if (filter.getEquals() != null) {
+            return query.where(expression.eq(filter.getEquals()));
+        } else if (filter.getIn() != null) {
+            return query.where(expression.in(filter.getIn()));
+        }
+
+        if (filter.getSpecified() != null) {
+            if (filter.getSpecified()) {
+                query.where(expression.isNotNull());
+            } else {
+                query.where(expression.isNull());
+            }
+        }
+        if (filter.getNotEquals() != null) {
+            query.where(expression.ne(filter.getNotEquals()));
+        } else if (filter.getNotIn() != null) {
+            query.where(expression.notIn(filter.getNotIn()));
+        }
+        return query;
+    }
+
+    protected <T, X extends Number & Comparable<? super X>> SQLQuery<T> buildQuery(SQLQuery<T> query, RangeFilter<X> filter,
+                                                                                   NumberExpression<X> expression) {
+        this.buildQueryInternal(query, filter, expression);
+
+        if (filter.getGreaterThan() != null) {
+            query.where(expression.gt(filter.getGreaterThan()));
+        }
+        if (filter.getGreaterThanOrEqual() != null) {
+            query.where(expression.goe(filter.getGreaterThanOrEqual()));
+        }
+        if (filter.getLessThan() != null) {
+            query.where(expression.lt(filter.getLessThan()));
+        }
+        if (filter.getLessThanOrEqual() != null) {
+            query.where(expression.loe(filter.getLessThanOrEqual()));
+        }
+        return query;
+    }
 }

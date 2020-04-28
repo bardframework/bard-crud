@@ -1,13 +1,15 @@
 package org.bardframework.base.crud;
 
 import org.assertj.core.api.Assertions;
+import org.bardframework.base.filter.IdFilter;
 import org.bardframework.commons.utils.RandomUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.Serializable;
 import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -18,7 +20,7 @@ import java.util.stream.Collectors;
 /**
  * Created by Sama-PC on 08/05/2017.
  */
-public abstract class DataProviderRepositoryAbstract<M extends BaseModelAbstract<I>, C extends BaseCriteriaAbstract<I>, R extends BaseRepository<M, C, I, U>, I extends Serializable, U> {
+public abstract class DataProviderRepositoryAbstract<M extends BaseModelAbstract<I>, C extends BaseCriteriaAbstract<I>, R extends BaseRepository<M, C, I, U>, I extends Comparable<? super I>, U> {
 
     protected final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
@@ -87,24 +89,17 @@ public abstract class DataProviderRepositoryAbstract<M extends BaseModelAbstract
     //Filter...
     public C getCriteria() {
         C criteria = getEmptyCriteria();
-        criteria.setPage(1);
-        criteria.setSize(5);
         return criteria;
     }
 
-    /**
-     * It is highly recommended to implement this method.
-     */
-    public C getInvalidCriteria() {
-        C criteria = getEmptyCriteria();
-        criteria.setPage(-1);
-        criteria.setSize(-1);
-        return criteria;
+    public Pageable getPageable() {
+        return PageRequest.of(0, 5);
     }
+
     //...Filter
 
 
-    protected <I extends Serializable> void assertNullOrEqualIds(BaseModelAbstract<I> first, BaseModelAbstract<I> second) {
+    protected <I extends Comparable<? super I>> void assertNullOrEqualIds(BaseModelAbstract<I> first, BaseModelAbstract<I> second) {
         Assertions.assertThat(first == null ^ second == null).isFalse();
         if (first != null) {
             Assertions.assertThat(first.getId()).isEqualTo(second.getId());
@@ -122,12 +117,10 @@ public abstract class DataProviderRepositoryAbstract<M extends BaseModelAbstract
     public List<M> getModels(int count, U user, I... excludeIds) {
         C criteria = this.getEmptyCriteria();
         if (excludeIds.length > 0) {
-            criteria.setExcludes(Arrays.asList(excludeIds));
+            criteria.setId((IdFilter<I>) new IdFilter<I>().setNotIn(Arrays.asList(excludeIds)));
         }
         this.saveNew(count - repository.getCount(criteria, user), user);
-        criteria.setPage(1);
-        criteria.setSize(count);
-        return this.repository.filter(criteria, user).getList();
+        return this.repository.get(criteria, PageRequest.of(0, count), user).getContent();
     }
 
     public M getModel(C criteria, M unsavedModel, U user) {
@@ -136,9 +129,7 @@ public abstract class DataProviderRepositoryAbstract<M extends BaseModelAbstract
             //TODO save model that pass give criteria restrictions
             return repository.save(unsavedModel, user);
         }
-        criteria.setPage(RandomUtils.nextLong(1, count));
-        criteria.setSize(1);
-        return repository.filter(criteria, user).getList().get(0);
+        return repository.get(criteria, PageRequest.of(RandomUtils.nextInt(0, (int) count), 1), user).getContent().get(0);
     }
 
     /**
@@ -172,10 +163,8 @@ public abstract class DataProviderRepositoryAbstract<M extends BaseModelAbstract
         if (count == 0) {
             return null;
         }
-        criteria.setSize(1);
         for (int i = 0; i < count; i++) {
-            criteria.setPage(i + 1);
-            M model = repository.filter(criteria, user).getList().get(0);
+            M model = repository.get(criteria, PageRequest.of(i, 1), user).getContent().get(0);
             if (validateFunction.apply(model)) {
                 return model;
             }

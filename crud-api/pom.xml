@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.bardframework.crud</groupId>
         <artifactId>crud-parent</artifactId>
-        <version>0.2</version>
+        <version>0.3</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -16,6 +16,10 @@
         <dependency>
             <groupId>org.bardframework.crud</groupId>
             <artifactId>crud-common</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.bardframework.crud</groupId>
+            <artifactId>crud-jhipster-filter</artifactId>
         </dependency>
         <dependency>
             <groupId>jakarta.validation</groupId>
@@ -35,15 +39,25 @@
             <artifactId>common-jackson</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.data</groupId>
+            <artifactId>spring-data-commons</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <version>2.10.3</version>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-tx</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>org.springframework.data</groupId>
+            <artifactId>spring-data-commons</artifactId>
+        </dependency>
         <!--Test-->
         <dependency>
             <groupId>org.slf4j</groupId>

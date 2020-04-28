@@ -12,12 +12,11 @@ import org.bardframework.commons.reflection.ReflectionUtils;
 import org.bardframework.commons.utils.StringUtils;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public interface SearchableEntityRepositoryQdslSql<M extends BaseModelAbstract<I>, C extends BaseCriteria<I> & SearchableCriteria, I extends Serializable, U> extends SearchableEntityRepository<M, C, I, U>, ReadExtendedRepositoryQdslSql<C, I, U> {
+public interface SearchableEntityRepositoryQdslSql<M extends BaseModelAbstract<I>, C extends BaseCriteria<I> & SearchableCriteria, I extends Comparable<? super I>, U> extends SearchableEntityRepository<M, C, I, U>, ReadExtendedRepositoryQdslSql<C, I, U> {
 
     StringPath[] getSearchPaths();
 

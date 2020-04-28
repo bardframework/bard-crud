@@ -2,14 +2,13 @@ package org.bardframework.base.tree;
 
 import org.bardframework.base.crud.BaseModelAbstract;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Created by vahid (va.zafari@gmail.com) on 11/12/17.
  */
-public abstract class TreeEntityModelAbstract<M extends BaseModelAbstract<I>, I extends Serializable> extends BaseModelAbstract<I> implements TreeEntityModel<M> {
+public abstract class TreeEntityModelAbstract<M extends BaseModelAbstract<I>, I extends Comparable<? super I>> extends BaseModelAbstract<I> implements TreeEntityModel<M> {
 
     protected M parent;
 

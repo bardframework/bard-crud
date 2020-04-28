@@ -1,14 +1,15 @@
 package org.bardframework.base.crud;
 
+import org.bardframework.base.filter.IdFilter;
 import org.bardframework.commons.utils.RandomUtils;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 
-import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,7 +19,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 /**
  * Created by Sama-PC on 10/05/2017.
  */
-public abstract class ServiceTestAbstract<M extends BaseModelAbstract<I>, C extends BaseCriteriaAbstract<I>, D, S extends BaseServiceAbstract<M, C, D, ?, I, U>, P extends DataProviderServiceAbstract<M, C, D, ?, ?, I, U>, I extends Serializable, U> {
+public abstract class ServiceTestAbstract<M extends BaseModelAbstract<I>, C extends BaseCriteriaAbstract<I>, D, S extends BaseServiceAbstract<M, C, D, ?, I, U>, P extends DataProviderServiceAbstract<M, C, D, ?, ?, I, U>, I extends Comparable<? super I>, U> {
 
     protected final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
     @Autowired
@@ -81,7 +82,7 @@ public abstract class ServiceTestAbstract<M extends BaseModelAbstract<I>, C exte
     public void testGetByCriteriaNotIn() {
         M model = this.getDataProvider().getModel(this.getUser());
         C criteria = this.getDataProvider().getEmptyCriteria();
-        criteria.setExcludes(Collections.singletonList(model.getId()));
+        criteria.setId((IdFilter<I>) new IdFilter<I>().setNotEquals(model.getId()));
         List<M> list = service.get(criteria, this.getUser());
         assertThat(list).extracting("id").doesNotContain(model.getId());
     }
@@ -241,7 +242,7 @@ public abstract class ServiceTestAbstract<M extends BaseModelAbstract<I>, C exte
     public void testFilterIdsNotIn() {
         M model = this.getDataProvider().getModel(this.getUser());
         C criteria = this.getDataProvider().getEmptyCriteria();
-        criteria.setExcludes(Collections.singletonList(model.getId()));
+        criteria.setId((IdFilter<I>) new IdFilter<I>().setNotEquals(model.getId()));
         List<I> list = service.getIds(criteria, this.getUser());
         assertThat(list).doesNotContain(model.getId());
     }
@@ -252,24 +253,22 @@ public abstract class ServiceTestAbstract<M extends BaseModelAbstract<I>, C exte
         /* Create a criteria that returns all the result in one page. */
         long count = service.getCount(this.getDataProvider().getCriteria(), this.getUser());
         C onePageCriteria = this.getDataProvider().getCriteria();
-        onePageCriteria.setPage(1);
-        onePageCriteria.setSize(count);
 
-        DataTableModel<M> dataTable = service.filter(onePageCriteria, this.getUser());
+        Page<M> dataTable = service.get(onePageCriteria, PageRequest.of(0, (int) count), this.getUser());
 
         assertThat(dataTable).isNotNull();
-        assertThat(dataTable.getTotal()).isGreaterThanOrEqualTo(savedList.size());
-        assertThat(dataTable.getList()).isNotNull().isNotEmpty().doesNotContainNull();
+        assertThat(dataTable.getTotalElements()).isGreaterThanOrEqualTo(savedList.size());
+        assertThat(dataTable.getContent()).isNotNull().isNotEmpty().doesNotContainNull();
         /*
           Saved model ids must be in the list of filtered ids.
           */
         List<I> savedIds = savedList.stream().map(M::getId).collect(Collectors.toList());
-        assertThat(dataTable.getList()).extracting("id").containsAll(savedIds);
+        assertThat(dataTable.getContent()).extracting("id").containsAll(savedIds);
     }
 
     @Test
     public void testFilterNull() {
-        assertThatExceptionOfType(Exception.class).isThrownBy(() -> service.filter(null, this.getUser()));
+        assertThatExceptionOfType(Exception.class).isThrownBy(() -> service.get(null, PageRequest.of(0, Integer.MAX_VALUE), this.getUser()));
     }
 
     public P getDataProvider() {

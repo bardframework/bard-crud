@@ -3,13 +3,13 @@ package org.bardframework.base.crud;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.junit.jupiter.api.Test;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-
-import java.io.Serializable;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.bardframework.base.crud.ReadRestController.FILTER_URL;
@@ -17,7 +17,7 @@ import static org.bardframework.base.crud.ReadRestController.FILTER_URL;
 /**
  * Created by Sama-PC on 14/05/2017.
  */
-public interface RestControllerTestAbstract<M extends BaseModelAbstract<I>, C extends BaseCriteriaAbstract<I>, D, P extends DataProviderServiceAbstract<M, C, D, ?, ?, I, U>, I extends Serializable, U> extends WebTest {
+public interface RestControllerTestAbstract<M extends BaseModelAbstract<I>, C extends BaseCriteriaAbstract<I>, D, P extends DataProviderServiceAbstract<M, C, D, ?, ?, I, U>, I extends Comparable<? super I>, U> extends WebTest {
 
     default String GET_URL(I id) {
         return BASE_URL() + "/" + id;
@@ -50,7 +50,7 @@ public interface RestControllerTestAbstract<M extends BaseModelAbstract<I>, C ex
         return MockMvcRequestBuilders.get(this.GET_URL(id));
     }
 
-    default MockHttpServletRequestBuilder FILTER(C criteria) throws JsonProcessingException {
+    default MockHttpServletRequestBuilder FILTER(C criteria, Pageable pageable) throws JsonProcessingException {
         return MockMvcRequestBuilders.post(this.FILTER_URL())
                 .content(this.getObjectMapper().writeValueAsString(criteria))
                 .contentType(MediaType.APPLICATION_JSON);
@@ -78,16 +78,9 @@ public interface RestControllerTestAbstract<M extends BaseModelAbstract<I>, C ex
           to be sure at least one model exist.
          */
         this.getDataProvider().getModel(this.getUser());
-        MockHttpServletRequestBuilder request = this.FILTER(this.getDataProvider().getCriteria());
-        DataTableModel<M> response = executeOk(request, getDataModelTypeReference());
-        assertThat(response.getTotal()).isGreaterThan(0);
-    }
-
-    @Test
-    default void testFilterUnsuccessful() throws Exception {
-        MockHttpServletRequestBuilder request = this.FILTER(this.getDataProvider().getInvalidCriteria());
-        MvcResult response = executeNotAcceptable(request);
-        assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.NOT_ACCEPTABLE.value());
+        MockHttpServletRequestBuilder request = this.FILTER(this.getDataProvider().getCriteria(), this.getDataProvider().getPageable());
+        Page<M> response = executeOk(request, getDataModelTypeReference());
+        assertThat(response.getTotalElements()).isGreaterThan(0);
     }
 
     @Test
@@ -103,8 +96,7 @@ public interface RestControllerTestAbstract<M extends BaseModelAbstract<I>, C ex
     default void testGETInvalidId()
             throws Exception {
         MockHttpServletRequestBuilder request = this.GET(this.getDataProvider().getInvalidId());
-        M result = executeOk(request, getModelTypeReference());
-        assertThat(result).isNull();
+        execute(request, getModelTypeReference(), HttpStatus.NOT_FOUND);
     }
 
     @Test
@@ -112,7 +104,7 @@ public interface RestControllerTestAbstract<M extends BaseModelAbstract<I>, C ex
             throws Exception {
         D dto = this.getDataProvider().getDto(this.getUser());
         MockHttpServletRequestBuilder request = this.SAVE(dto);
-        M result = executeOk(request, getModelTypeReference());
+        M result = execute(request, getModelTypeReference(), HttpStatus.CREATED);
         assertThat(result.getId()).isNotNull();
         this.getDataProvider().assertEqualSave(result, dto);
     }
@@ -149,16 +141,14 @@ public interface RestControllerTestAbstract<M extends BaseModelAbstract<I>, C ex
             throws Exception {
         M savedModel = this.getDataProvider().saveNew(1, this.getUser()).get(0);
         MockHttpServletRequestBuilder request = this.DELETE(savedModel.getId());
-        long deleteCount = executeOk(request, this.getDeleteTypeReference());
-        assertThat(deleteCount).isOne();
+        executeOk(request, this.getDeleteTypeReference());
     }
 
     @Test
     default void testDELETEUnsuccessful()
             throws Exception {
         MockHttpServletRequestBuilder request = this.DELETE(this.getDataProvider().getInvalidId());
-        long deleteCount = executeOk(request, this.getDeleteTypeReference());
-        assertThat(deleteCount).isZero();
+        execute(request, this.getDeleteTypeReference(), HttpStatus.NO_CONTENT);
     }
 
     U getUser();
@@ -169,5 +159,5 @@ public interface RestControllerTestAbstract<M extends BaseModelAbstract<I>, C ex
 
     TypeReference<M> getModelTypeReference();
 
-    TypeReference<? extends DataTableModel<M>> getDataModelTypeReference();
+    TypeReference<? extends Page<M>> getDataModelTypeReference();
 }

@@ -4,12 +4,10 @@ package org.bardframework.base.crud;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.Serializable;
-
 /**
  *
  */
-public abstract class BaseModelAbstract<I extends Serializable> {
+public abstract class BaseModelAbstract<I extends Comparable<? super I>> {
 
     protected final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
