@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.bardframework</groupId>
         <artifactId>bard-parent</artifactId>
-        <version>1</version>
+        <version>2</version>
         <relativePath/>
     </parent>
 
@@ -15,15 +15,19 @@
     <packaging>pom</packaging>
 
     <properties>
-        <bard.commons.version>0.2</bard.commons.version>
-        <guava.version>28.2-jre</guava.version>
+        <assertj.version>3.16.1</assertj.version>
+        <bard.commons.version>0.3</bard.commons.version>
+        <guava.version>29.0-jre</guava.version>
         <hibernate-jpa.version>1.0.2.Final</hibernate-jpa.version>
         <jakarta-servlet.version>4.0.3</jakarta-servlet.version>
         <jakarta-validation.version>2.0.2</jakarta-validation.version>
+        <jackson-bom.version>2.11.0</jackson-bom.version>
+        <junit-jupiter.version>5.6.2</junit-jupiter.version>
         <maven-jar-plugin.version>3.2.0</maven-jar-plugin.version>
         <querydsl.version>4.3.1</querydsl.version>
-        <spring.version>5.2.5.RELEASE</spring.version>
-        <spring-data.version>2.2.6.RELEASE</spring-data.version>
+        <slf4j.version>1.7.30</slf4j.version>
+        <spring-framework.version>5.2.6.RELEASE</spring-framework.version>
+        <spring-boot.version>2.3.0.RELEASE</spring-boot.version>
     </properties>
 
     <modules>
@@ -37,12 +41,13 @@
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
-            <version>3.13.2</version>
+            <version>${assertj.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
+            <version>${junit-jupiter.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -87,27 +92,34 @@
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-web</artifactId>
-                <version>${spring.version}</version>
+                <version>${spring-framework.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-context</artifactId>
-                <version>${spring.version}</version>
+                <version>${spring-framework.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
                 <artifactId>spring-tx</artifactId>
-                <version>${spring.version}</version>
+                <version>${spring-framework.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${slf4j.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework.data</groupId>
                 <artifactId>spring-data-commons</artifactId>
-                <version>${spring-data.version}</version>
+                <version>${spring-boot.version}</version>
             </dependency>
             <dependency>
-                <groupId>com.fasterxml.jackson.core</groupId>
-                <artifactId>jackson-databind</artifactId>
-                <version>2.10.3</version>
+                <groupId>com.fasterxml.jackson</groupId>
+                <artifactId>jackson-bom</artifactId>
+                <version>${jackson-bom.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
             <dependency>
                 <groupId>org.slf4j</groupId>
