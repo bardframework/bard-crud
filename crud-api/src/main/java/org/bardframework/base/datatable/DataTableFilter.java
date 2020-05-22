@@ -36,7 +36,6 @@ public class DataTableFilter<F extends DataTableFilter<F>> {
     }
 
     /**
-     * @param count
      * @return <code>this</code> for method chaining
      */
     public F setCount(long count) {
@@ -49,7 +48,6 @@ public class DataTableFilter<F extends DataTableFilter<F>> {
     }
 
     /**
-     * @param page
      * @return <code>this</code> for method chaining
      */
     public F setPage(long page) {
@@ -68,6 +66,6 @@ public class DataTableFilter<F extends DataTableFilter<F>> {
 
     @JsonIgnore
     public boolean isEmpty() {
-        return (0 == count || 10 == count) && page < 2 && !StringUtils.hasText(query) && (CollectionUtils.isEmpty(headers) || headers.stream().allMatch(o -> o.isEmpty()));
+        return (0 == count || 10 == count) && page < 2 && !StringUtils.hasText(query) && (CollectionUtils.isEmpty(headers) || headers.stream().allMatch(HeaderDto::isEmpty));
     }
 }

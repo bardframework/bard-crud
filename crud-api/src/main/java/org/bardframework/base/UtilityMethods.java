@@ -46,8 +46,6 @@ public final class UtilityMethods {
      *
      * @param number this number between [-999999999999999 ,999999999999999]
      * @return String
-     * @author M.Talebi
-     * @syntax numberToAlphabet(number)
      */
     public static String numberToAlphabet(long number) {
         String tempStringNumberOrgin = String.valueOf(number);
@@ -222,12 +220,6 @@ public final class UtilityMethods {
      * convert enum to base data use class name + '.' + enum as id
      * translate class name + '.' + enum as name
      * use enum,ordinal() as sequence
-     *
-     * @param anEnum
-     * @param messageSource
-     * @param locale
-     * @param <ENUM>
-     * @return
      */
     public static <ENUM extends Enum<ENUM>> BaseData toModel(Enum<ENUM> anEnum, MessageSource messageSource, Locale locale) {
         return new BaseData(anEnum.getClass().getSimpleName() + "." + anEnum.name(), translate(anEnum, messageSource, locale), anEnum.ordinal());
@@ -240,11 +232,6 @@ public final class UtilityMethods {
 
     /**
      * translate class name + '.' + enum as key
-     *
-     * @param anEnum
-     * @param messageSource
-     * @param locale
-     * @return
      */
     public static String translate(Enum anEnum, MessageSource messageSource, Locale locale) {
         AssertionUtils.notNull(anEnum, "null enum not acceptable");
@@ -294,7 +281,6 @@ public final class UtilityMethods {
     /**
      * '.' separated path
      *
-     * @param fullPath
      * @return list of keys
      */
     public static List<String> toMessageKeys(String fullPath) {

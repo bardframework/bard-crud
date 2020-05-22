@@ -71,17 +71,13 @@ public abstract class BaseServiceAbstract<M extends BaseModelAbstract<I>, C exte
 
     /**
      * get all data match with given <code>criteria</code>
-     *
-     * @param criteria
-     * @return
      */
     public List<M> get(C criteria, U user) {
         return this.getRepository().get(criteria, user);
     }
 
     /**
-     * @param criteria
-     * @return
+     * @return one entity with given criteria
      */
     public M getOne(C criteria, U user) {
         return this.getRepository().getOne(criteria, user);
@@ -123,7 +119,6 @@ public abstract class BaseServiceAbstract<M extends BaseModelAbstract<I>, C exte
      * delete data with given id
      *
      * @param id   identifier of data that must be delete
-     * @param user
      * @return count of deleted data
      */
     @Transactional
@@ -137,16 +132,12 @@ public abstract class BaseServiceAbstract<M extends BaseModelAbstract<I>, C exte
 
     /**
      * execute before deleting data
-     *
-     * @param model
      */
     protected void preDelete(M model, U user) {
     }
 
     /**
      * execute after deleting data
-     *
-     * @param deletedModel
      */
     protected void postDelete(M deletedModel, U user) {
     }
@@ -154,8 +145,6 @@ public abstract class BaseServiceAbstract<M extends BaseModelAbstract<I>, C exte
     /**
      * save new data
      *
-     * @param dto
-     * @param user
      * @return saved data model
      */
     @Transactional
@@ -171,8 +160,6 @@ public abstract class BaseServiceAbstract<M extends BaseModelAbstract<I>, C exte
     /**
      * save new data
      *
-     * @param dtos
-     * @param user
      * @return saved data models
      */
     @Transactional
@@ -194,11 +181,7 @@ public abstract class BaseServiceAbstract<M extends BaseModelAbstract<I>, C exte
     }
 
     /**
-     * converting dto to model for saving
-     * specify
-     *
-     * @param dto
-     * @param user
+     * converting dto to model for save
      */
     protected abstract M onSave(D dto, U user);
 
@@ -268,8 +251,6 @@ public abstract class BaseServiceAbstract<M extends BaseModelAbstract<I>, C exte
     /**
      * get by id
      *
-     * @param id
-     * @return
      */
     @Override
     public final M get(I id, U user) {
