@@ -16,7 +16,7 @@
 
     <properties>
         <assertj.version>3.16.1</assertj.version>
-        <bard.commons.version>0.3.1</bard.commons.version>
+        <bardframework.version>0.3.1</bardframework.version>
         <guava.version>29.0-jre</guava.version>
         <hibernate-jpa.version>1.0.2.Final</hibernate-jpa.version>
         <jakarta-servlet.version>4.0.3</jakarta-servlet.version>
@@ -77,17 +77,17 @@
             <dependency>
                 <groupId>org.bardframework.commons</groupId>
                 <artifactId>common-utils</artifactId>
-                <version>${bard.commons.version}</version>
+                <version>${bardframework.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.bardframework.commons</groupId>
                 <artifactId>common-reflection</artifactId>
-                <version>${bard.commons.version}</version>
+                <version>${bardframework.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.bardframework.commons</groupId>
                 <artifactId>common-jackson</artifactId>
-                <version>${bard.commons.version}</version>
+                <version>${bardframework.version}</version>
             </dependency>
             <dependency>
                 <groupId>org.springframework</groupId>
