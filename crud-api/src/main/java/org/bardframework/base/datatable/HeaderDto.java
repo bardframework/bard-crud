@@ -1,9 +1,7 @@
 package org.bardframework.base.datatable;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import org.bardframework.base.UtilityMethods;
-import org.bardframework.commons.jackson.converter.PersianStringDisinfectant;
 import org.bardframework.commons.utils.CollectionUtils;
 import org.bardframework.commons.utils.StringUtils;
 import org.bardframework.crud.commons.model.BaseData;
@@ -31,7 +29,6 @@ public class HeaderDto {
     private List<String> messageKeys;
 
     //Filter
-    @JsonDeserialize(using = PersianStringDisinfectant.class)
     private String query;
     private List<String> selected;
     private String min;

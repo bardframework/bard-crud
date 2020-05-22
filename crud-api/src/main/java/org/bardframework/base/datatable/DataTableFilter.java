@@ -1,8 +1,6 @@
 package org.bardframework.base.datatable;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import org.bardframework.commons.jackson.converter.PersianStringDisinfectant;
 import org.bardframework.commons.utils.CollectionUtils;
 import org.bardframework.commons.utils.StringUtils;
 
@@ -15,7 +13,6 @@ public class DataTableFilter<F extends DataTableFilter<F>> {
 
     protected long page;
     protected long count;
-    @JsonDeserialize(using = PersianStringDisinfectant.class)
     protected String query;
     protected List<HeaderDto> headers;
 
