@@ -1,6 +1,7 @@
 package org.bardframework.base.searchable;
 
 import org.bardframework.base.crud.BaseModelAbstract;
+import org.springframework.data.domain.Pageable;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -14,8 +15,8 @@ public interface SearchableEntityRestController<M extends BaseModelAbstract<I>, 
     String SEARCH_URL = "search";
 
     @PostMapping(value = SEARCH_URL, consumes = APPLICATION_JSON_VALUE)
-    default List<M> SEARCH(@RequestBody @Validated C criteria) {
-        return this.getService().search(criteria, this.getUser());
+    default List<M> SEARCH(@RequestBody @Validated C criteria, Pageable pageable) {
+        return this.getService().search(criteria, pageable, this.getUser());
     }
 
     S getService();

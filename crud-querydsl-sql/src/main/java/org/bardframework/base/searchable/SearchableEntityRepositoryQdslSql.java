@@ -10,6 +10,7 @@ import org.bardframework.base.crud.BaseModelAbstract;
 import org.bardframework.base.crud.ReadExtendedRepositoryQdslSql;
 import org.bardframework.commons.reflection.ReflectionUtils;
 import org.bardframework.commons.utils.StringUtils;
+import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
@@ -24,17 +25,17 @@ public interface SearchableEntityRepositoryQdslSql<M extends BaseModelAbstract<I
 
     Path<?> getIdentifierPath();
 
-    <T> SQLQuery<T> setPageAndSize(C criteria, SQLQuery<T> query, U user);
+    <T> SQLQuery<T> setPageAndSize(SQLQuery<T> query, Pageable pageable, U user);
 
     SQLQuery<?> prepareQuery(C criteria, U user);
 
     @Transactional(readOnly = true)
     @Override
-    default List<M> search(C criteria, U user) {
+    default List<M> search(C criteria, Pageable pageable, U user) {
         List<Path<?>> selectPaths = this.getSelectOnSearchPaths();
         selectPaths.add(this.getIdentifierPath());
-        SQLQuery<Tuple> query = this.prepareQuery(criteria, user).select(selectPaths.toArray(new Path<?>[selectPaths.size()]));
-        this.setPageAndSize(criteria, query, user);
+        SQLQuery<Tuple> query = this.prepareQuery(criteria, user).select(selectPaths.toArray(new Path<?>[0]));
+        this.setPageAndSize(query, pageable, user);
         List<M> models = new ArrayList<>();
         M model;
         for (Tuple tuple : query.fetch()) {

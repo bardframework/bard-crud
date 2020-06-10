@@ -23,6 +23,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.format.annotation.DateTimeFormat.ISO;
 
 import java.time.LocalDate;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -145,7 +146,7 @@ public class LocalDateFilter extends RangeFilter<LocalDate> {
      */
     @Override
     @DateTimeFormat(iso = ISO.DATE)
-    public LocalDateFilter setIn(List<LocalDate> in) {
+    public LocalDateFilter setIn(Collection<LocalDate> in) {
         super.setIn(in);
         return this;
     }

@@ -4,7 +4,6 @@ import org.bardframework.commons.reflection.ReflectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
 import javax.annotation.PostConstruct;
 import java.lang.reflect.Field;
@@ -16,7 +15,6 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Created by Vahid Zafari on 8/12/2016.
  */
-@Component
 public class DataTableUtils {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DataTableUtils.class);

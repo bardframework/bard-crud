@@ -35,7 +35,7 @@ import java.util.List;
  */
 public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModelAbstract<I>, C extends BaseCriteriaAbstract<I>, I extends Comparable<? super I>, U> implements BaseRepository<M, C, I, U> {
 
-    private static int DEFAULT_SIZE = 20;
+    private static final int DEFAULT_SIZE = 20;
 
     protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
     protected final Class<M> modelClazz;
@@ -199,22 +199,22 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModelAbstract<
             return Page.empty();
         }
         query = this.prepareQuery(criteria, user);
-        return isUnpaged(pageable) ? new PageImpl<>(this.getList(query)) : this.readPage(query, pageable, count);
+        return isUnpaged(pageable) ? new PageImpl<>(this.getList(query)) : this.readPage(query, pageable, count, user);
     }
 
     private List<M> getList(SQLQuery<?> query) {
         return query.select(this.getQBean()).fetch();
     }
 
-    protected Page<M> readPage(SQLQuery<?> query, Pageable pageable, long count) {
+    protected Page<M> readPage(SQLQuery<?> query, Pageable pageable, long count, U user) {
         if (pageable.isPaged()) {
-            query = this.setPageAndSize(query, pageable);
+            query = this.setPageAndSize(query, pageable, user);
         }
 
         return PageableExecutionUtils.getPage(this.getList(query), pageable, count);
     }
 
-    public <T> SQLQuery<T> setPageAndSize(SQLQuery<T> query, Pageable pageable) {
+    public <T> SQLQuery<T> setPageAndSize(SQLQuery<T> query, Pageable pageable, U user) {
         query.limit(pageable.getOffset() < 1 ? DEFAULT_SIZE : (int) pageable.getOffset());
         query.offset((Math.max(pageable.getPageNumber(), 0)) * pageable.getPageSize());
         return query;

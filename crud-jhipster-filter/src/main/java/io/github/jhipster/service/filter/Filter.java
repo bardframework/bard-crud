@@ -21,6 +21,7 @@ package io.github.jhipster.service.filter;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
@@ -42,8 +43,8 @@ public class Filter<FIELD_TYPE> implements Serializable {
     private FIELD_TYPE equals;
     private FIELD_TYPE notEquals;
     private Boolean specified;
-    private List<FIELD_TYPE> in;
-    private List<FIELD_TYPE> notIn;
+    private Collection<FIELD_TYPE> in;
+    private Collection<FIELD_TYPE> notIn;
 
     /**
      * <p>Constructor for Filter.</p>
@@ -138,7 +139,7 @@ public class Filter<FIELD_TYPE> implements Serializable {
      *
      * @return a {@link List} object.
      */
-    public List<FIELD_TYPE> getIn() {
+    public Collection<FIELD_TYPE> getIn() {
         return in;
     }
 
@@ -148,7 +149,7 @@ public class Filter<FIELD_TYPE> implements Serializable {
      * @param in a {@link List} object.
      * @return a {@link io.github.jhipster.service.filter.Filter} object.
      */
-    public Filter<FIELD_TYPE> setIn(List<FIELD_TYPE> in) {
+    public Filter<FIELD_TYPE> setIn(Collection<FIELD_TYPE> in) {
         this.in = in;
         return this;
     }
@@ -158,7 +159,7 @@ public class Filter<FIELD_TYPE> implements Serializable {
      *
      * @return a {@link List} object.
      */
-    public List<FIELD_TYPE> getNotIn() {
+    public Collection<FIELD_TYPE> getNotIn() {
         return notIn;
     }
 
