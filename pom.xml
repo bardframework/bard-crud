@@ -11,7 +11,7 @@
 
     <groupId>org.bardframework.crud</groupId>
     <artifactId>crud-parent</artifactId>
-    <version>0.3.2</version>
+    <version>0.3.3</version>
     <packaging>pom</packaging>
 
     <properties>
@@ -25,8 +25,8 @@
         <maven-jar-plugin.version>3.2.0</maven-jar-plugin.version>
         <querydsl.version>4.3.1</querydsl.version>
         <slf4j.version>1.7.30</slf4j.version>
-        <spring-framework.version>5.2.6.RELEASE</spring-framework.version>
-        <spring-boot.version>2.3.0.RELEASE</spring-boot.version>
+        <spring-framework.version>5.2.7.RELEASE</spring-framework.version>
+        <spring-boot.version>2.3.1.RELEASE</spring-boot.version>
     </properties>
 
     <modules>
