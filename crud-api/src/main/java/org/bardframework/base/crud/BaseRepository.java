@@ -2,6 +2,7 @@ package org.bardframework.base.crud;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 import java.util.List;
 
@@ -15,6 +16,8 @@ public interface BaseRepository<M extends BaseModelAbstract<I>, C extends BaseCr
     List<M> get(List<I> ids, U user);
 
     List<M> get(C criteria, U user);
+
+    List<M> get(C criteria, Sort sort, U user);
 
     M getOne(C criteria, U user);
 

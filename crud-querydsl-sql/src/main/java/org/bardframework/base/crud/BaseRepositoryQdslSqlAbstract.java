@@ -1,6 +1,8 @@
 package org.bardframework.base.crud;
 
 import com.querydsl.core.dml.StoreClause;
+import com.querydsl.core.types.Order;
+import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.QBean;
 import com.querydsl.core.types.dsl.ComparableExpression;
 import com.querydsl.core.types.dsl.ComparableExpressionBase;
@@ -24,11 +26,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Nullable;
 import java.lang.reflect.ParameterizedType;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * Created by vahid on 1/17/17.
@@ -170,7 +177,7 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModelAbstract<
         return this.get(criteria, user);
     }
 
-    public SQLQuery<?> prepareQuery(C criteria, U user) {
+    public SQLQuery<?> prepareQuery(C criteria, @Nullable Sort sort, U user) {
         SQLQuery<?> query = this.getQueryFactory().query();
         query.from(this.getEntity());
         query = this.setJoins(query, user);
@@ -185,7 +192,7 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModelAbstract<
                 ((ReadExtendedRepositoryQdslSql) this).process(criteria, query, user);
             }
         }
-        this.setOrders(query, criteria, user);
+        this.setOrders(query, criteria, sort, user);
         return query;
     }
 
@@ -193,12 +200,11 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModelAbstract<
     @Override
     public Page<M> get(C criteria, Pageable pageable, U user) {
         AssertionUtils.notNull(criteria, "null criteria not acceptable");
-        SQLQuery<?> query = this.prepareQuery(criteria, user);
+        SQLQuery<?> query = this.prepareQuery(criteria, pageable.getSort(), user);
         long count = query.fetchCount();
         if (0 > count) {
             return Page.empty();
         }
-        query = this.prepareQuery(criteria, user);
         return isUnpaged(pageable) ? new PageImpl<>(this.getList(query)) : this.readPage(query, pageable, count, user);
     }
 
@@ -223,7 +229,7 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModelAbstract<
     @Transactional(readOnly = true)
     @Override
     public long getCount(C criteria, U user) {
-        return this.prepareQuery(criteria, user).fetchCount();
+        return this.prepareQuery(criteria, null, user).fetchCount();
     }
 
     @Transactional(readOnly = true)
@@ -276,28 +282,36 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModelAbstract<
     @Transactional(readOnly = true)
     @Override
     public List<I> getIds(C criteria, U user) {
-        return this.prepareQuery(criteria, user).select(this.getIdentifierPath()).fetch();
+        return this.prepareQuery(criteria, null, user).select(this.getIdentifierPath()).fetch();
     }
 
     @Transactional(readOnly = true)
     @Override
     public List<M> get(C criteria, U user) {
+        return this.get(criteria, (Sort) null, user);
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<M> get(C criteria, Sort sort, U user) {
         AssertionUtils.notNull(criteria, "Given criteria cannot be null");
-        return this.prepareQuery(criteria, user).select(this.getQBean()).fetch();
+        return this.prepareQuery(criteria, sort, user).select(this.getQBean()).fetch();
     }
 
     @Transactional(readOnly = true)
     @Override
     public M getOne(C criteria, U user) {
         AssertionUtils.notNull(criteria, "Given criteria cannot be null");
-        return this.prepareQuery(criteria, user).select(this.getQBean()).fetchOne();
+        return this.prepareQuery(criteria, null, user).select(this.getQBean()).fetchOne();
     }
 
     protected <T> SQLQuery<T> setJoins(SQLQuery<T> query, U user) {
         return query;
     }
 
-    public <R> SQLQuery<R> setOrders(SQLQuery<R> query, C criteria, U user) {
+    public <R> SQLQuery<R> setOrders(SQLQuery<R> query, C criteria, @Nullable Sort sort, U user) {
+        List<OrderSpecifier<?>> list = this.toOrders(sort);
+        query.orderBy(list.toArray(new OrderSpecifier[0]));
         return query;
     }
 
@@ -307,6 +321,25 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModelAbstract<
 
     protected <I extends Comparable<? super I>> I safeFetchId(BaseModelAbstract<I> model) {
         return null == model ? null : model.getId();
+    }
+
+    protected List<OrderSpecifier<?>> toOrders(Sort sort) {
+        Map<String, OrderField> map = this.getSortColumns();
+
+        if (sort == null || sort.isUnsorted()) {
+            return map.values().stream()
+                    .map(OrderField::getColumnDirection).collect(Collectors.toList());
+        }
+
+        return sort.stream()
+                .filter(b -> map.containsKey(b.getProperty()))
+                .map(b -> b.isAscending() ? map.get(b.getProperty()).getColumn().asc() : map.get(b.getProperty()).getColumn().desc()).collect(Collectors.toList());
+    }
+
+    protected Map<String, OrderField> getSortColumns() {
+        Map<String, OrderField> map = new HashMap<>();
+        map.put("id", new OrderField(this.getIdentifierPath(), Order.ASC));
+        return map;
     }
 
     protected <T, X extends Comparable<? super X>> SQLQuery<T> buildQuery(SQLQuery<T> query, Filter<X> filter, ComparableExpression<X> expression) {

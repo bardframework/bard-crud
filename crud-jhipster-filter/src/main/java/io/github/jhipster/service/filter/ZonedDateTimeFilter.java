@@ -23,7 +23,6 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.format.annotation.DateTimeFormat.ISO;
 
 import java.time.ZonedDateTime;
-import java.util.Collection;
 import java.util.List;
 
 /**
@@ -146,7 +145,7 @@ public class ZonedDateTimeFilter extends RangeFilter<ZonedDateTime> {
      */
     @Override
     @DateTimeFormat(iso = ISO.DATE_TIME)
-    public ZonedDateTimeFilter setIn(Collection<ZonedDateTime> in) {
+    public ZonedDateTimeFilter setIn(List<ZonedDateTime> in) {
         super.setIn(in);
         return this;
     }
