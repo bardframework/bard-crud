@@ -177,6 +177,10 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModelAbstract<
         return this.get(criteria, user);
     }
 
+    private SQLQuery<?> reuseQuery(SQLQuery<?> query) {
+        return query.clone(this.getQueryFactory().getConnection());
+    }
+
     public SQLQuery<?> prepareQuery(C criteria, @Nullable Sort sort, U user) {
         SQLQuery<?> query = this.getQueryFactory().query();
         query.from(this.getEntity());
@@ -205,6 +209,7 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModelAbstract<
         if (0 > count) {
             return Page.empty();
         }
+        query = this.reuseQuery(query);
         return isUnpaged(pageable) ? new PageImpl<>(this.getList(query)) : this.readPage(query, pageable, count, user);
     }
 

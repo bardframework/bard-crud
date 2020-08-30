@@ -8,6 +8,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 import java.util.*;
 
@@ -316,6 +318,13 @@ public abstract class RepositoryTestAbstract<M extends BaseModelAbstract<I>, C e
     @Test
     public void testIsExistNull() {
         assertThatExceptionOfType(Exception.class).isThrownBy(() -> repository.isExist(null, this.getUser()));
+    }
+
+    @Test
+    public void testSort() {
+        List<M> savedList = this.getDataProvider().getModels(RandomUtils.nextInt(1, 10), this.getUser());
+        Pageable pageable = PageRequest.of(1, 20, Sort.by(Sort.Direction.ASC, "id"));
+        assertThat(repository.get(this.getDataProvider().getEmptyCriteria(), pageable, this.getUser())).hasSameSizeAs(savedList);
     }
 
      /*
