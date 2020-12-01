@@ -223,8 +223,8 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModelAbstract<
     }
 
     public <T> SQLQuery<T> setPageAndSize(SQLQuery<T> query, Pageable pageable, U user) {
-        query.limit(pageable.getOffset() < 1 ? DEFAULT_SIZE : (int) pageable.getOffset());
-        query.offset((Math.max(pageable.getPageNumber(), 0)) * pageable.getPageSize());
+        query.offset(pageable.getPageSize() == 0 ? (Math.max(pageable.getPageNumber(), 0)) * DEFAULT_SIZE : pageable.getOffset());
+        query.limit(pageable.getPageSize() == 0 ? DEFAULT_SIZE : pageable.getPageSize());
         return query;
     }
 
