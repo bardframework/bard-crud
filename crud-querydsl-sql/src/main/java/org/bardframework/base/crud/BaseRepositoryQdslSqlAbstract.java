@@ -4,10 +4,7 @@ import com.querydsl.core.dml.StoreClause;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.QBean;
-import com.querydsl.core.types.dsl.ComparableExpression;
-import com.querydsl.core.types.dsl.ComparableExpressionBase;
-import com.querydsl.core.types.dsl.NumberExpression;
-import com.querydsl.core.types.dsl.StringExpression;
+import com.querydsl.core.types.dsl.*;
 import com.querydsl.sql.RelationalPathBase;
 import com.querydsl.sql.SQLQuery;
 import com.querydsl.sql.SQLQueryFactory;
@@ -188,7 +185,7 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModelAbstract<
         query = this.setCriteria(criteria, query, user);
 
         if (null != criteria.getId()) {
-            this.buildQuery(query, criteria.getId(), (ComparableExpression<I>) this.getIdentifierPath());
+            query.where(buildQuery(criteria.getId(), this.getIdentifierPath()));
         }
 
         for (Class clazz : this.getClass().getInterfaces()) {
@@ -196,7 +193,7 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModelAbstract<
                 ((ReadExtendedRepositoryQdslSql) this).process(criteria, query, user);
             }
         }
-        this.setOrders(query, criteria, sort, user);
+        query = this.setOrders(query, criteria, sort, user);
         return query;
     }
 
@@ -226,8 +223,8 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModelAbstract<
     }
 
     public <T> SQLQuery<T> setPageAndSize(SQLQuery<T> query, Pageable pageable, U user) {
-        query.limit(pageable.getOffset() < 1 ? DEFAULT_SIZE : (int) pageable.getOffset());
-        query.offset((Math.max(pageable.getPageNumber(), 0)) * pageable.getPageSize());
+        query.offset(pageable.getPageSize() == 0 ? (Math.max(pageable.getPageNumber(), 0)) * DEFAULT_SIZE : pageable.getOffset());
+        query.limit(pageable.getPageSize() == 0 ? DEFAULT_SIZE : pageable.getPageSize());
         return query;
     }
 
@@ -347,107 +344,108 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModelAbstract<
         return map;
     }
 
-    protected <T, X extends Comparable<? super X>> SQLQuery<T> buildQuery(SQLQuery<T> query, Filter<X> filter, ComparableExpression<X> expression) {
+    protected <T, X extends Comparable<? super X>> BooleanExpression buildQuery(Filter<X> filter, ComparableExpression<X> expression) {
         if (filter.getEquals() != null) {
-            return query.where(expression.eq(filter.getEquals()));
+            return expression.eq(filter.getEquals());
         } else if (filter.getIn() != null) {
-            return query.where(expression.in(filter.getIn()));
+            return expression.in(filter.getIn());
         } else if (filter.getNotEquals() != null) {
-            return query.where(expression.ne(filter.getNotEquals()));
+            return expression.ne(filter.getNotEquals());
         } else if (filter.getNotIn() != null) {
-            return query.where(expression.notIn(filter.getNotIn()));
+            return expression.notIn(filter.getNotIn());
         } else if (filter.getSpecified() != null) {
             if (filter.getSpecified()) {
-                return query.where(expression.isNotNull());
+                return expression.isNotNull();
             } else {
-                return query.where(expression.isNull());
+                return expression.isNull();
             }
         }
-        return query;
+        return Expressions.asBoolean(true).isTrue();
     }
 
-    protected <T> SQLQuery<T> buildQuery(SQLQuery<T> query, StringFilter filter, StringExpression expression) {
+    protected <T> BooleanExpression buildQuery(StringFilter filter, StringExpression expression) {
         if (filter.getEquals() != null) {
-            return query.where(expression.eq(filter.getEquals()));
+            return expression.eq(filter.getEquals());
         } else if (filter.getIn() != null) {
-            return query.where(expression.in(filter.getIn()));
+            return expression.in(filter.getIn());
         } else if (filter.getContains() != null) {
 //            return likeUpperSpecification(metaclassFunction, filter.getContains());
-            return query.where(expression.likeIgnoreCase("%" + filter.getContains() + "%"));
+            return expression.likeIgnoreCase("%" + filter.getContains() + "%");
         } else if (filter.getDoesNotContain() != null) {
-            return query.where(expression.notLike(filter.getDoesNotContain()));
+            return expression.notLike(filter.getDoesNotContain());
         } else if (filter.getNotEquals() != null) {
-            return query.where(expression.ne(filter.getNotEquals()));
+            return expression.ne(filter.getNotEquals());
         } else if (filter.getNotIn() != null) {
-            return query.where(expression.notIn(filter.getNotIn()));
+            return expression.notIn(filter.getNotIn());
         } else if (filter.getSpecified() != null) {
             if (filter.getSpecified()) {
-                return query.where(expression.isNotNull());
+                return expression.isNotNull();
             } else {
-                return query.where(expression.isNull());
+                return expression.isNull();
             }
         }
-        return query;
+        return Expressions.asBoolean(true).isTrue();
     }
 
-    protected <T, X extends Comparable<? super X>> SQLQuery<T> buildQuery(SQLQuery<T> query, RangeFilter<X> filter,
-                                                                          ComparableExpression<X> expression) {
-        query = this.buildQueryInternal(query, filter, expression);
+    protected <T, X extends Comparable<? super X>> BooleanExpression buildQuery(RangeFilter<X> filter,
+                                                                                ComparableExpression<X> expression) {
+        BooleanExpression expr = this.buildQueryInternal(filter, expression);
 
         if (filter.getGreaterThan() != null) {
-            query.where(expression.gt(filter.getGreaterThan()));
+            expr.and(expression.gt(filter.getGreaterThan()));
         }
         if (filter.getGreaterThanOrEqual() != null) {
-            query.where(expression.goe(filter.getGreaterThanOrEqual()));
+            expr.and(expression.goe(filter.getGreaterThanOrEqual()));
         }
         if (filter.getLessThan() != null) {
-            query.where(expression.lt(filter.getLessThan()));
+            expr.and(expression.lt(filter.getLessThan()));
         }
         if (filter.getLessThanOrEqual() != null) {
-            query.where(expression.loe(filter.getLessThanOrEqual()));
+            expr.and(expression.loe(filter.getLessThanOrEqual()));
         }
-        return query;
+        return expr;
     }
 
-    private <T, X extends Comparable<? super X>> SQLQuery<T> buildQueryInternal(SQLQuery<T> query, RangeFilter<X> filter,
-                                                                                ComparableExpressionBase<X> expression) {
+    private <T, X extends Comparable<? super X>> BooleanExpression buildQueryInternal(RangeFilter<X> filter,
+                                                                                      ComparableExpressionBase<X> expression) {
         if (filter.getEquals() != null) {
-            return query.where(expression.eq(filter.getEquals()));
+            return expression.eq(filter.getEquals());
         } else if (filter.getIn() != null) {
-            return query.where(expression.in(filter.getIn()));
+            return expression.in(filter.getIn());
         }
 
+        BooleanExpression expr = Expressions.asBoolean(true);
         if (filter.getSpecified() != null) {
             if (filter.getSpecified()) {
-                query.where(expression.isNotNull());
+                expr.and(expression.isNotNull());
             } else {
-                query.where(expression.isNull());
+                expr.and(expression.isNull());
             }
         }
         if (filter.getNotEquals() != null) {
-            query.where(expression.ne(filter.getNotEquals()));
+            expr.and(expression.ne(filter.getNotEquals()));
         } else if (filter.getNotIn() != null) {
-            query.where(expression.notIn(filter.getNotIn()));
+            expr.and(expression.notIn(filter.getNotIn()));
         }
-        return query;
+        return expr;
     }
 
-    protected <T, X extends Number & Comparable<? super X>> SQLQuery<T> buildQuery(SQLQuery<T> query, RangeFilter<X> filter,
-                                                                                   NumberExpression<X> expression) {
-        this.buildQueryInternal(query, filter, expression);
+    protected <T, X extends Number & Comparable<? super X>> BooleanExpression buildQuery(RangeFilter<X> filter,
+                                                                                         NumberExpression<X> expression) {
+        BooleanExpression expr = this.buildQueryInternal(filter, expression);
 
         if (filter.getGreaterThan() != null) {
-            query.where(expression.gt(filter.getGreaterThan()));
+            expr.and(expression.gt(filter.getGreaterThan()));
         }
         if (filter.getGreaterThanOrEqual() != null) {
-            query.where(expression.goe(filter.getGreaterThanOrEqual()));
+            expr.and(expression.goe(filter.getGreaterThanOrEqual()));
         }
         if (filter.getLessThan() != null) {
-            query.where(expression.lt(filter.getLessThan()));
+            expr.and(expression.lt(filter.getLessThan()));
         }
         if (filter.getLessThanOrEqual() != null) {
-            query.where(expression.loe(filter.getLessThanOrEqual()));
+            expr.and(expression.loe(filter.getLessThanOrEqual()));
         }
-        return query;
+        return expr;
     }
 }
