@@ -1,7 +1,9 @@
 package org.bardframework.crud.api.base;
 
+import org.apache.commons.lang3.SerializationUtils;
 import org.bardframework.commons.utils.AssertionUtils;
 import org.bardframework.commons.utils.CollectionUtils;
+import org.bardframework.crud.api.event.ModelEventProducer;
 import org.bardframework.crud.api.filter.IdFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -14,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.function.LongSupplier;
 import java.util.stream.Collectors;
@@ -28,6 +31,8 @@ public abstract class BaseServiceAbstract<M extends BaseModelAbstract<I>, C exte
     protected final Class<C> criteriaClazz;
     @Autowired
     protected R repository;
+
+    private ModelEventProducer<M, I, U> eventProducer;
 
     public BaseServiceAbstract() {
         ParameterizedType parameterizedType = null;
@@ -97,6 +102,11 @@ public abstract class BaseServiceAbstract<M extends BaseModelAbstract<I>, C exte
         maybe some joined part has been deleted in preDelete (like status change)
          */
         long deletedCount = this.getRepository().directDelete(models.stream().map(M::getId).collect(Collectors.toList()), user);
+
+        if (eventProducer != null) {
+            eventProducer.onDelete(models, user);
+        }
+
         if (deletedCount > 0) {
             for (M model : models) {
                 this.postDelete(model, user);
@@ -118,7 +128,7 @@ public abstract class BaseServiceAbstract<M extends BaseModelAbstract<I>, C exte
     /**
      * delete data with given id
      *
-     * @param id   identifier of data that must be delete
+     * @param id identifier of data that must be delete
      * @return count of deleted data
      */
     @Transactional
@@ -153,6 +163,9 @@ public abstract class BaseServiceAbstract<M extends BaseModelAbstract<I>, C exte
         AssertionUtils.notNull(dto, "dto cannot be null.");
         this.preSave(dto, user);
         M model = this.getRepository().save(this.onSave(dto, user), user);
+        if (eventProducer != null) {
+            eventProducer.onSave(Collections.singletonList(model), user);
+        }
         this.postSave(model, dto, user);
         return this.getRepository().get(model.getId(), user);
     }
@@ -171,6 +184,9 @@ public abstract class BaseServiceAbstract<M extends BaseModelAbstract<I>, C exte
             list.add(this.onSave(dto, user));
         }
         list = this.getRepository().save(list, user);
+        if (eventProducer != null) {
+            eventProducer.onSave(list, user);
+        }
         if (list.size() != dtos.size()) {
             throw new IllegalStateException("invalid save operation, save " + dtos.size() + " dtos, but result size is " + list.size());
         }
@@ -196,7 +212,11 @@ public abstract class BaseServiceAbstract<M extends BaseModelAbstract<I>, C exte
     public M update(I id, D dto, U user) {
         M model = this.getRepository().get(id, user);
         this.preUpdate(model, dto, user);
+        M pre = SerializationUtils.clone(model);
         this.getRepository().update(this.onUpdate(dto, model, user), user);
+        if (eventProducer != null) {
+            eventProducer.onUpdate(pre, model, user);
+        }
         this.postUpdate(model, dto, user);
         return this.getRepository().get(model.getId(), user);
     }
@@ -229,6 +249,14 @@ public abstract class BaseServiceAbstract<M extends BaseModelAbstract<I>, C exte
         return repository;
     }
 
+    public ModelEventProducer<M, I, U> getEventProducer() {
+        return eventProducer;
+    }
+
+    public void setEventProducer(ModelEventProducer<M, I, U> eventProducer) {
+        this.eventProducer = eventProducer;
+    }
+
     public Logger getLogger() {
         return LOGGER;
     }
@@ -250,7 +278,6 @@ public abstract class BaseServiceAbstract<M extends BaseModelAbstract<I>, C exte
 
     /**
      * get by id
-     *
      */
     @Override
     public final M get(I id, U user) {
