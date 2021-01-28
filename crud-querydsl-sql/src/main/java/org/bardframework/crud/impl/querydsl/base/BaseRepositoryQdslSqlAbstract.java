@@ -417,7 +417,7 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModelAbstract<
             return expression.in(filter.getIn());
         }
 
-        BooleanExpression expr = Expressions.asBoolean(true);
+        BooleanExpression expr = Expressions.asBoolean(true).isTrue();
         if (filter.getSpecified() != null) {
             if (filter.getSpecified()) {
                 expr.and(expression.isNotNull());
