@@ -1,5 +1,8 @@
 package org.bardframework.crud.api.base;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.github.fge.jsonpatch.JsonPatch;
+import com.github.fge.jsonpatch.JsonPatchException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -21,17 +24,19 @@ public interface WriteRestController<M extends BaseModelAbstract<I>, D, S extend
     @PostMapping(value = SAVE_URL, consumes = APPLICATION_JSON_VALUE)
     default ResponseEntity<M> SAVE(@RequestBody @Validated(ValidationGroups.Save.class) D dto) throws URISyntaxException {
         M result = this.getService().save(dto, this.getUser());
-        return ResponseEntity
-                .created(new URI("" + result.getId()))
-                .body(result);
+        return ResponseEntity.created(new URI("" + result.getId())).body(result);
     }
 
     @PutMapping(value = UPDATE_URL, consumes = APPLICATION_JSON_VALUE)
     default ResponseEntity<M> UPDATE(@PathVariable I id, @RequestBody @Validated(ValidationGroups.Update.class) D dto) {
         M result = this.getService().update(id, dto, this.getUser());
-        return ResponseEntity
-                .ok()
-                .body(result);
+        return ResponseEntity.ok().body(result);
+    }
+
+    @PatchMapping(value = UPDATE_URL, consumes = "application/json-patch+json")
+    default ResponseEntity<M> PATCH(@PathVariable I id, @RequestBody JsonPatch patch) throws JsonPatchException, JsonProcessingException {
+        M result = this.getService().patch(id, patch, this.getUser());
+        return ResponseEntity.ok().body(result);
     }
 
     @DeleteMapping(value = DELETE_URL)

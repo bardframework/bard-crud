@@ -1,5 +1,10 @@
 package org.bardframework.crud.api.base;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.fge.jsonpatch.JsonPatch;
+import com.github.fge.jsonpatch.JsonPatchException;
 import org.apache.commons.lang3.SerializationUtils;
 import org.bardframework.commons.utils.AssertionUtils;
 import org.bardframework.commons.utils.CollectionUtils;
@@ -18,6 +23,7 @@ import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.function.LongSupplier;
 import java.util.stream.Collectors;
 
@@ -32,7 +38,11 @@ public abstract class BaseServiceAbstract<M extends BaseModelAbstract<I>, C exte
     @Autowired
     protected R repository;
 
-    private ModelEventProducer<M, I, U> eventProducer;
+    @Autowired
+    ModelEventProducer eventProducer;
+
+    @Autowired
+    ObjectMapper mapper;
 
     public BaseServiceAbstract() {
         ParameterizedType parameterizedType = null;
@@ -103,9 +113,7 @@ public abstract class BaseServiceAbstract<M extends BaseModelAbstract<I>, C exte
          */
         long deletedCount = this.getRepository().directDelete(models.stream().map(M::getId).collect(Collectors.toList()), user);
 
-        if (eventProducer != null) {
-            eventProducer.onDelete(models, user);
-        }
+        getEventProducer().onDelete(models, user);
 
         if (deletedCount > 0) {
             for (M model : models) {
@@ -163,9 +171,7 @@ public abstract class BaseServiceAbstract<M extends BaseModelAbstract<I>, C exte
         AssertionUtils.notNull(dto, "dto cannot be null.");
         this.preSave(dto, user);
         M model = this.getRepository().save(this.onSave(dto, user), user);
-        if (eventProducer != null) {
-            eventProducer.onSave(Collections.singletonList(model), user);
-        }
+        getEventProducer().onSave(Collections.singletonList(model), user);
         this.postSave(model, dto, user);
         return this.getRepository().get(model.getId(), user);
     }
@@ -184,9 +190,7 @@ public abstract class BaseServiceAbstract<M extends BaseModelAbstract<I>, C exte
             list.add(this.onSave(dto, user));
         }
         list = this.getRepository().save(list, user);
-        if (eventProducer != null) {
-            eventProducer.onSave(list, user);
-        }
+        getEventProducer().onSave(list, user);
         if (list.size() != dtos.size()) {
             throw new IllegalStateException("invalid save operation, save " + dtos.size() + " dtos, but result size is " + list.size());
         }
@@ -207,6 +211,10 @@ public abstract class BaseServiceAbstract<M extends BaseModelAbstract<I>, C exte
     protected void postSave(M savedModel, D dto, U user) {
     }
 
+    public M patch(I id, Map<String, Object> fields, U user) {
+        return repository.patch(id, fields, user);
+    }
+
     @Transactional
     @Override
     public M update(I id, D dto, U user) {
@@ -214,11 +222,27 @@ public abstract class BaseServiceAbstract<M extends BaseModelAbstract<I>, C exte
         this.preUpdate(model, dto, user);
         M pre = SerializationUtils.clone(model);
         this.getRepository().update(this.onUpdate(dto, model, user), user);
-        if (eventProducer != null) {
-            eventProducer.onUpdate(pre, model, user);
-        }
+        getEventProducer().onUpdate(pre, model, user);
         this.postUpdate(model, dto, user);
         return this.getRepository().get(model.getId(), user);
+    }
+
+    @Transactional
+    @Override
+    public M patch(I id, JsonPatch patch, U user) throws JsonPatchException, JsonProcessingException {
+        M model = this.getRepository().get(id, user);
+//        this.preUpdate(model, dto, user);
+        M pre = SerializationUtils.clone(model);
+        M patched = applyPatchToCustomer(patch, model);
+        this.getRepository().update(patched, user);
+        getEventProducer().onUpdate(pre, model, user);
+//        this.postUpdate(model, dto, user);
+        return this.getRepository().get(model.getId(), user);
+    }
+
+    private M applyPatchToCustomer(JsonPatch patch, M model) throws JsonPatchException, JsonProcessingException {
+        JsonNode patched = patch.apply(mapper.convertValue(model, JsonNode.class));
+        return (M) mapper.treeToValue(patched, model.getClass());
     }
 
     protected abstract M onUpdate(D dto, M previousModel, U user);
@@ -249,12 +273,8 @@ public abstract class BaseServiceAbstract<M extends BaseModelAbstract<I>, C exte
         return repository;
     }
 
-    public ModelEventProducer<M, I, U> getEventProducer() {
+    public ModelEventProducer getEventProducer() {
         return eventProducer;
-    }
-
-    public void setEventProducer(ModelEventProducer<M, I, U> eventProducer) {
-        this.eventProducer = eventProducer;
     }
 
     public Logger getLogger() {

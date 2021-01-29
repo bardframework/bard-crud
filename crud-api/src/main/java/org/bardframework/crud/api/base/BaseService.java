@@ -1,5 +1,8 @@
 package org.bardframework.crud.api.base;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.github.fge.jsonpatch.JsonPatch;
+import com.github.fge.jsonpatch.JsonPatchException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -14,6 +17,8 @@ public interface BaseService<M extends BaseModelAbstract<I>, C extends BaseCrite
     M save(D dto, U user);
 
     M update(I id, D dto, U user);
+
+    M patch(I id, JsonPatch patch, U user) throws JsonPatchException, JsonProcessingException;
 
     Page<M> get(C criteria, Pageable pageable, U user);
 }

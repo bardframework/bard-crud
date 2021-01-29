@@ -3,6 +3,7 @@ package org.bardframework.crud.impl.querydsl.base;
 import com.querydsl.core.dml.StoreClause;
 import com.querydsl.core.types.Order;
 import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.Path;
 import com.querydsl.core.types.QBean;
 import com.querydsl.core.types.dsl.*;
 import com.querydsl.sql.RelationalPathBase;
@@ -155,6 +156,26 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModelAbstract<
             throw new IllegalStateException("expect affect one row, but " + affectedRowsCount + " row(s) updated.");
         }
         return model;
+    }
+
+    @Transactional
+    @Override
+    public M patch(I id, Map<String, Object> fields, U user) {
+        final SQLUpdateClause updateClause = this.getQueryFactory().update(getEntity()).where(this.getIdentifierPath().eq(id));
+
+        List<Path> columns = (List) getEntity().getColumns();
+        columns.forEach(col -> {
+            String key = col.getMetadata().getName();
+            if (fields.containsKey(key)) {
+                updateClause.set(col, fields.get(key));
+            }
+        });
+
+        long affectedRowsCount = updateClause.execute();
+        if (1 != affectedRowsCount) {
+            throw new IllegalStateException("expect affect one row, but " + affectedRowsCount + " row(s) updated.");
+        }
+        return get(id, user);
     }
 
     public abstract <T extends ComparableExpression<I>> T getIdentifierPath();
