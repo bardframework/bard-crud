@@ -1,5 +1,6 @@
 package org.bardframework.crud.api.base;
 
+import org.bardframework.crud.api.exception.ModelNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -72,7 +73,7 @@ public abstract class DataProviderServiceAbstract<M extends BaseModelAbstract<I>
      */
     @Transactional
     @Override
-    public List<M> saveNew(long count, U user) {
+    public List<M> saveNew(long count, U user) throws ModelNotFoundException {
         List<M> unsavedModels = new ArrayList<>();
         for (long i = 0; i < count; i++) {
             unsavedModels.add(service.save(this.getDto(user), user));
@@ -83,7 +84,7 @@ public abstract class DataProviderServiceAbstract<M extends BaseModelAbstract<I>
     /**
      * @return a model that pass <code>validateFunction</code>, saved <code>unsavedDto</code> otherwise.
      */
-    public M getOrSave(D unsavedDto, U user, Function<M, Boolean> validateFunction) {
+    public M getOrSave(D unsavedDto, U user, Function<M, Boolean> validateFunction) throws ModelNotFoundException {
         M model = this.getModel(validateFunction, user);
         return null == model ? service.save(unsavedDto, user) : model;
     }

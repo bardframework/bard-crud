@@ -9,6 +9,7 @@ import org.apache.commons.lang3.SerializationUtils;
 import org.bardframework.commons.utils.AssertionUtils;
 import org.bardframework.commons.utils.CollectionUtils;
 import org.bardframework.crud.api.event.ModelEventProducer;
+import org.bardframework.crud.api.exception.ModelNotFoundException;
 import org.bardframework.crud.api.filter.IdFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,14 +17,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.repository.support.PageableExecutionUtils;
+import org.springframework.data.support.PageableExecutionUtils;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.lang.reflect.ParameterizedType;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.function.LongSupplier;
 import java.util.stream.Collectors;
 
@@ -33,8 +30,6 @@ import java.util.stream.Collectors;
 public abstract class BaseServiceAbstract<M extends BaseModelAbstract<I>, C extends BaseCriteriaAbstract<I>, D, R extends BaseRepository<M, C, I, U>, I extends Comparable<? super I>, U> implements BaseService<M, C, D, I, U> {
 
     protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
-    protected final Class<M> modelClazz;
-    protected final Class<C> criteriaClazz;
     @Autowired
     protected R repository;
 
@@ -43,42 +38,6 @@ public abstract class BaseServiceAbstract<M extends BaseModelAbstract<I>, C exte
 
     @Autowired
     ObjectMapper mapper;
-
-    public BaseServiceAbstract() {
-        ParameterizedType parameterizedType = null;
-        Class<?> targetClazz = this.getClass();
-        while (!(null != parameterizedType && parameterizedType.getActualTypeArguments().length >= 2) && null != targetClazz) {
-            parameterizedType = targetClazz.getGenericSuperclass() instanceof ParameterizedType ? (ParameterizedType) targetClazz.getGenericSuperclass() : null;
-            targetClazz = targetClazz.getSuperclass();
-        }
-        try {
-            this.modelClazz = (Class<M>) ((ParameterizedType) this.getClass().getGenericSuperclass()).getActualTypeArguments()[0];
-            this.criteriaClazz = (Class<C>) parameterizedType.getActualTypeArguments()[1];
-        } catch (Exception e) {
-            this.LOGGER.debug("can't determine class from generic type!", e);
-            throw new IllegalArgumentException("can't determine class from generic type!", e);
-        }
-    }
-
-    public M getEmptyModel() {
-        try {
-            return modelClazz.newInstance();
-        } catch (IllegalAccessException | InstantiationException e) {
-            this.LOGGER.error("can't instantiate model class using empty constructor {}", this.modelClazz, e);
-            throw new IllegalArgumentException("can't instantiate model class using empty constructor" + this.modelClazz, e);
-        }
-    }
-
-    public C getEmptyCriteria() {
-        C criteria;
-        try {
-            criteria = criteriaClazz.newInstance();
-        } catch (IllegalAccessException | InstantiationException e) {
-            this.LOGGER.error("can't instantiate criteria class using empty constructor {}", this.criteriaClazz, e);
-            throw new IllegalArgumentException("can't instantiate criteria class using empty constructor" + this.criteriaClazz, e);
-        }
-        return criteria;
-    }
 
     public List<M> get(List<I> ids, U user) {
         return this.getRepository().get(ids, user);
@@ -94,7 +53,7 @@ public abstract class BaseServiceAbstract<M extends BaseModelAbstract<I>, C exte
     /**
      * @return one entity with given criteria
      */
-    public M getOne(C criteria, U user) {
+    public Optional<M> getOne(C criteria, U user) {
         return this.getRepository().getOne(criteria, user);
     }
 
@@ -128,7 +87,7 @@ public abstract class BaseServiceAbstract<M extends BaseModelAbstract<I>, C exte
 
     @Transactional
     public long delete(List<I> ids, U user) {
-        C criteria = this.getEmptyCriteria();
+        C criteria = this.getRepository().getEmptyCriteria();
         criteria.setId((IdFilter<I>) new IdFilter<I>().setIn(ids));
         return this.delete(criteria, user);
     }
@@ -142,7 +101,7 @@ public abstract class BaseServiceAbstract<M extends BaseModelAbstract<I>, C exte
     @Transactional
     @Override
     public long delete(I id, U user) {
-        C criteria = this.getEmptyCriteria();
+        C criteria = this.getRepository().getEmptyCriteria();
         criteria.setId((IdFilter<I>) new IdFilter<I>().setEquals(id));
 
         return this.delete(criteria, user);
@@ -167,13 +126,13 @@ public abstract class BaseServiceAbstract<M extends BaseModelAbstract<I>, C exte
      */
     @Transactional
     @Override
-    public M save(D dto, U user) {
+    public M save(D dto, U user) throws ModelNotFoundException {
         AssertionUtils.notNull(dto, "dto cannot be null.");
         this.preSave(dto, user);
         M model = this.getRepository().save(this.onSave(dto, user), user);
         getEventProducer().onSave(Collections.singletonList(model), user);
         this.postSave(model, dto, user);
-        return this.getRepository().get(model.getId(), user);
+        return this.get(model.getId(), user).orElseThrow(ModelNotFoundException::new);
     }
 
     /**
@@ -211,33 +170,41 @@ public abstract class BaseServiceAbstract<M extends BaseModelAbstract<I>, C exte
     protected void postSave(M savedModel, D dto, U user) {
     }
 
-    public M patch(I id, Map<String, Object> fields, U user) {
+    public M patch(I id, Map<String, Object> fields, U user) throws ModelNotFoundException {
         return repository.patch(id, fields, user);
     }
 
     @Transactional
     @Override
-    public M update(I id, D dto, U user) {
-        M model = this.getRepository().get(id, user);
-        this.preUpdate(model, dto, user);
-        M pre = SerializationUtils.clone(model);
-        this.getRepository().update(this.onUpdate(dto, model, user), user);
-        getEventProducer().onUpdate(pre, model, user);
-        this.postUpdate(model, dto, user);
-        return this.getRepository().get(model.getId(), user);
+    public M update(I id, D dto, U user) throws ModelNotFoundException {
+        Optional<M> model = this.getRepository().get(id, user);
+        if (!model.isPresent()) {
+            throw new ModelNotFoundException();
+        }
+
+        this.preUpdate(model.get(), dto, user);
+        M pre = SerializationUtils.clone(model.get());
+        this.getRepository().update(this.onUpdate(dto, model.get(), user), user);
+        getEventProducer().onUpdate(pre, model.get(), user);
+        this.postUpdate(model.get(), dto, user);
+        return this.get(model.get().getId(), user).orElseThrow(ModelNotFoundException::new);
     }
 
     @Transactional
     @Override
-    public M patch(I id, JsonPatch patch, U user) throws JsonPatchException, JsonProcessingException {
-        M model = this.getRepository().get(id, user);
+    public M patch(I id, JsonPatch patch, U user) throws JsonPatchException, JsonProcessingException, ModelNotFoundException {
+        Optional<M> model = this.getRepository().get(id, user);
+        if (!model.isPresent()) {
+            throw new ModelNotFoundException();
+        }
+
 //        this.preUpdate(model, dto, user);
-        M pre = SerializationUtils.clone(model);
-        M patched = applyPatchToCustomer(patch, model);
+        M pre = SerializationUtils.clone(model.get());
+        M patched = applyPatchToCustomer(patch, model.get());
         this.getRepository().update(patched, user);
-        getEventProducer().onUpdate(pre, model, user);
+        getEventProducer().onUpdate(pre, model.get(), user);
 //        this.postUpdate(model, dto, user);
-        return this.getRepository().get(model.getId(), user);
+        return this.getRepository().get(model.get().getId(), user).orElseThrow(ModelNotFoundException::new);
     }
 
     private M applyPatchToCustomer(JsonPatch patch, M model) throws JsonPatchException, JsonProcessingException {
@@ -300,14 +267,10 @@ public abstract class BaseServiceAbstract<M extends BaseModelAbstract<I>, C exte
      * get by id
      */
     @Override
-    public final M get(I id, U user) {
-        M model = this.getRepository().get(id, user);
+    public final Optional<M> get(I id, U user) {
+        Optional<M> model = this.getRepository().get(id, user);
 
-        if (model == null) {
-            return null; // TODO will change to 404 in rest controller
-        }
-
-        return postFetch(model, user);
+        return model.map(m -> postFetch(m, user));
     }
 
     protected Page<M> paging(List<M> list, Pageable pageable, LongSupplier supplier) {
@@ -315,6 +278,6 @@ public abstract class BaseServiceAbstract<M extends BaseModelAbstract<I>, C exte
     }
 
     public List<M> getAll(U user) {
-        return this.getRepository().get(this.getEmptyCriteria(), user);
+        return this.getRepository().getAll(user);
     }
 }

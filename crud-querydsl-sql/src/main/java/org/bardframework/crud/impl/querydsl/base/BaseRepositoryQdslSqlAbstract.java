@@ -19,6 +19,7 @@ import org.bardframework.commons.utils.CollectionUtils;
 import org.bardframework.crud.api.base.BaseCriteriaAbstract;
 import org.bardframework.crud.api.base.BaseModelAbstract;
 import org.bardframework.crud.api.base.BaseRepository;
+import org.bardframework.crud.api.exception.ModelNotFoundException;
 import org.bardframework.crud.api.filter.IdFilter;
 import org.bardframework.crud.api.util.PageableExecutionUtils;
 import org.slf4j.Logger;
@@ -32,10 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Nullable;
 import java.lang.reflect.ParameterizedType;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -82,7 +80,8 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModelAbstract<
         return pageable.isUnpaged();
     }
 
-    public M getEmptyModel() {
+    @Override
+    public final M getEmptyModel() {
         try {
             return modelClazz.newInstance();
         } catch (IllegalAccessException | InstantiationException e) {
@@ -91,7 +90,8 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModelAbstract<
         }
     }
 
-    public C getEmptyCriteria() {
+    @Override
+    public final C getEmptyCriteria() {
         C criteria;
         try {
             criteria = criteriaClazz.newInstance();
@@ -160,7 +160,7 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModelAbstract<
 
     @Transactional
     @Override
-    public M patch(I id, Map<String, Object> fields, U user) {
+    public M patch(I id, Map<String, Object> fields, U user) throws ModelNotFoundException {
         final SQLUpdateClause updateClause = this.getQueryFactory().update(getEntity()).where(this.getIdentifierPath().eq(id));
 
         List<Path> columns = (List) getEntity().getColumns();
@@ -175,14 +175,14 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModelAbstract<
         if (1 != affectedRowsCount) {
             throw new IllegalStateException("expect affect one row, but " + affectedRowsCount + " row(s) updated.");
         }
-        return get(id, user);
+        return get(id, user).orElseThrow(ModelNotFoundException::new);
     }
 
     public abstract <T extends ComparableExpression<I>> T getIdentifierPath();
 
     @Transactional(readOnly = true)
     @Override
-    public M get(I identifier, U user) {
+    public Optional<M> get(I identifier, U user) {
         AssertionUtils.notNull(identifier, "Given Identifier cannot be null.");
         C criteria = this.getEmptyCriteria();
         criteria.setId((IdFilter<I>) new IdFilter<I>().setEquals(identifier));
@@ -326,9 +326,9 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModelAbstract<
 
     @Transactional(readOnly = true)
     @Override
-    public M getOne(C criteria, U user) {
+    public Optional<M> getOne(C criteria, U user) {
         AssertionUtils.notNull(criteria, "Given criteria cannot be null");
-        return this.prepareQuery(criteria, null, user).select(this.getQBean()).fetchOne();
+        return Optional.ofNullable(this.prepareQuery(criteria, null, user).select(this.getQBean()).fetchOne());
     }
 
     protected <T> SQLQuery<T> setJoins(SQLQuery<T> query, U user) {
@@ -347,6 +347,10 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModelAbstract<
 
     protected <I extends Comparable<? super I>> I safeFetchId(BaseModelAbstract<I> model) {
         return null == model ? null : model.getId();
+    }
+
+    public List<M> getAll(U user) {
+        return this.get(this.getEmptyCriteria(), user);
     }
 
     protected List<OrderSpecifier<?>> toOrders(Sort sort) {

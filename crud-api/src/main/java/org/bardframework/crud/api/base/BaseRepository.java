@@ -1,26 +1,30 @@
 package org.bardframework.crud.api.base;
 
+import org.bardframework.crud.api.exception.ModelNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Created by Vahid Zafari on 1/17/17.
  */
 public interface BaseRepository<M extends BaseModelAbstract<I>, C extends BaseCriteria<I>, I extends Comparable<? super I>, U> {
 
-    M get(I id, U user);
+    Optional<M> get(I id, U user);
 
     List<M> get(List<I> ids, U user);
+
+    List<M> getAll(U user);
 
     List<M> get(C criteria, U user);
 
     List<M> get(C criteria, Sort sort, U user);
 
-    M getOne(C criteria, U user);
+    Optional<M> getOne(C criteria, U user);
 
     long delete(C criteria, U user);
 
@@ -53,6 +57,9 @@ public interface BaseRepository<M extends BaseModelAbstract<I>, C extends BaseCr
      */
     long directDelete(List<I> ids, U user);
 
+    M getEmptyModel();
+
+    C getEmptyCriteria();
 
     M save(M model, U user);
 
@@ -60,7 +67,7 @@ public interface BaseRepository<M extends BaseModelAbstract<I>, C extends BaseCr
 
     M update(M model, U user);
 
-    M patch(I id, Map<String, Object> fields, U user);
+    M patch(I id, Map<String, Object> fields, U user) throws ModelNotFoundException;
 
     Page<M> get(C criteria, Pageable pageable, U user);
 

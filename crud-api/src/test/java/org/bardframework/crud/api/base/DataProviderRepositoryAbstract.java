@@ -2,6 +2,7 @@ package org.bardframework.crud.api.base;
 
 import org.assertj.core.api.Assertions;
 import org.bardframework.commons.utils.RandomUtils;
+import org.bardframework.crud.api.exception.ModelNotFoundException;
 import org.bardframework.crud.api.filter.IdFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -110,11 +111,11 @@ public abstract class DataProviderRepositoryAbstract<M extends BaseModelAbstract
         return this.getModel(criteria, unsavedModel, user).getId();
     }
 
-    public List<I> getIds(int count, U user, I... excludeIds) {
+    public List<I> getIds(int count, U user, I... excludeIds) throws ModelNotFoundException {
         return this.getModels(count, user, excludeIds).stream().map(M::getId).collect(Collectors.toList());
     }
 
-    public List<M> getModels(int count, U user, I... excludeIds) {
+    public List<M> getModels(int count, U user, I... excludeIds) throws ModelNotFoundException {
         C criteria = this.getEmptyCriteria();
         if (excludeIds.length > 0) {
             criteria.setId((IdFilter<I>) new IdFilter<I>().setNotIn(Arrays.asList(excludeIds)));
@@ -138,7 +139,7 @@ public abstract class DataProviderRepositoryAbstract<M extends BaseModelAbstract
      * @return saved entities
      */
     @Transactional
-    public List<M> saveNew(long count, U user) {
+    public List<M> saveNew(long count, U user) throws ModelNotFoundException {
         List<M> unsavedModels = new ArrayList<>();
         for (long i = 0; i < count; i++) {
             unsavedModels.add(repository.save(this.getUnsavedModel(user), user));

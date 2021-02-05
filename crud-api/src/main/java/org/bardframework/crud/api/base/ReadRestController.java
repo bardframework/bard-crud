@@ -25,7 +25,7 @@ public interface ReadRestController<M extends BaseModelAbstract<I>, C extends Ba
 
     @GetMapping(value = GET_URL)
     default ResponseEntity<M> GET(@PathVariable I id) {
-        Optional<M> result = Optional.ofNullable(this.getService().get(id, this.getUser()));
+        Optional<M> result = this.getService().get(id, this.getUser());
         return ResponseUtil
                 .wrapOrNotFound(result);
     }

@@ -2,6 +2,7 @@ package org.bardframework.crud.api.base;
 
 import org.bardframework.commons.utils.RandomUtils;
 import org.bardframework.crud.api.filter.IdFilter;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,25 +32,26 @@ public abstract class RepositoryTestAbstract<M extends BaseModelAbstract<I>, C e
     public void testGetByIdValid() {
         I id = this.getDataProvider().getId(this.getUser());
         LOGGER.debug("test get by id '{}'.", id);
-        M result = repository.get(id, this.getUser());
+        Optional<M> result = repository.get(id, this.getUser());
         LOGGER.debug("get by id '{}', result is '{}'.", id, result);
-        assertThat(id).isEqualTo(result.getId());
+        assertThat(result).isNotEmpty();
+        assertThat(id).isEqualTo(result.get().getId());
     }
 
     @Test
     public void testGetByIdInvalid() {
         I invalidId = this.getDataProvider().getInvalidId();
         LOGGER.debug("test get by invalid id '{}'.", invalidId);
-        M result = repository.get(invalidId, this.getUser());
+        Optional<M> result = repository.get(invalidId, this.getUser());
         LOGGER.debug("get by invalid id '{}', result is '{}'.", invalidId, result);
-        assertThat(result).isNull();
+        assertThat(result).isEmpty();
     }
 
     @Test
     public void testGetByIdNull() {
         LOGGER.debug("test get by null id'.");
         assertThatExceptionOfType(Exception.class).isThrownBy(() -> {
-            M result = repository.get((I) null, this.getUser());
+            Optional<M> result = repository.get((I) null, this.getUser());
             LOGGER.error("get by null id, expect exception but result is '{}'.", result);
         });
     }
@@ -244,13 +246,15 @@ public abstract class RepositoryTestAbstract<M extends BaseModelAbstract<I>, C e
     /*---------------------- Filter ------------------------*/
     @Test
     public void testFilter() {
-        int dataCount = RandomUtils.nextInt(1, 3);
-        this.getDataProvider().getModels(dataCount, this.getUser());
-        C validFilter = this.getDataProvider().getEmptyCriteria();
-        Page<M> filterResult = repository.get(validFilter, PageRequest.of(0, dataCount), this.getUser());
-        assertThat(filterResult.getTotalElements()).isGreaterThanOrEqualTo(dataCount);
-        assertThat(filterResult.getContent()).isNotEmpty();
-        assertThat(dataCount).isEqualByComparingTo(filterResult.getSize());
+        Assertions.assertDoesNotThrow(() -> {
+            int dataCount = RandomUtils.nextInt(1, 3);
+            this.getDataProvider().getModels(dataCount, this.getUser());
+            C validFilter = this.getDataProvider().getEmptyCriteria();
+            Page<M> filterResult = repository.get(validFilter, PageRequest.of(0, dataCount), this.getUser());
+            assertThat(filterResult.getTotalElements()).isGreaterThanOrEqualTo(dataCount);
+            assertThat(filterResult.getContent()).isNotEmpty();
+            assertThat(dataCount).isEqualByComparingTo(filterResult.getSize());
+        });
     }
 
     @Test
@@ -322,9 +326,11 @@ public abstract class RepositoryTestAbstract<M extends BaseModelAbstract<I>, C e
 
     @Test
     public void testSort() {
-        List<M> savedList = this.getDataProvider().getModels(RandomUtils.nextInt(1, 10), this.getUser());
-        Pageable pageable = PageRequest.of(1, 20, Sort.by(Sort.Direction.ASC, "id"));
-        assertThat(repository.get(this.getDataProvider().getEmptyCriteria(), pageable, this.getUser())).hasSameSizeAs(savedList);
+        Assertions.assertDoesNotThrow(() -> {
+            List<M> savedList = this.getDataProvider().getModels(RandomUtils.nextInt(1, 10), this.getUser());
+            Pageable pageable = PageRequest.of(1, 20, Sort.by(Sort.Direction.ASC, "id"));
+            assertThat(repository.get(this.getDataProvider().getEmptyCriteria(), pageable, this.getUser())).hasSameSizeAs(savedList);
+        });
     }
 
      /*
