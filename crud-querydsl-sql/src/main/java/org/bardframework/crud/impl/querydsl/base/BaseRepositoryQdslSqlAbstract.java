@@ -349,6 +349,7 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModelAbstract<
         return null == model ? null : model.getId();
     }
 
+    @Transactional(readOnly = true)
     public List<M> getAll(U user) {
         return this.get(this.getEmptyCriteria(), user);
     }
