@@ -42,7 +42,7 @@ public interface WriteRestController<M extends BaseModelAbstract<I>, D, S extend
     @DeleteMapping(value = ITEM_URL)
     default ResponseEntity<Void> DELETE(@PathVariable I id) {
         long result = this.getService().delete(id, this.getUser());
-        return result == 0 ? ResponseEntity.noContent().build() : ResponseEntity.ok().build();
+        return result == 0 ? ResponseEntity.notFound().build() : ResponseEntity.noContent().build();
     }
 
     S getService();
