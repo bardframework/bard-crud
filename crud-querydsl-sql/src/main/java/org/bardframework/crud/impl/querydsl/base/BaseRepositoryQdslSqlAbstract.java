@@ -421,16 +421,16 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModelAbstract<
         BooleanExpression expr = this.buildQueryInternal(filter, expression);
 
         if (filter.getGreaterThan() != null) {
-            expr.and(expression.gt(filter.getGreaterThan()));
+            expr = expr.and(expression.gt(filter.getGreaterThan()));
         }
         if (filter.getGreaterThanOrEqual() != null) {
-            expr.and(expression.goe(filter.getGreaterThanOrEqual()));
+            expr = expr.and(expression.goe(filter.getGreaterThanOrEqual()));
         }
         if (filter.getLessThan() != null) {
-            expr.and(expression.lt(filter.getLessThan()));
+            expr = expr.and(expression.lt(filter.getLessThan()));
         }
         if (filter.getLessThanOrEqual() != null) {
-            expr.and(expression.loe(filter.getLessThanOrEqual()));
+            expr = expr.and(expression.loe(filter.getLessThanOrEqual()));
         }
         return expr;
     }
@@ -446,15 +446,15 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModelAbstract<
         BooleanExpression expr = Expressions.asBoolean(true).isTrue();
         if (filter.getSpecified() != null) {
             if (filter.getSpecified()) {
-                expr.and(expression.isNotNull());
+                expr = expr.and(expression.isNotNull());
             } else {
-                expr.and(expression.isNull());
+                expr = expr.and(expression.isNull());
             }
         }
         if (filter.getNotEquals() != null) {
-            expr.and(expression.ne(filter.getNotEquals()));
+            expr = expr.and(expression.ne(filter.getNotEquals()));
         } else if (filter.getNotIn() != null) {
-            expr.and(expression.notIn(filter.getNotIn()));
+            expr = expr.and(expression.notIn(filter.getNotIn()));
         }
         return expr;
     }
@@ -464,16 +464,16 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModelAbstract<
         BooleanExpression expr = this.buildQueryInternal(filter, expression);
 
         if (filter.getGreaterThan() != null) {
-            expr.and(expression.gt(filter.getGreaterThan()));
+            expr = expr.and(expression.gt(filter.getGreaterThan()));
         }
         if (filter.getGreaterThanOrEqual() != null) {
-            expr.and(expression.goe(filter.getGreaterThanOrEqual()));
+            expr = expr.and(expression.goe(filter.getGreaterThanOrEqual()));
         }
         if (filter.getLessThan() != null) {
-            expr.and(expression.lt(filter.getLessThan()));
+            expr = expr.and(expression.lt(filter.getLessThan()));
         }
         if (filter.getLessThanOrEqual() != null) {
-            expr.and(expression.loe(filter.getLessThanOrEqual()));
+            expr = expr.and(expression.loe(filter.getLessThanOrEqual()));
         }
         return expr;
     }
