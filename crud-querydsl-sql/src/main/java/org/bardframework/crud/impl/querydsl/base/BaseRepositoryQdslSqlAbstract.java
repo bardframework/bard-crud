@@ -401,7 +401,7 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModelAbstract<
 //            return likeUpperSpecification(metaclassFunction, filter.getContains());
             return expression.likeIgnoreCase("%" + filter.getContains() + "%");
         } else if (filter.getDoesNotContain() != null) {
-            return expression.notLike(filter.getDoesNotContain());
+            return expression.notLike("%" + filter.getDoesNotContain() + "%");
         } else if (filter.getNotEquals() != null) {
             return expression.ne(filter.getNotEquals());
         } else if (filter.getNotIn() != null) {
