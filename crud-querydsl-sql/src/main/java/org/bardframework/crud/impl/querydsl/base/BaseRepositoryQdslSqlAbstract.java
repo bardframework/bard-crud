@@ -32,6 +32,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Nullable;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -83,8 +84,8 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModelAbstract<
     @Override
     public final M getEmptyModel() {
         try {
-            return modelClazz.newInstance();
-        } catch (IllegalAccessException | InstantiationException e) {
+            return modelClazz.getDeclaredConstructor().newInstance();
+        } catch (IllegalAccessException | InstantiationException | NoSuchMethodException | InvocationTargetException e) {
             this.LOGGER.error("can't instantiate model class using empty constructor {}", this.modelClazz, e);
             throw new IllegalArgumentException("can't instantiate model class using empty constructor" + this.modelClazz, e);
         }
@@ -92,14 +93,12 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModelAbstract<
 
     @Override
     public final C getEmptyCriteria() {
-        C criteria;
         try {
-            criteria = criteriaClazz.newInstance();
-        } catch (IllegalAccessException | InstantiationException e) {
+            return criteriaClazz.getDeclaredConstructor().newInstance();
+        } catch (IllegalAccessException | InstantiationException | NoSuchMethodException | InvocationTargetException e) {
             this.LOGGER.error("can't instantiate criteria class using empty constructor {}", this.criteriaClazz, e);
             throw new IllegalArgumentException("can't instantiate criteria class using empty constructor" + this.criteriaClazz, e);
         }
-        return criteria;
     }
 
     protected <T extends StoreClause<T>> T fillClause(T clause, M model, U user) {
@@ -231,22 +230,22 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModelAbstract<
             return Page.empty();
         }
         query = this.reuseQuery(query);
-        return isUnpaged(pageable) ? new PageImpl<>(this.getList(query)) : this.readPage(query, pageable, count, user);
+        return isUnpaged(pageable) ? new PageImpl<>(this.getList(query)) : this.readPage(query, pageable, count);
     }
 
     private List<M> getList(SQLQuery<?> query) {
         return query.select(this.getQBean()).fetch();
     }
 
-    protected Page<M> readPage(SQLQuery<?> query, Pageable pageable, long count, U user) {
+    protected Page<M> readPage(SQLQuery<?> query, Pageable pageable, long count) {
         if (pageable.isPaged()) {
-            query = this.setPageAndSize(query, pageable, user);
+            query = this.setPageAndSize(query, pageable);
         }
 
         return PageableExecutionUtils.getPage(this.getList(query), pageable, count);
     }
 
-    public <T> SQLQuery<T> setPageAndSize(SQLQuery<T> query, Pageable pageable, U user) {
+    public <T> SQLQuery<T> setPageAndSize(SQLQuery<T> query, Pageable pageable) {
         query.offset(pageable.getPageSize() == 0 ? (Math.max(pageable.getPageNumber(), 0)) * DEFAULT_SIZE : pageable.getOffset());
         query.limit(pageable.getPageSize() == 0 ? DEFAULT_SIZE : pageable.getPageSize());
         return query;
@@ -373,7 +372,7 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModelAbstract<
         return map;
     }
 
-    protected <T, X extends Comparable<? super X>> BooleanExpression buildQuery(Filter<X> filter, ComparableExpression<X> expression) {
+    protected <X extends Comparable<? super X>> BooleanExpression buildQuery(Filter<X> filter, ComparableExpression<X> expression) {
         if (filter.getEquals() != null) {
             return expression.eq(filter.getEquals());
         } else if (filter.getIn() != null) {
@@ -392,7 +391,7 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModelAbstract<
         return Expressions.asBoolean(true).isTrue();
     }
 
-    protected <T> BooleanExpression buildQuery(StringFilter filter, StringExpression expression) {
+    protected BooleanExpression buildQuery(StringFilter filter, StringExpression expression) {
         if (filter.getEquals() != null) {
             return expression.eq(filter.getEquals());
         } else if (filter.getIn() != null) {
@@ -416,8 +415,8 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModelAbstract<
         return Expressions.asBoolean(true).isTrue();
     }
 
-    protected <T, X extends Comparable<? super X>> BooleanExpression buildQuery(RangeFilter<X> filter,
-                                                                                ComparableExpression<X> expression) {
+    protected <X extends Comparable<? super X>> BooleanExpression buildQuery(RangeFilter<X> filter,
+                                                                             ComparableExpression<X> expression) {
         BooleanExpression expr = this.buildQueryInternal(filter, expression);
 
         if (filter.getGreaterThan() != null) {
@@ -435,8 +434,8 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModelAbstract<
         return expr;
     }
 
-    private <T, X extends Comparable<? super X>> BooleanExpression buildQueryInternal(RangeFilter<X> filter,
-                                                                                      ComparableExpressionBase<X> expression) {
+    private <X extends Comparable<? super X>> BooleanExpression buildQueryInternal(RangeFilter<X> filter,
+                                                                                   ComparableExpressionBase<X> expression) {
         if (filter.getEquals() != null) {
             return expression.eq(filter.getEquals());
         } else if (filter.getIn() != null) {
@@ -459,8 +458,8 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModelAbstract<
         return expr;
     }
 
-    protected <T, X extends Number & Comparable<? super X>> BooleanExpression buildQuery(RangeFilter<X> filter,
-                                                                                         NumberExpression<X> expression) {
+    protected <X extends Number & Comparable<? super X>> BooleanExpression buildQuery(RangeFilter<X> filter,
+                                                                                      NumberExpression<X> expression) {
         BooleanExpression expr = this.buildQueryInternal(filter, expression);
 
         if (filter.getGreaterThan() != null) {
