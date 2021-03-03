@@ -242,7 +242,7 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModelAbstract<
             query = this.setPageAndSize(query, pageable);
         }
 
-        return PageableExecutionUtils.getPage(this.getList(query), pageable, count);
+        return PageableExecutionUtils.getPage(this.getList(query), pageable, () -> count);
     }
 
     public <T> SQLQuery<T> setPageAndSize(SQLQuery<T> query, Pageable pageable) {
