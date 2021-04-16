@@ -170,10 +170,13 @@ public abstract class ServiceTestAbstract<M extends BaseModelAbstract<I>, C exte
         Assertions.assertDoesNotThrow(() -> {
             D dto = this.getDataProvider().getDto(this.getUser());
             LOGGER.debug("saving '{}'", dto);
-            M result = service.save(dto, this.getUser());
+            Optional<M> result = service.save(dto, this.getUser());
             LOGGER.debug("save '{}', result is '{}'.", dto, result);
-            assertThat(result.getId()).isNotNull();
-            this.getDataProvider().assertEqualSave(result, service.get(result.getId(), this.getUser()).get());
+            assertThat(result.isPresent()).isTrue();
+            assertThat(result.get().getId()).isNotNull();
+            Optional<M> model = service.get(result.get().getId(), this.getUser());
+            assertThat(model.isPresent()).isTrue();
+            this.getDataProvider().assertEqualSave(result.get(), model.get());
         });
     }
 
@@ -194,10 +197,12 @@ public abstract class ServiceTestAbstract<M extends BaseModelAbstract<I>, C exte
             I id = this.getDataProvider().getId(this.getUser());
             D dto = this.getDataProvider().getDto(this.getUser());
             LOGGER.debug("updating '{}'", dto);
-            M result = service.update(id, dto, this.getUser());
+            Optional<M> result = service.update(id, dto, this.getUser());
             LOGGER.debug("update '{}', result is '{}'.", dto, result);
-            assertThat(id).isEqualTo(result.getId());
+            assertThat(result.isPresent()).isTrue();
+            assertThat(id).isEqualTo(result.get().getId());
             Optional<M> model = service.get(id, this.getUser());
+            assertThat(model.isPresent()).isTrue();
             this.getDataProvider().assertEqualUpdate(model.get(), dto);
         });
     }

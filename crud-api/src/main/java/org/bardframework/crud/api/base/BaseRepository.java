@@ -1,6 +1,5 @@
 package org.bardframework.crud.api.base;
 
-import org.bardframework.crud.api.exception.ModelNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -67,7 +66,7 @@ public interface BaseRepository<M extends BaseModelAbstract<I>, C extends BaseCr
 
     M update(M model, U user);
 
-    M patch(I id, Map<String, Object> fields, U user) throws ModelNotFoundException;
+    Optional<M> patch(I id, Map<String, Object> fields, U user);
 
     Page<M> get(C criteria, Pageable pageable, U user);
 

@@ -9,7 +9,6 @@ import org.apache.commons.lang3.SerializationUtils;
 import org.bardframework.commons.utils.AssertionUtils;
 import org.bardframework.commons.utils.CollectionUtils;
 import org.bardframework.crud.api.event.ModelEventProducer;
-import org.bardframework.crud.api.exception.ModelNotFoundException;
 import org.bardframework.crud.api.filter.IdFilter;
 import org.bardframework.crud.api.util.PageableExecutionUtils;
 import org.slf4j.Logger;
@@ -126,13 +125,13 @@ public abstract class BaseServiceAbstract<M extends BaseModelAbstract<I>, C exte
      */
     @Transactional
     @Override
-    public M save(D dto, U user) throws ModelNotFoundException {
+    public Optional<M> save(D dto, U user) {
         AssertionUtils.notNull(dto, "dto cannot be null.");
         this.preSave(dto, user);
         M model = this.getRepository().save(this.onSave(dto, user), user);
         getEventProducer().onSave(Collections.singletonList(model), user);
         this.postSave(model, dto, user);
-        return this.get(model.getId(), user).orElseThrow(ModelNotFoundException::new);
+        return this.get(model.getId(), user);
     }
 
     /**
@@ -170,16 +169,16 @@ public abstract class BaseServiceAbstract<M extends BaseModelAbstract<I>, C exte
     protected void postSave(M savedModel, D dto, U user) {
     }
 
-    public M patch(I id, Map<String, Object> fields, U user) throws ModelNotFoundException {
+    public Optional<M> patch(I id, Map<String, Object> fields, U user) {
         return repository.patch(id, fields, user);
     }
 
     @Transactional
     @Override
-    public M update(I id, D dto, U user) throws ModelNotFoundException {
+    public Optional<M> update(I id, D dto, U user) {
         Optional<M> model = this.getRepository().get(id, user);
         if (!model.isPresent()) {
-            throw new ModelNotFoundException();
+            return Optional.empty();
         }
 
         this.preUpdate(model.get(), dto, user);
@@ -187,15 +186,15 @@ public abstract class BaseServiceAbstract<M extends BaseModelAbstract<I>, C exte
         this.getRepository().update(this.onUpdate(dto, model.get(), user), user);
         getEventProducer().onUpdate(pre, model.get(), user);
         this.postUpdate(model.get(), dto, user);
-        return this.get(model.get().getId(), user).orElseThrow(ModelNotFoundException::new);
+        return this.get(model.get().getId(), user);
     }
 
     @Transactional
     @Override
-    public M patch(I id, JsonPatch patch, U user) throws JsonPatchException, JsonProcessingException, ModelNotFoundException {
+    public Optional<M> patch(I id, JsonPatch patch, U user) throws JsonPatchException, JsonProcessingException {
         Optional<M> model = this.getRepository().get(id, user);
         if (!model.isPresent()) {
-            throw new ModelNotFoundException();
+            return Optional.empty();
         }
 
 //        this.preUpdate(model, dto, user);
@@ -204,7 +203,7 @@ public abstract class BaseServiceAbstract<M extends BaseModelAbstract<I>, C exte
         this.getRepository().update(patched, user);
         getEventProducer().onUpdate(pre, model.get(), user);
 //        this.postUpdate(model, dto, user);
-        return this.getRepository().get(model.get().getId(), user).orElseThrow(ModelNotFoundException::new);
+        return this.getRepository().get(model.get().getId(), user);
     }
 
     private M applyPatchToCustomer(JsonPatch patch, M model) throws JsonPatchException, JsonProcessingException {

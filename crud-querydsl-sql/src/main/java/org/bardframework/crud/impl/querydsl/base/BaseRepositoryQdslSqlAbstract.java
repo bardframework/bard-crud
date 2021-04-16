@@ -19,7 +19,6 @@ import org.bardframework.commons.utils.CollectionUtils;
 import org.bardframework.crud.api.base.BaseCriteriaAbstract;
 import org.bardframework.crud.api.base.BaseModelAbstract;
 import org.bardframework.crud.api.base.BaseRepository;
-import org.bardframework.crud.api.exception.ModelNotFoundException;
 import org.bardframework.crud.api.filter.IdFilter;
 import org.bardframework.crud.api.util.PageableExecutionUtils;
 import org.slf4j.Logger;
@@ -35,6 +34,7 @@ import javax.annotation.Nullable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
 import java.util.*;
+import java.util.function.LongSupplier;
 import java.util.stream.Collectors;
 
 /**
@@ -159,7 +159,7 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModelAbstract<
 
     @Transactional
     @Override
-    public M patch(I id, Map<String, Object> fields, U user) throws ModelNotFoundException {
+    public Optional<M> patch(I id, Map<String, Object> fields, U user) {
         final SQLUpdateClause updateClause = this.getQueryFactory().update(getEntity()).where(this.getIdentifierPath().eq(id));
 
         List<Path> columns = (List) getEntity().getColumns();
@@ -174,7 +174,7 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModelAbstract<
         if (1 != affectedRowsCount) {
             throw new IllegalStateException("expect affect one row, but " + affectedRowsCount + " row(s) updated.");
         }
-        return get(id, user).orElseThrow(ModelNotFoundException::new);
+        return this.get(id, user);
     }
 
     public abstract <T extends ComparableExpression<I>> T getIdentifierPath();
@@ -230,19 +230,19 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModelAbstract<
             return Page.empty();
         }
         query = this.reuseQuery(query);
-        return isUnpaged(pageable) ? new PageImpl<>(this.getList(query)) : this.readPage(query, pageable, count);
+        return isUnpaged(pageable) ? new PageImpl<>(this.getList(query)) : this.readPage(query, pageable, () -> count);
     }
 
     private List<M> getList(SQLQuery<?> query) {
         return query.select(this.getQBean()).fetch();
     }
 
-    protected Page<M> readPage(SQLQuery<?> query, Pageable pageable, long count) {
+    protected Page<M> readPage(SQLQuery<?> query, Pageable pageable, LongSupplier totalSupplier) {
         if (pageable.isPaged()) {
             query = this.setPageAndSize(query, pageable);
         }
 
-        return PageableExecutionUtils.getPage(this.getList(query), pageable, () -> count);
+        return PageableExecutionUtils.getPage(this.getList(query), pageable, totalSupplier);
     }
 
     public <T> SQLQuery<T> setPageAndSize(SQLQuery<T> query, Pageable pageable) {
