@@ -39,14 +39,17 @@ public abstract class BaseServiceAbstract<M extends BaseModelAbstract<I>, C exte
     ObjectMapper mapper;
 
     public List<M> get(List<I> ids, U user) {
-        return this.getRepository().get(ids, user);
+        List<M> list = this.getRepository().get(ids, user);
+        return this.postFetch(list, user);
     }
 
     /**
      * get all data match with given <code>criteria</code>
      */
     public List<M> get(C criteria, U user) {
-        return this.getRepository().get(criteria, user);
+        List<M> list = this.getRepository().get(criteria, user);
+        return this.postFetch(list, user);
+
     }
 
     /**
@@ -250,11 +253,13 @@ public abstract class BaseServiceAbstract<M extends BaseModelAbstract<I>, C exte
 
     @Override
     public final Page<M> get(C criteria, Pageable pageable, U user) {
-        Page<M> list = this.getRepository().get(criteria, pageable, user);
-        return this.postFetch(list, pageable, user);
+        Page<M> page = this.getRepository().get(criteria, pageable, user);
+
+        List<M> list = this.postFetch(page.toList(), user);
+        return this.paging(list, pageable, page::getTotalElements);
     }
 
-    protected Page<M> postFetch(Page<M> page, Pageable pageable, U user) {
+    protected List<M> postFetch(List<M> page, U user) {
         return page;
     }
 
@@ -268,7 +273,6 @@ public abstract class BaseServiceAbstract<M extends BaseModelAbstract<I>, C exte
     @Override
     public final Optional<M> get(I id, U user) {
         Optional<M> model = this.getRepository().get(id, user);
-
         return model.map(m -> postFetch(m, user));
     }
 
@@ -277,6 +281,7 @@ public abstract class BaseServiceAbstract<M extends BaseModelAbstract<I>, C exte
     }
 
     public List<M> getAll(U user) {
-        return this.getRepository().getAll(user);
+        List<M> list = this.getRepository().getAll(user);
+        return this.postFetch(list, user);
     }
 }
