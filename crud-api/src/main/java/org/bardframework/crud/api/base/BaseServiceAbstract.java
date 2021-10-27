@@ -56,7 +56,9 @@ public abstract class BaseServiceAbstract<M extends BaseModelAbstract<I>, C exte
      * @return one entity with given criteria
      */
     public Optional<M> getOne(C criteria, U user) {
-        return this.getRepository().getOne(criteria, user);
+        Optional<M> model = this.getRepository().getOne(criteria, user);
+        return model
+                .map(m -> this.postFetch(m, user));
     }
 
     @Transactional
@@ -173,7 +175,9 @@ public abstract class BaseServiceAbstract<M extends BaseModelAbstract<I>, C exte
     }
 
     public Optional<M> patch(I id, Map<String, Object> fields, U user) {
-        return repository.patch(id, fields, user);
+        Optional<M> model = repository.patch(id, fields, user);
+        return model
+                .map(m -> this.postFetch(m, user));
     }
 
     @Transactional
@@ -206,7 +210,9 @@ public abstract class BaseServiceAbstract<M extends BaseModelAbstract<I>, C exte
         this.getRepository().update(patched, user);
         getEventProducer().onUpdate(pre, model.get(), user);
 //        this.postUpdate(model, dto, user);
-        return this.getRepository().get(model.get().getId(), user);
+        model = this.getRepository().get(model.get().getId(), user);
+        return model
+                .map(m -> this.postFetch(m, user));
     }
 
     private M applyPatchToCustomer(JsonPatch patch, M model) throws JsonPatchException, JsonProcessingException {
@@ -273,7 +279,8 @@ public abstract class BaseServiceAbstract<M extends BaseModelAbstract<I>, C exte
     @Override
     public final Optional<M> get(I id, U user) {
         Optional<M> model = this.getRepository().get(id, user);
-        return model.map(m -> postFetch(m, user));
+        return model
+                .map(m -> this.postFetch(m, user));
     }
 
     protected Page<M> paging(List<M> list, Pageable pageable, LongSupplier supplier) {
