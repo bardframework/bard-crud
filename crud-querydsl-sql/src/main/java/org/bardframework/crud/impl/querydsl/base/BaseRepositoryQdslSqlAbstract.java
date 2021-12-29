@@ -130,10 +130,10 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModelAbstract<
         }
         SQLInsertClause insertClause = this.getQueryFactory().insert(this.getEntity());
         models.forEach(model -> {
-                    this.setIdentifier(model, user);
+                    this.fillClause(insertClause, model, user);
+            this.setIdentifier(model, user);
                     AssertionUtils.notNull(model.getId(), "model identifier is not provided in 'setIdentifier' method");
                     insertClause.set(getIdentifierPath(), model.getId());
-                    this.fillClause(insertClause, model, user);
                     insertClause.addBatch();
                 }
         );
