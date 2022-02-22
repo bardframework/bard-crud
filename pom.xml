@@ -11,13 +11,13 @@
 
     <groupId>org.bardframework.crud</groupId>
     <artifactId>crud-parent</artifactId>
-    <version>0.4.3</version>
+    <version>0.4.4</version>
     <packaging>pom</packaging>
 
     <properties>
         <assertj.version>3.19.0</assertj.version>
         <bardframework.commons.version>0.4</bardframework.commons.version>
-        <guava.version>30.1.1-jre</guava.version>
+        <guava.version>31.0.1-jre</guava.version>
         <hibernate-jpa.version>1.0.2.Final</hibernate-jpa.version>
         <jakarta-servlet.version>4.0.4</jakarta-servlet.version>
         <jakarta-validation.version>2.0.2</jakarta-validation.version>
@@ -25,9 +25,10 @@
         <junit-jupiter.version>5.7.0</junit-jupiter.version>
         <maven-jar-plugin.version>3.2.0</maven-jar-plugin.version>
         <querydsl.version>4.4.0</querydsl.version>
-        <slf4j.version>1.7.30</slf4j.version>
-        <spring-framework.version>5.3.6</spring-framework.version>
-        <spring-boot.version>2.4.5</spring-boot.version>
+        <slf4j.version>1.7.32</slf4j.version>
+        <spring-framework.version>5.3.15</spring-framework.version>
+        <spring-boot.version>2.6.3</spring-boot.version>
+        <spring-data-commons.version>2.6.2</spring-data-commons.version>
     </properties>
 
     <modules>
@@ -112,7 +113,7 @@
             <dependency>
                 <groupId>org.springframework.data</groupId>
                 <artifactId>spring-data-commons</artifactId>
-                <version>${spring-boot.version}</version>
+                <version>${spring-data-commons.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.fasterxml.jackson</groupId>
