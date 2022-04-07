@@ -5,29 +5,22 @@
     <parent>
         <groupId>org.bardframework</groupId>
         <artifactId>bard-parent</artifactId>
-        <version>4</version>
+        <version>6</version>
         <relativePath/>
     </parent>
 
     <groupId>org.bardframework.crud</groupId>
     <artifactId>crud-parent</artifactId>
-    <version>0.9.4</version>
+    <version>1.1.20</version>
     <packaging>pom</packaging>
 
     <properties>
         <!-- versions -->
-        <assertj.version>3.21.0</assertj.version>
-        <bardframework.commons.version>0.9.5</bardframework.commons.version>
-        <guava.version>31.0.1-jre</guava.version>
-        <jackson-bom.version>2.13.0</jackson-bom.version>
+        <bardframework.commons.version>1.1.16</bardframework.commons.version>
+        <guava.version>31.1-jre</guava.version>
         <jakarta-persistence.version>2.2.3</jakarta-persistence.version>
-        <jakarta-servlet.version>4.0.4</jakarta-servlet.version>
-        <jakarta-validation.version>2.0.2</jakarta-validation.version>
-        <junit-jupiter.version>5.8.1</junit-jupiter.version>
         <querydsl.version>5.0.0</querydsl.version>
-        <slf4j.version>1.7.32</slf4j.version>
-        <spring-boot.version>2.6.0</spring-boot.version>
-        <spring-framework.version>5.3.13</spring-framework.version>
+        <spring-boot.version>2.6.6</spring-boot.version>
         <!-- plugin versions -->
         <maven-jar-plugin.version>3.2.0</maven-jar-plugin.version>
         <!-- variables -->
@@ -47,13 +40,11 @@
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>
-            <version>${assertj.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-engine</artifactId>
-            <version>${junit-jupiter.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -61,9 +52,11 @@
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>jakarta.validation</groupId>
-                <artifactId>jakarta.validation-api</artifactId>
-                <version>${jakarta-validation.version}</version>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-dependencies</artifactId>
+                <version>${spring-boot.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
             </dependency>
             <dependency>
                 <groupId>org.bardframework.crud</groupId>
@@ -94,48 +87,6 @@
                 <groupId>org.bardframework.commons</groupId>
                 <artifactId>common-jackson</artifactId>
                 <version>${bardframework.commons.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-web</artifactId>
-                <version>${spring-framework.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-context</artifactId>
-                <version>${spring-framework.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework</groupId>
-                <artifactId>spring-tx</artifactId>
-                <version>${spring-framework.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>slf4j-api</artifactId>
-                <version>${slf4j.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.data</groupId>
-                <artifactId>spring-data-commons</artifactId>
-                <version>${spring-boot.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>com.fasterxml.jackson</groupId>
-                <artifactId>jackson-bom</artifactId>
-                <version>${jackson-bom.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.slf4j</groupId>
-                <artifactId>jcl-over-slf4j</artifactId>
-                <version>${slf4j.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>jakarta.servlet</groupId>
-                <artifactId>jakarta.servlet-api</artifactId>
-                <version>${jakarta-servlet.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

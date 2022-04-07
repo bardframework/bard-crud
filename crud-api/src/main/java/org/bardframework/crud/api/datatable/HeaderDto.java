@@ -1,9 +1,9 @@
 package org.bardframework.crud.api.datatable;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.bardframework.commons.utils.CollectionUtils;
-import org.bardframework.commons.utils.StringUtils;
-import org.bardframework.crud.api.UtilityMethods;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.bardframework.crud.api.util.HeaderUtil;
 import org.bardframework.crud.common.model.BaseData;
 import org.springframework.context.MessageSource;
 
@@ -58,7 +58,7 @@ public class HeaderDto {
     }
 
     public void resolveName(MessageSource messageSource, Locale locale) {
-        this.name = UtilityMethods.translate(this.messageKeys, messageSource, locale);
+        this.name = HeaderUtil.translate(this.messageKeys, messageSource, locale);
     }
 
     public String getId() {
@@ -208,6 +208,6 @@ public class HeaderDto {
 
     @JsonIgnore
     public boolean isEmpty() {
-        return CollectionUtils.isEmpty(selected) && StringUtils.hasNotText(min) && StringUtils.hasNotText(max) && StringUtils.hasNotText(query) && visible != null && sort != null;
+        return CollectionUtils.isEmpty(selected) && StringUtils.isBlank(min) && StringUtils.isBlank(max) && StringUtils.isBlank(query) && visible != null && sort != null;
     }
 }

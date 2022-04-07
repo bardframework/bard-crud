@@ -1,7 +1,7 @@
 package org.bardframework.crud.impl.querydsl.datatable;
 
 import com.querydsl.sql.mssql.SQLServerQuery;
-import org.bardframework.commons.utils.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;

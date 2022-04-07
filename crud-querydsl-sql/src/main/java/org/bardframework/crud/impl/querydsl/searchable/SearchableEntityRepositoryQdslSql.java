@@ -5,8 +5,8 @@ import com.querydsl.core.types.Path;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.StringPath;
 import com.querydsl.sql.SQLQuery;
+import org.apache.commons.lang3.StringUtils;
 import org.bardframework.commons.reflection.ReflectionUtils;
-import org.bardframework.commons.utils.StringUtils;
 import org.bardframework.crud.api.base.BaseCriteria;
 import org.bardframework.crud.api.base.BaseModelAbstract;
 import org.bardframework.crud.api.searchable.SearchableCriteria;
@@ -68,7 +68,7 @@ public interface SearchableEntityRepositoryQdslSql<M extends BaseModelAbstract<I
 
     @Override
     default <T> SQLQuery<T> process(C criteria, SQLQuery<T> query, U user) {
-        if (StringUtils.hasNotText(criteria.getQuery())) {
+        if (StringUtils.isBlank(criteria.getQuery())) {
             return query;
         }
         BooleanExpression searchExpression = this.getSearchPaths()[0].like("%" + criteria.getQuery() + "%", ' ');

@@ -1,8 +1,8 @@
 package org.bardframework.crud.api.datatable;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import org.bardframework.commons.utils.CollectionUtils;
-import org.bardframework.commons.utils.StringUtils;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 
@@ -66,6 +66,6 @@ public class DataTableFilter<F extends DataTableFilter<F>> {
 
     @JsonIgnore
     public boolean isEmpty() {
-        return (0 == count || 10 == count) && page < 2 && !StringUtils.hasText(query) && (CollectionUtils.isEmpty(headers) || headers.stream().allMatch(HeaderDto::isEmpty));
+        return (0 == count || 10 == count) && page < 2 && !StringUtils.isNotBlank(query) && (CollectionUtils.isEmpty(headers) || headers.stream().allMatch(HeaderDto::isEmpty));
     }
 }

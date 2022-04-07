@@ -1,6 +1,6 @@
 package org.bardframework.crud.api.datatable;
 
-import org.bardframework.commons.utils.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.bardframework.crud.api.datatable.event.DataTableCacheStructureUpdated;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;

@@ -1,7 +1,7 @@
 package org.bardframework.crud.api.base;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.bardframework.commons.utils.AssertionUtils;
-import org.bardframework.commons.utils.CollectionUtils;
 import org.bardframework.crud.api.filter.IdFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
