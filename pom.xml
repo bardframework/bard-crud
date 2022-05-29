@@ -5,28 +5,24 @@
     <parent>
         <groupId>org.bardframework</groupId>
         <artifactId>bard-parent</artifactId>
-        <version>6</version>
+        <version>11</version>
         <relativePath/>
     </parent>
 
     <groupId>org.bardframework.crud</groupId>
     <artifactId>crud-parent</artifactId>
-    <version>1.1.20</version>
+    <version>1.3.5</version>
     <packaging>pom</packaging>
 
     <properties>
         <!-- versions -->
-        <bardframework.commons.version>1.1.16</bardframework.commons.version>
+        <bardframework.commons.version>1.3.6</bardframework.commons.version>
         <guava.version>31.1-jre</guava.version>
-        <jakarta-persistence.version>2.2.3</jakarta-persistence.version>
+        <jakarta-persistence.version>3.1.0</jakarta-persistence.version>
         <querydsl.version>5.0.0</querydsl.version>
-        <spring-boot.version>2.6.6</spring-boot.version>
+        <spring-boot.version>2.7.0</spring-boot.version>
         <!-- plugin versions -->
         <maven-jar-plugin.version>3.2.0</maven-jar-plugin.version>
-        <!-- variables -->
-        <maven.compiler.release>8</maven.compiler.release>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     </properties>
 
     <modules>

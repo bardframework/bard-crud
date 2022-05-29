@@ -1,6 +1,6 @@
 package org.bardframework.crud.api.base;
 
-import org.bardframework.commons.utils.RandomUtils;
+import org.apache.commons.lang3.RandomUtils;
 import org.bardframework.crud.api.filter.IdFilter;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;

@@ -1,6 +1,6 @@
 package org.bardframework.crud.api.datatable;
 
-import org.bardframework.commons.reflection.ReflectionUtils;
+import org.bardframework.commons.utils.ReflectionUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

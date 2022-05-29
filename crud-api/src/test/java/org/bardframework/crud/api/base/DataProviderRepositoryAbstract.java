@@ -1,7 +1,7 @@
 package org.bardframework.crud.api.base;
 
+import org.apache.commons.lang3.RandomUtils;
 import org.assertj.core.api.Assertions;
-import org.bardframework.commons.utils.RandomUtils;
 import org.bardframework.crud.api.filter.IdFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

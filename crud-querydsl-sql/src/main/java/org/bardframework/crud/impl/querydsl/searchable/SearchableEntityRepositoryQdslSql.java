@@ -6,7 +6,7 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.StringPath;
 import com.querydsl.sql.SQLQuery;
 import org.apache.commons.lang3.StringUtils;
-import org.bardframework.commons.reflection.ReflectionUtils;
+import org.bardframework.commons.utils.ReflectionUtils;
 import org.bardframework.crud.api.base.BaseCriteria;
 import org.bardframework.crud.api.base.BaseModelAbstract;
 import org.bardframework.crud.api.searchable.SearchableCriteria;
