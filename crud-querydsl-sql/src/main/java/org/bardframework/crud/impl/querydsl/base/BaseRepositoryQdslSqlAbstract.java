@@ -10,19 +10,18 @@ import com.querydsl.sql.SQLQuery;
 import com.querydsl.sql.SQLQueryFactory;
 import com.querydsl.sql.dml.SQLInsertClause;
 import com.querydsl.sql.dml.SQLUpdateClause;
-import io.github.jhipster.service.filter.Filter;
-import io.github.jhipster.service.filter.RangeFilter;
-import io.github.jhipster.service.filter.StringFilter;
 import org.apache.commons.collections4.CollectionUtils;
 import org.bardframework.commons.utils.AssertionUtils;
 import org.bardframework.crud.api.base.BaseCriteriaAbstract;
 import org.bardframework.crud.api.base.BaseModelAbstract;
 import org.bardframework.crud.api.base.BaseRepository;
+import org.bardframework.crud.api.filter.Filter;
 import org.bardframework.crud.api.filter.IdFilter;
-import org.bardframework.crud.api.util.PageableExecutionUtils;
+import org.bardframework.crud.api.filter.RangeFilter;
+import org.bardframework.crud.api.filter.StringFilter;
+import org.bardframework.crud.api.util.PaginationUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -47,11 +46,10 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModelAbstract<
     protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
     protected final Class<M> modelClazz;
     protected final Class<C> criteriaClazz;
+    private final SQLQueryFactory queryFactory;
 
-    @Autowired
-    private SQLQueryFactory queryFactory;
-
-    public BaseRepositoryQdslSqlAbstract() {
+    public BaseRepositoryQdslSqlAbstract(SQLQueryFactory queryFactory) {
+        this.queryFactory = queryFactory;
         ParameterizedType parameterizedType = null;
         Class<?> targetClazz = this.getClass();
         while (!(null != parameterizedType && parameterizedType.getActualTypeArguments().length >= 2) && null != targetClazz) {
@@ -103,7 +101,7 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModelAbstract<
 
     protected <T extends StoreClause<T>> T fillClause(T clause, M model, U user) {
         clause = this.toClause(clause, model, user);
-        for (Class clazz : this.getClass().getInterfaces()) {
+        for (Class<?> clazz : this.getClass().getInterfaces()) {
             if (WriteExtendedRepositoryQdslSql.class.isAssignableFrom(clazz)) {
                 ((WriteExtendedRepositoryQdslSql) this).process(clause, model, user);
             }
@@ -118,8 +116,6 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModelAbstract<
     }
 
     /**
-     * @param models
-     * @param user
      * @return not changed models if models is null or empty, saved models otherwise.
      */
     @Transactional
@@ -191,9 +187,9 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModelAbstract<
             query.where(buildQuery(criteria.getId(), this.getIdentifierPath()));
         }
 
-        for (Class clazz : this.getClass().getInterfaces()) {
+        for (Class<?> clazz : this.getClass().getInterfaces()) {
             if (ReadExtendedRepositoryQdslSql.class.isAssignableFrom(clazz)) {
-                ((ReadExtendedRepositoryQdslSql) this).process(criteria, query, user);
+                ((ReadExtendedRepositoryQdslSql<C, ?, U>) this).process(criteria, query, user);
             }
         }
         query = this.setOrders(query, criteria, sort, user);
@@ -222,11 +218,11 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModelAbstract<
             query = this.setPageAndSize(query, pageable, user);
         }
 
-        return PageableExecutionUtils.getPage(this.getList(query), pageable, count);
+        return PaginationUtil.getPage(this.getList(query), pageable, count);
     }
 
     public <T> SQLQuery<T> setPageAndSize(SQLQuery<T> query, Pageable pageable, U user) {
-        query.offset(pageable.getPageSize() == 0 ? (Math.max(pageable.getPageNumber(), 0)) * DEFAULT_SIZE : pageable.getOffset());
+        query.offset(pageable.getPageSize() == 0 ? (long) (Math.max(pageable.getPageNumber(), 0)) * DEFAULT_SIZE : pageable.getOffset());
         query.limit(pageable.getPageSize() == 0 ? DEFAULT_SIZE : pageable.getPageSize());
         return query;
     }
@@ -390,8 +386,7 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModelAbstract<
         return Expressions.asBoolean(true).isTrue();
     }
 
-    protected <T, X extends Comparable<? super X>> BooleanExpression buildQuery(RangeFilter<X> filter,
-                                                                                ComparableExpression<X> expression) {
+    protected <T, X extends Comparable<? super X>> BooleanExpression buildQuery(RangeFilter<X> filter, ComparableExpression<X> expression) {
         BooleanExpression expr = this.buildQueryInternal(filter, expression);
 
         if (filter.getGreaterThan() != null) {
@@ -409,8 +404,7 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModelAbstract<
         return expr;
     }
 
-    private <T, X extends Comparable<? super X>> BooleanExpression buildQueryInternal(RangeFilter<X> filter,
-                                                                                      ComparableExpressionBase<X> expression) {
+    private <T, X extends Comparable<? super X>> BooleanExpression buildQueryInternal(RangeFilter<X> filter, ComparableExpressionBase<X> expression) {
         if (filter.getEquals() != null) {
             return expression.eq(filter.getEquals());
         } else if (filter.getIn() != null) {
@@ -433,8 +427,7 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModelAbstract<
         return expr;
     }
 
-    protected <T, X extends Number & Comparable<? super X>> BooleanExpression buildQuery(RangeFilter<X> filter,
-                                                                                         NumberExpression<X> expression) {
+    protected <T, X extends Number & Comparable<? super X>> BooleanExpression buildQuery(RangeFilter<X> filter, NumberExpression<X> expression) {
         BooleanExpression expr = this.buildQueryInternal(filter, expression);
 
         if (filter.getGreaterThan() != null) {

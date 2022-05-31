@@ -16,41 +16,41 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.jhipster.service.filter;
+package org.bardframework.crud.api.filter;
 
-import java.time.Duration;
+import java.util.UUID;
 
 /**
- * Filter class for {@link Duration} type attributes.
+ * Filter class for {@link UUID} type attributes.
  *
  * @see Filter
  */
-public class DurationFilter extends RangeFilter<Duration> {
+public class UUIDFilter extends Filter<UUID> {
 
     private static final long serialVersionUID = 1L;
 
     /**
-     * <p>Constructor for DurationFilter.</p>
+     * <p>Constructor for UUIDFilter.</p>
      */
-    public DurationFilter() {
+    public UUIDFilter() {
     }
 
     /**
-     * <p>Constructor for DurationFilter.</p>
+     * <p>Constructor for UUIDFilter.</p>
      *
-     * @param filter a {@link io.github.jhipster.service.filter.DurationFilter} object.
+     * @param filter a {@link UUIDFilter} object.
      */
-    public DurationFilter(final DurationFilter filter) {
+    public UUIDFilter(final UUIDFilter filter) {
         super(filter);
     }
 
     /**
      * <p>copy.</p>
      *
-     * @return a {@link io.github.jhipster.service.filter.DurationFilter} object.
+     * @return a {@link UUIDFilter} object.
      */
-    public DurationFilter copy() {
-        return new DurationFilter(this);
+    public UUIDFilter copy() {
+        return new UUIDFilter(this);
     }
 
 }

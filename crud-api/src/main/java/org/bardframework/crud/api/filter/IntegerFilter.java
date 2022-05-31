@@ -16,39 +16,40 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.jhipster.service.filter;
+
+package org.bardframework.crud.api.filter;
 
 /**
- * Filter class for {@link Double} type attributes.
+ * Filter class for {@link Integer} type attributes.
  *
  * @see RangeFilter
  */
-public class DoubleFilter extends RangeFilter<Double> {
+public class IntegerFilter extends RangeFilter<Integer> {
 
     private static final long serialVersionUID = 1L;
 
     /**
-     * <p>Constructor for DoubleFilter.</p>
+     * <p>Constructor for IntegerFilter.</p>
      */
-    public DoubleFilter() {
+    public IntegerFilter() {
     }
 
     /**
-     * <p>Constructor for DoubleFilter.</p>
+     * <p>Constructor for IntegerFilter.</p>
      *
-     * @param filter a {@link io.github.jhipster.service.filter.DoubleFilter} object.
+     * @param filter a {@link IntegerFilter} object.
      */
-    public DoubleFilter(final DoubleFilter filter) {
+    public IntegerFilter(final IntegerFilter filter) {
         super(filter);
     }
 
     /**
      * <p>copy.</p>
      *
-     * @return a {@link io.github.jhipster.service.filter.DoubleFilter} object.
+     * @return a {@link IntegerFilter} object.
      */
-    public DoubleFilter copy() {
-        return new DoubleFilter(this);
+    public IntegerFilter copy() {
+        return new IntegerFilter(this);
     }
 
 }

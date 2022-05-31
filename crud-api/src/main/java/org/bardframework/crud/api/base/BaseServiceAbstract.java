@@ -5,7 +5,6 @@ import org.bardframework.commons.utils.AssertionUtils;
 import org.bardframework.crud.api.filter.IdFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -26,10 +25,11 @@ public abstract class BaseServiceAbstract<M extends BaseModelAbstract<I>, C exte
     protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
     protected final Class<M> modelClazz;
     protected final Class<C> criteriaClazz;
-    @Autowired
-    protected R repository;
 
-    public BaseServiceAbstract() {
+    protected final R repository;
+
+    public BaseServiceAbstract(R repository) {
+        this.repository = repository;
         ParameterizedType parameterizedType = null;
         Class<?> targetClazz = this.getClass();
         while (!(null != parameterizedType && parameterizedType.getActualTypeArguments().length >= 2) && null != targetClazz) {

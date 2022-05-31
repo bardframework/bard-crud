@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bardframework.crud.api.util.HeaderUtil;
-import org.bardframework.crud.common.model.BaseData;
 import org.springframework.context.MessageSource;
 
 import java.util.List;

@@ -17,53 +17,53 @@
  * limitations under the License.
  */
 
-package io.github.jhipster.service.filter;
+package org.bardframework.crud.api.filter;
 
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.format.annotation.DateTimeFormat.ISO;
 
-import java.time.ZonedDateTime;
+import java.time.LocalDate;
 import java.util.List;
 
 /**
- * Filter class for {@link ZonedDateTime} type attributes.
+ * Filter class for {@link LocalDate} type attributes.
  *
  * @see RangeFilter
  */
-public class ZonedDateTimeFilter extends RangeFilter<ZonedDateTime> {
+public class LocalDateFilter extends RangeFilter<LocalDate> {
 
     private static final long serialVersionUID = 1L;
 
     /**
-     * <p>Constructor for ZonedDateTimeFilter.</p>
+     * <p>Constructor for LocalDateFilter.</p>
      */
-    public ZonedDateTimeFilter() {
+    public LocalDateFilter() {
     }
 
     /**
-     * <p>Constructor for ZonedDateTimeFilter.</p>
+     * <p>Constructor for LocalDateFilter.</p>
      *
-     * @param filter a {@link io.github.jhipster.service.filter.ZonedDateTimeFilter} object.
+     * @param filter a {@link LocalDateFilter} object.
      */
-    public ZonedDateTimeFilter(final ZonedDateTimeFilter filter) {
+    public LocalDateFilter(final LocalDateFilter filter) {
         super(filter);
     }
 
     /**
      * <p>copy.</p>
      *
-     * @return a {@link io.github.jhipster.service.filter.ZonedDateTimeFilter} object.
+     * @return a {@link LocalDateFilter} object.
      */
-    public ZonedDateTimeFilter copy() {
-        return new ZonedDateTimeFilter(this);
+    public LocalDateFilter copy() {
+        return new LocalDateFilter(this);
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    @DateTimeFormat(iso = ISO.DATE_TIME)
-    public ZonedDateTimeFilter setEquals(ZonedDateTime equals) {
+    @DateTimeFormat(iso = ISO.DATE)
+    public LocalDateFilter setEquals(LocalDate equals) {
         super.setEquals(equals);
         return this;
     }
@@ -72,8 +72,8 @@ public class ZonedDateTimeFilter extends RangeFilter<ZonedDateTime> {
      * {@inheritDoc}
      */
     @Override
-    @DateTimeFormat(iso = ISO.DATE_TIME)
-    public ZonedDateTimeFilter setNotEquals(ZonedDateTime equals) {
+    @DateTimeFormat(iso = ISO.DATE)
+    public LocalDateFilter setNotEquals(LocalDate equals) {
         super.setNotEquals(equals);
         return this;
     }
@@ -82,8 +82,8 @@ public class ZonedDateTimeFilter extends RangeFilter<ZonedDateTime> {
      * {@inheritDoc}
      */
     @Override
-    @DateTimeFormat(iso = ISO.DATE_TIME)
-    public ZonedDateTimeFilter setGreaterThan(ZonedDateTime equals) {
+    @DateTimeFormat(iso = ISO.DATE)
+    public LocalDateFilter setGreaterThan(LocalDate equals) {
         super.setGreaterThan(equals);
         return this;
     }
@@ -92,8 +92,8 @@ public class ZonedDateTimeFilter extends RangeFilter<ZonedDateTime> {
      * {@inheritDoc}
      */
     @Override
-    @DateTimeFormat(iso = ISO.DATE_TIME)
-    public ZonedDateTimeFilter setGreaterThanOrEqual(ZonedDateTime equals) {
+    @DateTimeFormat(iso = ISO.DATE)
+    public LocalDateFilter setGreaterThanOrEqual(LocalDate equals) {
         super.setGreaterThanOrEqual(equals);
         return this;
     }
@@ -102,9 +102,9 @@ public class ZonedDateTimeFilter extends RangeFilter<ZonedDateTime> {
      * {@inheritDoc}
      */
     @Override
-    @DateTimeFormat(iso = ISO.DATE_TIME)
+    @DateTimeFormat(iso = ISO.DATE)
     @Deprecated
-    public ZonedDateTimeFilter setGreaterOrEqualThan(ZonedDateTime equals) {
+    public LocalDateFilter setGreaterOrEqualThan(LocalDate equals) {
         super.setGreaterOrEqualThan(equals);
         return this;
     }
@@ -113,8 +113,8 @@ public class ZonedDateTimeFilter extends RangeFilter<ZonedDateTime> {
      * {@inheritDoc}
      */
     @Override
-    @DateTimeFormat(iso = ISO.DATE_TIME)
-    public ZonedDateTimeFilter setLessThan(ZonedDateTime equals) {
+    @DateTimeFormat(iso = ISO.DATE)
+    public LocalDateFilter setLessThan(LocalDate equals) {
         super.setLessThan(equals);
         return this;
     }
@@ -123,8 +123,8 @@ public class ZonedDateTimeFilter extends RangeFilter<ZonedDateTime> {
      * {@inheritDoc}
      */
     @Override
-    @DateTimeFormat(iso = ISO.DATE_TIME)
-    public ZonedDateTimeFilter setLessThanOrEqual(ZonedDateTime equals) {
+    @DateTimeFormat(iso = ISO.DATE)
+    public LocalDateFilter setLessThanOrEqual(LocalDate equals) {
         super.setLessThanOrEqual(equals);
         return this;
     }
@@ -135,7 +135,7 @@ public class ZonedDateTimeFilter extends RangeFilter<ZonedDateTime> {
     @Override
     @DateTimeFormat(iso = ISO.DATE_TIME)
     @Deprecated
-    public ZonedDateTimeFilter setLessOrEqualThan(ZonedDateTime equals) {
+    public LocalDateFilter setLessOrEqualThan(LocalDate equals) {
         super.setLessOrEqualThan(equals);
         return this;
     }
@@ -144,8 +144,8 @@ public class ZonedDateTimeFilter extends RangeFilter<ZonedDateTime> {
      * {@inheritDoc}
      */
     @Override
-    @DateTimeFormat(iso = ISO.DATE_TIME)
-    public ZonedDateTimeFilter setIn(List<ZonedDateTime> in) {
+    @DateTimeFormat(iso = ISO.DATE)
+    public LocalDateFilter setIn(List<LocalDate> in) {
         super.setIn(in);
         return this;
     }
@@ -154,9 +154,10 @@ public class ZonedDateTimeFilter extends RangeFilter<ZonedDateTime> {
      * {@inheritDoc}
      */
     @Override
-    @DateTimeFormat(iso = ISO.DATE_TIME)
-    public ZonedDateTimeFilter setNotIn(List<ZonedDateTime> notIn) {
+    @DateTimeFormat(iso = ISO.DATE)
+    public LocalDateFilter setNotIn(List<LocalDate> notIn) {
         super.setNotIn(notIn);
         return this;
     }
+
 }

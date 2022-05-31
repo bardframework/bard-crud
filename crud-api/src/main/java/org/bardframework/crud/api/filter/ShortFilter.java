@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-package io.github.jhipster.service.filter;
+package org.bardframework.crud.api.filter;
 
 /**
  * Filter class for {@link Short} type attributes.
@@ -37,7 +37,7 @@ public class ShortFilter extends RangeFilter<Short> {
     /**
      * <p>Constructor for ShortFilter.</p>
      *
-     * @param filter a {@link io.github.jhipster.service.filter.ShortFilter} object.
+     * @param filter a {@link ShortFilter} object.
      */
     public ShortFilter(final ShortFilter filter) {
         super(filter);
@@ -46,7 +46,7 @@ public class ShortFilter extends RangeFilter<Short> {
     /**
      * <p>copy.</p>
      *
-     * @return a {@link io.github.jhipster.service.filter.ShortFilter} object.
+     * @return a {@link ShortFilter} object.
      */
     public ShortFilter copy() {
         return new ShortFilter(this);

@@ -16,41 +16,40 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.jhipster.service.filter;
 
-import java.math.BigDecimal;
+package org.bardframework.crud.api.filter;
 
 /**
- * Filter class for {@link BigDecimal} type attributes.
+ * Filter class for {@link Long} type attributes.
  *
  * @see RangeFilter
  */
-public class BigDecimalFilter extends RangeFilter<BigDecimal> {
+public class LongFilter extends RangeFilter<Long> {
 
     private static final long serialVersionUID = 1L;
 
     /**
-     * <p>Constructor for BigDecimalFilter.</p>
+     * <p>Constructor for LongFilter.</p>
      */
-    public BigDecimalFilter() {
+    public LongFilter() {
     }
 
     /**
-     * <p>Constructor for BigDecimalFilter.</p>
+     * <p>Constructor for LongFilter.</p>
      *
-     * @param filter a {@link io.github.jhipster.service.filter.BigDecimalFilter} object.
+     * @param filter a {@link LongFilter} object.
      */
-    public BigDecimalFilter(final BigDecimalFilter filter) {
+    public LongFilter(final LongFilter filter) {
         super(filter);
     }
 
     /**
      * <p>copy.</p>
      *
-     * @return a {@link io.github.jhipster.service.filter.BigDecimalFilter} object.
+     * @return a {@link LongFilter} object.
      */
-    public BigDecimalFilter copy() {
-        return new BigDecimalFilter(this);
+    public LongFilter copy() {
+        return new LongFilter(this);
     }
 
 }

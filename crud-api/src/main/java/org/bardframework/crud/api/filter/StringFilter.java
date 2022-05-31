@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-package io.github.jhipster.service.filter;
+package org.bardframework.crud.api.filter;
 
 import java.util.Objects;
 
@@ -49,7 +49,7 @@ public class StringFilter extends Filter<String> {
     /**
      * <p>Constructor for StringFilter.</p>
      *
-     * @param filter a {@link io.github.jhipster.service.filter.StringFilter} object.
+     * @param filter a {@link StringFilter} object.
      */
     public StringFilter(final StringFilter filter) {
         super(filter);
@@ -60,7 +60,7 @@ public class StringFilter extends Filter<String> {
     /**
      * <p>copy.</p>
      *
-     * @return a {@link io.github.jhipster.service.filter.StringFilter} object.
+     * @return a {@link StringFilter} object.
      */
     public StringFilter copy() {
         return new StringFilter(this);
@@ -79,7 +79,7 @@ public class StringFilter extends Filter<String> {
      * <p>Setter for the field <code>doesNotContain</code>.</p>
      *
      * @param doesNotContain a {@link String} object.
-     * @return a {@link io.github.jhipster.service.filter.StringFilter} object.
+     * @return a {@link StringFilter} object.
      */
     public StringFilter setDoesNotContain(String doesNotContain) {
         this.doesNotContain = doesNotContain;
@@ -99,7 +99,7 @@ public class StringFilter extends Filter<String> {
      * <p>Setter for the field <code>contains</code>.</p>
      *
      * @param contains a {@link String} object.
-     * @return a {@link io.github.jhipster.service.filter.StringFilter} object.
+     * @return a {@link StringFilter} object.
      */
     public StringFilter setContains(String contains) {
         this.contains = contains;
