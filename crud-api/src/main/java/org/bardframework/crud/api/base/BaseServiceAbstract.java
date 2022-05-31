@@ -1,14 +1,13 @@
 package org.bardframework.crud.api.base;
 
-import org.apache.commons.collections4.CollectionUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.fge.jsonpatch.JsonPatch;
 import com.github.fge.jsonpatch.JsonPatchException;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.SerializationUtils;
 import org.bardframework.commons.utils.AssertionUtils;
-import org.bardframework.commons.utils.CollectionUtils;
 import org.bardframework.crud.api.event.ModelEventProducer;
 import org.bardframework.crud.api.filter.IdFilter;
 import org.bardframework.crud.api.util.PageableExecutionUtils;
