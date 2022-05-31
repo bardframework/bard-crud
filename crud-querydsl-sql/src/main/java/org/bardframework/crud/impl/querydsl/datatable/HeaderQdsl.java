@@ -3,9 +3,9 @@ package org.bardframework.crud.impl.querydsl.datatable;
 import com.querydsl.core.types.dsl.ComparableExpression;
 import com.querydsl.core.types.dsl.SimpleExpression;
 import com.querydsl.core.types.dsl.StringPath;
-import org.bardframework.crud.api.UtilityMethods;
 import org.bardframework.crud.api.datatable.HeaderAbstract;
 import org.bardframework.crud.api.datatable.QueryType;
+import org.bardframework.crud.api.util.HeaderUtil;
 
 import static org.bardframework.crud.api.datatable.FilteringType.NONE;
 import static org.bardframework.crud.api.datatable.FilteringType.*;
@@ -50,7 +50,7 @@ public class HeaderQdsl extends HeaderAbstract {
         this.validate(mainClazz);
         this.determineConverters(valueType);
         this.setQueryPath(mainClazz, valueType, fieldName, tableName, queryPath);
-        this.messageKeys = UtilityMethods.toMessageKeys(mainClazz.getSimpleName() + "." + path);
+        this.messageKeys = HeaderUtil.toMessageKeys(mainClazz.getSimpleName() + "." + path);
     }
 
     public <T extends Comparable> ComparableExpression<T> getMinMaxPath() {

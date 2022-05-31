@@ -14,8 +14,8 @@ import com.querydsl.sql.dml.SQLUpdateClause;
 import io.github.jhipster.service.filter.Filter;
 import io.github.jhipster.service.filter.RangeFilter;
 import io.github.jhipster.service.filter.StringFilter;
+import org.apache.commons.collections4.CollectionUtils;
 import org.bardframework.commons.utils.AssertionUtils;
-import org.bardframework.commons.utils.CollectionUtils;
 import org.bardframework.crud.api.base.BaseCriteriaAbstract;
 import org.bardframework.crud.api.base.BaseModelAbstract;
 import org.bardframework.crud.api.base.BaseRepository;
@@ -28,6 +28,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.lang.Nullable;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Nullable;

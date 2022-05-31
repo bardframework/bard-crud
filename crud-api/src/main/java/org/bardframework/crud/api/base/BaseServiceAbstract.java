@@ -1,5 +1,6 @@
 package org.bardframework.crud.api.base;
 
+import org.apache.commons.collections4.CollectionUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
