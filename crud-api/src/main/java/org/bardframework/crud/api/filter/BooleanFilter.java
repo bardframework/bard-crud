@@ -16,40 +16,44 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
-package io.github.jhipster.service.filter;
+package org.bardframework.crud.api.filter;
 
 /**
- * Filter class for {@link Long} type attributes.
- *
- * @see RangeFilter
+ * Class for filtering attributes with {@link Boolean} type. It can be added to a criteria class as a member, to support
+ * the following query parameters:
+ * <pre>
+ *      fieldName.equals=true
+ *      fieldName.specified=true
+ *      fieldName.specified=false
+ *      fieldName.in=true,false
+ * </pre>
  */
-public class LongFilter extends RangeFilter<Long> {
+public class BooleanFilter extends Filter<Boolean> {
 
     private static final long serialVersionUID = 1L;
 
     /**
-     * <p>Constructor for LongFilter.</p>
+     * <p>Constructor for BooleanFilter.</p>
      */
-    public LongFilter() {
+    public BooleanFilter() {
     }
 
     /**
-     * <p>Constructor for LongFilter.</p>
+     * <p>Constructor for BooleanFilter.</p>
      *
-     * @param filter a {@link io.github.jhipster.service.filter.LongFilter} object.
+     * @param filter a {@link BooleanFilter} object.
      */
-    public LongFilter(final LongFilter filter) {
+    public BooleanFilter(final BooleanFilter filter) {
         super(filter);
     }
 
     /**
      * <p>copy.</p>
      *
-     * @return a {@link io.github.jhipster.service.filter.LongFilter} object.
+     * @return a {@link BooleanFilter} object.
      */
-    public LongFilter copy() {
-        return new LongFilter(this);
+    public BooleanFilter copy() {
+        return new BooleanFilter(this);
     }
 
 }

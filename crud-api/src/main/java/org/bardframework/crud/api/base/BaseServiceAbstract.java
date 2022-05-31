@@ -10,7 +10,7 @@ import org.apache.commons.lang3.SerializationUtils;
 import org.bardframework.commons.utils.AssertionUtils;
 import org.bardframework.crud.api.event.ModelEventProducer;
 import org.bardframework.crud.api.filter.IdFilter;
-import org.bardframework.crud.api.util.PageableExecutionUtils;
+import org.bardframework.crud.api.util.PaginationUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -211,8 +211,7 @@ public abstract class BaseServiceAbstract<M extends BaseModelAbstract<I>, C exte
         getEventProducer().onUpdate(pre, model.get(), user);
 //        this.postUpdate(model, dto, user);
         model = this.getRepository().get(model.get().getId(), user);
-        return model
-                .map(m -> this.postFetch(m, user));
+        return model.map(m -> this.postFetch(m, user));
     }
 
     private M applyPatchToCustomer(JsonPatch patch, M model) throws JsonPatchException, JsonProcessingException {
@@ -284,7 +283,7 @@ public abstract class BaseServiceAbstract<M extends BaseModelAbstract<I>, C exte
     }
 
     protected Page<M> paging(List<M> list, Pageable pageable, LongSupplier supplier) {
-        return pageable.isUnpaged() ? new PageImpl<>(list) : PageableExecutionUtils.getPage(list, pageable, supplier);
+        return pageable.isUnpaged() ? new PageImpl<>(list) : PaginationUtil.getPage(list, pageable, supplier);
     }
 
     public List<M> getAll(U user) {

@@ -30,8 +30,6 @@ public interface BaseRepository<M extends BaseModelAbstract<I>, C extends BaseCr
     /**
      * delete using criteria
      *
-     * @param id
-     * @param user
      * @return count of deleted record
      * @see #delete(BaseCriteria, Object)
      */
@@ -40,8 +38,6 @@ public interface BaseRepository<M extends BaseModelAbstract<I>, C extends BaseCr
     /**
      * delete using criteria
      *
-     * @param ids
-     * @param user
      * @return count of deleted record
      * @see #delete(BaseCriteria, Object)
      */
@@ -50,8 +46,6 @@ public interface BaseRepository<M extends BaseModelAbstract<I>, C extends BaseCr
     /**
      * direct delete, not used criteria
      *
-     * @param ids
-     * @param user
      * @return count of deleted record
      */
     long directDelete(List<I> ids, U user);
@@ -75,13 +69,11 @@ public interface BaseRepository<M extends BaseModelAbstract<I>, C extends BaseCr
     long getCount(C criteria, U user);
 
     /**
-     * @param criteria
      * @return true if any data with given criteria exist, else otherwise.
      */
     boolean isExist(C criteria, U user);
 
     /**
-     * @param criteria
      * @return true if no data with given criteria exist, else otherwise.
      */
     boolean isNotExist(C criteria, U user);

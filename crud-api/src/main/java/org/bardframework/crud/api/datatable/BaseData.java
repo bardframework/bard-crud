@@ -1,4 +1,4 @@
-package org.bardframework.crud.common.model;
+package org.bardframework.crud.api.datatable;
 
 /**
  * @author v.zafari

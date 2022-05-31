@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-package io.github.jhipster.service.filter;
+package org.bardframework.crud.api.filter;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -54,7 +54,7 @@ public class Filter<FIELD_TYPE> implements Serializable {
     /**
      * <p>Constructor for Filter.</p>
      *
-     * @param filter a {@link io.github.jhipster.service.filter.Filter} object.
+     * @param filter a {@link Filter} object.
      */
     public Filter(Filter<FIELD_TYPE> filter) {
         this.equals = filter.equals;
@@ -67,7 +67,7 @@ public class Filter<FIELD_TYPE> implements Serializable {
     /**
      * <p>copy.</p>
      *
-     * @return a {@link io.github.jhipster.service.filter.Filter} object.
+     * @return a {@link Filter} object.
      */
     public Filter<FIELD_TYPE> copy() {
         return new Filter<>(this);
@@ -86,7 +86,7 @@ public class Filter<FIELD_TYPE> implements Serializable {
      * <p>Setter for the field <code>equals</code>.</p>
      *
      * @param equals a FIELD_TYPE object.
-     * @return a {@link io.github.jhipster.service.filter.Filter} object.
+     * @return a {@link Filter} object.
      */
     public Filter<FIELD_TYPE> setEquals(FIELD_TYPE equals) {
         this.equals = equals;
@@ -106,7 +106,7 @@ public class Filter<FIELD_TYPE> implements Serializable {
      * <p>Setter for the field <code>notEquals</code>.</p>
      *
      * @param notEquals a FIELD_TYPE object.
-     * @return a {@link io.github.jhipster.service.filter.Filter} object.
+     * @return a {@link Filter} object.
      */
     public Filter<FIELD_TYPE> setNotEquals(FIELD_TYPE notEquals) {
         this.notEquals = notEquals;
@@ -126,7 +126,7 @@ public class Filter<FIELD_TYPE> implements Serializable {
      * <p>Setter for the field <code>specified</code>.</p>
      *
      * @param specified a {@link Boolean} object.
-     * @return a {@link io.github.jhipster.service.filter.Filter} object.
+     * @return a {@link Filter} object.
      */
     public Filter<FIELD_TYPE> setSpecified(Boolean specified) {
         this.specified = specified;
@@ -146,7 +146,7 @@ public class Filter<FIELD_TYPE> implements Serializable {
      * <p>Setter for the field <code>in</code>.</p>
      *
      * @param in a {@link List} object.
-     * @return a {@link io.github.jhipster.service.filter.Filter} object.
+     * @return a {@link Filter} object.
      */
     public Filter<FIELD_TYPE> setIn(List<FIELD_TYPE> in) {
         this.in = in;
@@ -166,7 +166,7 @@ public class Filter<FIELD_TYPE> implements Serializable {
      * <p>Setter for the field <code>notIn</code>.</p>
      *
      * @param notIn a {@link List} object.
-     * @return a {@link io.github.jhipster.service.filter.Filter} object.
+     * @return a {@link Filter} object.
      */
     public Filter<FIELD_TYPE> setNotIn(List<FIELD_TYPE> notIn) {
         this.notIn = notIn;

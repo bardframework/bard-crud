@@ -11,19 +11,18 @@ import com.querydsl.sql.SQLQuery;
 import com.querydsl.sql.SQLQueryFactory;
 import com.querydsl.sql.dml.SQLInsertClause;
 import com.querydsl.sql.dml.SQLUpdateClause;
-import io.github.jhipster.service.filter.Filter;
-import io.github.jhipster.service.filter.RangeFilter;
-import io.github.jhipster.service.filter.StringFilter;
 import org.apache.commons.collections4.CollectionUtils;
 import org.bardframework.commons.utils.AssertionUtils;
 import org.bardframework.crud.api.base.BaseCriteriaAbstract;
 import org.bardframework.crud.api.base.BaseModelAbstract;
 import org.bardframework.crud.api.base.BaseRepository;
+import org.bardframework.crud.api.filter.Filter;
 import org.bardframework.crud.api.filter.IdFilter;
-import org.bardframework.crud.api.util.PageableExecutionUtils;
+import org.bardframework.crud.api.filter.RangeFilter;
+import org.bardframework.crud.api.filter.StringFilter;
+import org.bardframework.crud.api.util.PaginationUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -31,7 +30,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.lang.Nullable;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.annotation.Nullable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.ParameterizedType;
 import java.util.*;
@@ -48,11 +46,10 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModelAbstract<
     protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
     protected final Class<M> modelClazz;
     protected final Class<C> criteriaClazz;
+    private final SQLQueryFactory queryFactory;
 
-    @Autowired
-    private SQLQueryFactory queryFactory;
-
-    public BaseRepositoryQdslSqlAbstract() {
+    public BaseRepositoryQdslSqlAbstract(SQLQueryFactory queryFactory) {
+        this.queryFactory = queryFactory;
         ParameterizedType parameterizedType = null;
         Class<?> targetClazz = this.getClass();
         while (!(null != parameterizedType && parameterizedType.getActualTypeArguments().length >= 2) && null != targetClazz) {
@@ -86,7 +83,8 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModelAbstract<
     public final M getEmptyModel() {
         try {
             return modelClazz.getDeclaredConstructor().newInstance();
-        } catch (IllegalAccessException | InstantiationException | NoSuchMethodException | InvocationTargetException e) {
+        } catch (IllegalAccessException | InstantiationException | NoSuchMethodException |
+                 InvocationTargetException e) {
             this.LOGGER.error("can't instantiate model class using empty constructor {}", this.modelClazz, e);
             throw new IllegalArgumentException("can't instantiate model class using empty constructor" + this.modelClazz, e);
         }
@@ -96,7 +94,8 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModelAbstract<
     public final C getEmptyCriteria() {
         try {
             return criteriaClazz.getDeclaredConstructor().newInstance();
-        } catch (IllegalAccessException | InstantiationException | NoSuchMethodException | InvocationTargetException e) {
+        } catch (IllegalAccessException | InstantiationException | NoSuchMethodException |
+                 InvocationTargetException e) {
             this.LOGGER.error("can't instantiate criteria class using empty constructor {}", this.criteriaClazz, e);
             throw new IllegalArgumentException("can't instantiate criteria class using empty constructor" + this.criteriaClazz, e);
         }
@@ -104,7 +103,7 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModelAbstract<
 
     protected <T extends StoreClause<T>> T fillClause(T clause, M model, U user) {
         clause = this.toClause(clause, model, user);
-        for (Class clazz : this.getClass().getInterfaces()) {
+        for (Class<?> clazz : this.getClass().getInterfaces()) {
             if (WriteExtendedRepositoryQdslSql.class.isAssignableFrom(clazz)) {
                 ((WriteExtendedRepositoryQdslSql) this).process(clause, model, user);
             }
@@ -119,8 +118,6 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModelAbstract<
     }
 
     /**
-     * @param models
-     * @param user
      * @return not changed models if models is null or empty, saved models otherwise.
      */
     @Transactional
@@ -131,9 +128,9 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModelAbstract<
         }
         SQLInsertClause insertClause = this.getQueryFactory().insert(this.getEntity());
         models.forEach(model -> {
-                    this.fillClause(insertClause, model, user);
+            this.fillClause(insertClause, model, user);
             this.setIdentifier(model, user);
-                    AssertionUtils.notNull(model.getId(), "model identifier is not provided in 'setIdentifier' method");
+            AssertionUtils.notNull(model.getId(), "model identifier is not provided in 'setIdentifier' method");
                     insertClause.set(getIdentifierPath(), model.getId());
                     insertClause.addBatch();
                 }
@@ -161,15 +158,15 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModelAbstract<
     @Transactional
     @Override
     public Optional<M> patch(I id, Map<String, Object> fields, U user) {
-        final SQLUpdateClause updateClause = this.getQueryFactory().update(getEntity()).where(this.getIdentifierPath().eq(id));
+        final SQLUpdateClause updateClause = this.getQueryFactory().update(this.getEntity()).where(this.getIdentifierPath().eq(id));
 
-        List<Path> columns = (List) getEntity().getColumns();
-        columns.forEach(col -> {
-            String key = col.getMetadata().getName();
+        List<Path<?>> columns = this.getEntity().getColumns();
+        for (Path<?> column : columns) {
+            String key = column.getMetadata().getName();
             if (fields.containsKey(key)) {
-                updateClause.set(col, fields.get(key));
+                updateClause.set((Path<Object>) column, fields.get(key));
             }
-        });
+        }
 
         long affectedRowsCount = updateClause.execute();
         if (1 != affectedRowsCount) {
@@ -212,9 +209,9 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModelAbstract<
             query.where(buildQuery(criteria.getId(), this.getIdentifierPath()));
         }
 
-        for (Class clazz : this.getClass().getInterfaces()) {
+        for (Class<?> clazz : this.getClass().getInterfaces()) {
             if (ReadExtendedRepositoryQdslSql.class.isAssignableFrom(clazz)) {
-                ((ReadExtendedRepositoryQdslSql) this).process(criteria, query, user);
+                ((ReadExtendedRepositoryQdslSql<C, ?, U>) this).process(criteria, query, user);
             }
         }
         query = this.setOrders(query, criteria, sort, user);
@@ -243,11 +240,11 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModelAbstract<
             query = this.setPageAndSize(query, pageable);
         }
 
-        return PageableExecutionUtils.getPage(this.getList(query), pageable, totalSupplier);
+        return PaginationUtil.getPage(this.getList(query), pageable, totalSupplier);
     }
 
     public <T> SQLQuery<T> setPageAndSize(SQLQuery<T> query, Pageable pageable) {
-        query.offset(pageable.getPageSize() == 0 ? (Math.max(pageable.getPageNumber(), 0)) * DEFAULT_SIZE : pageable.getOffset());
+        query.offset(pageable.getPageSize() == 0 ? (long) (Math.max(pageable.getPageNumber(), 0)) * DEFAULT_SIZE : pageable.getOffset());
         query.limit(pageable.getPageSize() == 0 ? DEFAULT_SIZE : pageable.getPageSize());
         return query;
     }

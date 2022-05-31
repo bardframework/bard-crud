@@ -1,7 +1,7 @@
 package org.bardframework.crud.api.datatable;
 
 import org.bardframework.commons.jackson.converter.*;
-import org.bardframework.crud.common.converter.StringToEnumConverter;
+import org.bardframework.crud.api.datatable.converter.StringToEnumConverter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.convert.converter.Converter;

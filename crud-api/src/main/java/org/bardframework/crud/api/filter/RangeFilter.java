@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-package io.github.jhipster.service.filter;
+package org.bardframework.crud.api.filter;
 
 import java.util.Objects;
 
@@ -67,7 +67,7 @@ public class RangeFilter<FIELD_TYPE extends Comparable<? super FIELD_TYPE>> exte
     /**
      * <p>Constructor for RangeFilter.</p>
      *
-     * @param filter a {@link io.github.jhipster.service.filter.RangeFilter} object.
+     * @param filter a {@link RangeFilter} object.
      */
     public RangeFilter(final RangeFilter<FIELD_TYPE> filter) {
         super(filter);
@@ -80,7 +80,7 @@ public class RangeFilter<FIELD_TYPE extends Comparable<? super FIELD_TYPE>> exte
     /**
      * <p>copy.</p>
      *
-     * @return a {@link io.github.jhipster.service.filter.RangeFilter} object.
+     * @return a {@link RangeFilter} object.
      */
     public RangeFilter<FIELD_TYPE> copy() {
         return new RangeFilter<>(this);
@@ -99,7 +99,7 @@ public class RangeFilter<FIELD_TYPE extends Comparable<? super FIELD_TYPE>> exte
      * <p>Setter for the field <code>greaterThan</code>.</p>
      *
      * @param greaterThan a FIELD_TYPE object.
-     * @return a {@link io.github.jhipster.service.filter.RangeFilter} object.
+     * @return a {@link RangeFilter} object.
      */
     public RangeFilter<FIELD_TYPE> setGreaterThan(FIELD_TYPE greaterThan) {
         this.greaterThan = greaterThan;
@@ -119,7 +119,7 @@ public class RangeFilter<FIELD_TYPE extends Comparable<? super FIELD_TYPE>> exte
      * <p>Setter for the field <code>greaterThanOrEqual</code>.</p>
      *
      * @param greaterThanOrEqual a FIELD_TYPE object.
-     * @return a {@link io.github.jhipster.service.filter.RangeFilter} object.
+     * @return a {@link RangeFilter} object.
      */
     public RangeFilter<FIELD_TYPE> setGreaterThanOrEqual(FIELD_TYPE greaterThanOrEqual) {
         this.greaterThanOrEqual = greaterThanOrEqual;
@@ -130,7 +130,7 @@ public class RangeFilter<FIELD_TYPE extends Comparable<? super FIELD_TYPE>> exte
      * <p>Setter for the field <code>greaterThanOrEqual</code>.</p>
      *
      * @param greaterThanOrEqual a FIELD_TYPE object.
-     * @return a {@link io.github.jhipster.service.filter.RangeFilter} object.
+     * @return a {@link RangeFilter} object.
      * @deprecated Equivalent to {@link #setLessThanOrEqual}
      */
     @Deprecated
@@ -152,7 +152,7 @@ public class RangeFilter<FIELD_TYPE extends Comparable<? super FIELD_TYPE>> exte
      * <p>Setter for the field <code>lessThan</code>.</p>
      *
      * @param lessThan a FIELD_TYPE object.
-     * @return a {@link io.github.jhipster.service.filter.RangeFilter} object.
+     * @return a {@link RangeFilter} object.
      */
     public RangeFilter<FIELD_TYPE> setLessThan(FIELD_TYPE lessThan) {
         this.lessThan = lessThan;
@@ -172,7 +172,7 @@ public class RangeFilter<FIELD_TYPE extends Comparable<? super FIELD_TYPE>> exte
      * <p>Setter for the field <code>lessThanOrEqual</code>.</p>
      *
      * @param lessThanOrEqual a FIELD_TYPE object.
-     * @return a {@link io.github.jhipster.service.filter.RangeFilter} object.
+     * @return a {@link RangeFilter} object.
      */
     public RangeFilter<FIELD_TYPE> setLessThanOrEqual(FIELD_TYPE lessThanOrEqual) {
         this.lessThanOrEqual = lessThanOrEqual;
@@ -183,7 +183,7 @@ public class RangeFilter<FIELD_TYPE extends Comparable<? super FIELD_TYPE>> exte
      * <p>Setter for the field <code>lessThanOrEqual</code>.</p>
      *
      * @param lessThanOrEqual a FIELD_TYPE object.
-     * @return a {@link io.github.jhipster.service.filter.RangeFilter} object.
+     * @return a {@link RangeFilter} object.
      * @deprecated Equivalent to {@link #setLessThanOrEqual}
      */
     @Deprecated

@@ -17,7 +17,7 @@
  * limitations under the License.
  */
 
-package io.github.jhipster.service.filter;
+package org.bardframework.crud.api.filter;
 
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.format.annotation.DateTimeFormat.ISO;
@@ -42,7 +42,7 @@ public class InstantFilter extends RangeFilter<Instant> {
     /**
      * <p>Constructor for InstantFilter.</p>
      *
-     * @param filter a {@link io.github.jhipster.service.filter.InstantFilter} object.
+     * @param filter a {@link InstantFilter} object.
      */
     public InstantFilter(final InstantFilter filter) {
         super(filter);
@@ -51,7 +51,7 @@ public class InstantFilter extends RangeFilter<Instant> {
     /**
      * <p>copy.</p>
      *
-     * @return a {@link io.github.jhipster.service.filter.InstantFilter} object.
+     * @return a {@link InstantFilter} object.
      */
     public InstantFilter copy() {
         return new InstantFilter(this);

@@ -16,44 +16,41 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.jhipster.service.filter;
+package org.bardframework.crud.api.filter;
+
+import java.time.Duration;
 
 /**
- * Class for filtering attributes with {@link Boolean} type. It can be added to a criteria class as a member, to support
- * the following query parameters:
- * <pre>
- *      fieldName.equals=true
- *      fieldName.specified=true
- *      fieldName.specified=false
- *      fieldName.in=true,false
- * </pre>
+ * Filter class for {@link Duration} type attributes.
+ *
+ * @see Filter
  */
-public class BooleanFilter extends Filter<Boolean> {
+public class DurationFilter extends RangeFilter<Duration> {
 
     private static final long serialVersionUID = 1L;
 
     /**
-     * <p>Constructor for BooleanFilter.</p>
+     * <p>Constructor for DurationFilter.</p>
      */
-    public BooleanFilter() {
+    public DurationFilter() {
     }
 
     /**
-     * <p>Constructor for BooleanFilter.</p>
+     * <p>Constructor for DurationFilter.</p>
      *
-     * @param filter a {@link io.github.jhipster.service.filter.BooleanFilter} object.
+     * @param filter a {@link DurationFilter} object.
      */
-    public BooleanFilter(final BooleanFilter filter) {
+    public DurationFilter(final DurationFilter filter) {
         super(filter);
     }
 
     /**
      * <p>copy.</p>
      *
-     * @return a {@link io.github.jhipster.service.filter.BooleanFilter} object.
+     * @return a {@link DurationFilter} object.
      */
-    public BooleanFilter copy() {
-        return new BooleanFilter(this);
+    public DurationFilter copy() {
+        return new DurationFilter(this);
     }
 
 }

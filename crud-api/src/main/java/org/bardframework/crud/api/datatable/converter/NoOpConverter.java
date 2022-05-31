@@ -1,4 +1,4 @@
-package org.bardframework.crud.common.converter;
+package org.bardframework.crud.api.datatable.converter;
 
 import org.springframework.core.convert.converter.Converter;
 

@@ -16,41 +16,39 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package io.github.jhipster.service.filter;
-
-import java.util.UUID;
+package org.bardframework.crud.api.filter;
 
 /**
- * Filter class for {@link UUID} type attributes.
+ * Filter class for {@link Float} type attributes.
  *
- * @see Filter
+ * @see RangeFilter
  */
-public class UUIDFilter extends Filter<UUID> {
+public class FloatFilter extends RangeFilter<Float> {
 
     private static final long serialVersionUID = 1L;
 
     /**
-     * <p>Constructor for UUIDFilter.</p>
+     * <p>Constructor for FloatFilter.</p>
      */
-    public UUIDFilter() {
+    public FloatFilter() {
     }
 
     /**
-     * <p>Constructor for UUIDFilter.</p>
+     * <p>Constructor for FloatFilter.</p>
      *
-     * @param filter a {@link io.github.jhipster.service.filter.UUIDFilter} object.
+     * @param filter a {@link FloatFilter} object.
      */
-    public UUIDFilter(final UUIDFilter filter) {
+    public FloatFilter(final FloatFilter filter) {
         super(filter);
     }
 
     /**
      * <p>copy.</p>
      *
-     * @return a {@link io.github.jhipster.service.filter.UUIDFilter} object.
+     * @return a {@link FloatFilter} object.
      */
-    public UUIDFilter copy() {
-        return new UUIDFilter(this);
+    public FloatFilter copy() {
+        return new FloatFilter(this);
     }
 
 }

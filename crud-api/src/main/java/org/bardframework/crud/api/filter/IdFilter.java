@@ -1,7 +1,5 @@
 package org.bardframework.crud.api.filter;
 
-import io.github.jhipster.service.filter.Filter;
-
 public class IdFilter<I> extends Filter<I> {
 
     public IdFilter() {
