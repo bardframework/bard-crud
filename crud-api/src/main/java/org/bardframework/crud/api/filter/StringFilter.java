@@ -138,12 +138,21 @@ public class StringFilter extends Filter<String> {
      */
     @Override
     public String toString() {
+        if (getSpecified() != null) {
+            return getFilterName() + " ["
+                    + (getContains() != null ? "contains=" + getContains() + ", " : "")
+                    + (getDoesNotContain() != null ? "doesNotContain=" + getDoesNotContain() + ", " : "")
+                    + (getEquals() != null ? "equals=" + getEquals() + ", " : "")
+                    + (getNotEquals() != null ? "notEquals=" + getNotEquals() + ", " : "")
+                    + "specified=" + getSpecified()
+                    + "]";
+        }
         return getFilterName() + " ["
                 + (getContains() != null ? "contains=" + getContains() + ", " : "")
                 + (getDoesNotContain() != null ? "doesNotContain=" + getDoesNotContain() + ", " : "")
                 + (getEquals() != null ? "equals=" + getEquals() + ", " : "")
                 + (getNotEquals() != null ? "notEquals=" + getNotEquals() + ", " : "")
-                + (getSpecified() != null ? "specified=" + getSpecified() : "")
+                + ""
                 + "]";
     }
 

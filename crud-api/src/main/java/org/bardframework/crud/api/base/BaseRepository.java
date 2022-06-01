@@ -5,11 +5,12 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Vahid Zafari on 1/17/17.
  */
-public interface BaseRepository<M extends BaseModelAbstract<I>, C extends BaseCriteria<I>, I extends Comparable<? super I>, U> {
+public interface BaseRepository<M extends BaseModel<I>, C extends BaseCriteria<I>, I extends Comparable<? super I>, U> {
 
     M get(I id, U user);
 
@@ -52,6 +53,8 @@ public interface BaseRepository<M extends BaseModelAbstract<I>, C extends BaseCr
     List<M> save(List<M> models, U user);
 
     M update(M model, U user);
+
+    M patch(I id, Map<String, Object> fields, U user);
 
     Page<M> get(C criteria, Pageable pageable, U user);
 

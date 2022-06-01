@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 /**
  * Created by Sama-PC on 08/05/2017.
  */
-public abstract class DataProviderRepositoryAbstract<M extends BaseModelAbstract<I>, C extends BaseCriteriaAbstract<I>, R extends BaseRepository<M, C, I, U>, I extends Comparable<? super I>, U> {
+public abstract class DataProviderRepositoryAbstract<M extends BaseModel<I>, C extends BaseCriteriaAbstract<I>, R extends BaseRepository<M, C, I, U>, I extends Comparable<? super I>, U> {
 
     protected final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
@@ -99,7 +99,7 @@ public abstract class DataProviderRepositoryAbstract<M extends BaseModelAbstract
     //...Filter
 
 
-    protected <I extends Comparable<? super I>> void assertNullOrEqualIds(BaseModelAbstract<I> first, BaseModelAbstract<I> second) {
+    protected <I extends Comparable<? super I>> void assertNullOrEqualIds(BaseModel<I> first, BaseModel<I> second) {
         Assertions.assertThat(first == null ^ second == null).isFalse();
         if (first != null) {
             Assertions.assertThat(first.getId()).isEqualTo(second.getId());
@@ -151,7 +151,10 @@ public abstract class DataProviderRepositoryAbstract<M extends BaseModelAbstract
      */
     public M getOrSave(M unsavedModel, U user, Function<M, Boolean> validateFunction) {
         M model = this.getModel(validateFunction, user);
-        return null == model ? repository.save(unsavedModel, user) : model;
+        if (null == model) {
+            return repository.save(unsavedModel, user);
+        }
+        return model;
     }
 
     /**

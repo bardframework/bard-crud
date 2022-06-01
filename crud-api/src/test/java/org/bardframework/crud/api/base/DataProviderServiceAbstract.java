@@ -10,7 +10,7 @@ import java.util.function.Function;
 /**
  * Created by Sama-PC on 08/05/2017.
  */
-public abstract class DataProviderServiceAbstract<M extends BaseModelAbstract<I>, C extends BaseCriteriaAbstract<I>, D, S extends BaseServiceAbstract<M, C, D, R, I, U>, R extends BaseRepository<M, C, I, U>, I extends Comparable<? super I>, U> extends DataProviderRepositoryAbstract<M, C, R, I, U> {
+public abstract class DataProviderServiceAbstract<M extends BaseModel<I>, C extends BaseCriteriaAbstract<I>, D, S extends BaseServiceAbstract<M, C, D, R, I, U>, R extends BaseRepository<M, C, I, U>, I extends Comparable<? super I>, U> extends DataProviderRepositoryAbstract<M, C, R, I, U> {
 
     @Autowired
     protected S service;
@@ -85,7 +85,10 @@ public abstract class DataProviderServiceAbstract<M extends BaseModelAbstract<I>
      */
     public M getOrSave(D unsavedDto, U user, Function<M, Boolean> validateFunction) {
         M model = this.getModel(validateFunction, user);
-        return null == model ? service.save(unsavedDto, user) : model;
+        if (null == model) {
+            return service.save(unsavedDto, user);
+        }
+        return null;
     }
 
     protected abstract D makeInvalid(D dto);

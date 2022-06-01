@@ -1,6 +1,6 @@
 package org.bardframework.crud.api.tree;
 
-import org.bardframework.crud.api.base.BaseModelAbstract;
+import org.bardframework.crud.api.base.BaseModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,17 +8,13 @@ import java.util.List;
 /**
  * Created by vahid (va.zafari@gmail.com) on 11/12/17.
  */
-public abstract class TreeEntityModelAbstract<M extends BaseModelAbstract<I>, I extends Comparable<? super I>> extends BaseModelAbstract<I> implements TreeEntityModel<M> {
+public abstract class TreeEntityModelAbstract<M extends BaseModel<I>, I extends Comparable<? super I>> implements TreeEntityModel<M>, BaseModel<I> {
 
     protected M parent;
 
     protected List<M> children = new ArrayList<>();
 
     public TreeEntityModelAbstract() {
-    }
-
-    public TreeEntityModelAbstract(I id) {
-        super(id);
     }
 
     public TreeEntityModelAbstract(M parent) {

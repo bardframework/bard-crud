@@ -8,7 +8,7 @@ import com.querydsl.sql.SQLQuery;
 import org.apache.commons.lang3.StringUtils;
 import org.bardframework.commons.utils.ReflectionUtils;
 import org.bardframework.crud.api.base.BaseCriteria;
-import org.bardframework.crud.api.base.BaseModelAbstract;
+import org.bardframework.crud.api.base.BaseModel;
 import org.bardframework.crud.api.searchable.SearchableCriteria;
 import org.bardframework.crud.api.searchable.SearchableEntityRepository;
 import org.bardframework.crud.impl.querydsl.base.ReadExtendedRepositoryQdslSql;
@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public interface SearchableEntityRepositoryQdslSql<M extends BaseModelAbstract<I>, C extends BaseCriteria<I> & SearchableCriteria, I extends Comparable<? super I>, U> extends SearchableEntityRepository<M, C, I, U>, ReadExtendedRepositoryQdslSql<C, I, U> {
+public interface SearchableEntityRepositoryQdslSql<M extends BaseModel<I>, C extends BaseCriteria<I> & SearchableCriteria, I extends Comparable<? super I>, U> extends SearchableEntityRepository<M, C, I, U>, ReadExtendedRepositoryQdslSql<C, I, U> {
 
     StringPath[] getSearchPaths();
 

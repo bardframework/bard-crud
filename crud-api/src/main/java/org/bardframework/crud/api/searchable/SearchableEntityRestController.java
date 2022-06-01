@@ -1,6 +1,6 @@
 package org.bardframework.crud.api.searchable;
 
-import org.bardframework.crud.api.base.BaseModelAbstract;
+import org.bardframework.crud.api.base.BaseModel;
 import org.springframework.data.domain.Pageable;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -10,7 +10,7 @@ import java.util.List;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
-public interface SearchableEntityRestController<M extends BaseModelAbstract<I>, C extends SearchableCriteria, S extends SearchableEntityService<M, C, ?, I, U>, I extends Comparable<? super I>, U> {
+public interface SearchableEntityRestController<M extends BaseModel<I>, C extends SearchableCriteria, S extends SearchableEntityService<M, C, ?, I, U>, I extends Comparable<? super I>, U> {
 
     String SEARCH_URL = "search";
 

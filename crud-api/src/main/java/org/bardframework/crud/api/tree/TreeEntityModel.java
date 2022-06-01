@@ -1,13 +1,13 @@
 package org.bardframework.crud.api.tree;
 
-import org.bardframework.crud.api.base.BaseModelAbstract;
+import org.bardframework.crud.api.base.BaseModel;
 
 import java.util.List;
 
 /**
  * Created by vahid (va.zafari@gmail.com) on 11/12/17.
  */
-public interface TreeEntityModel<M extends BaseModelAbstract<?>> {
+public interface TreeEntityModel<M extends BaseModel<?>> {
 
     M getParent();
 

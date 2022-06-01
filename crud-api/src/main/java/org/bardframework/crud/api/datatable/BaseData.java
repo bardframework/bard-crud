@@ -58,8 +58,12 @@ public class BaseData<T extends BaseData<T>> implements Comparable<T> {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         BaseData baseData = (BaseData) o;
 

@@ -18,6 +18,9 @@ public class OrderField {
     }
 
     public OrderSpecifier<?> getColumnDirection() {
-        return order == Order.ASC ? column.asc() : column.desc();
+        if (order == Order.ASC) {
+            return column.asc();
+        }
+        return column.desc();
     }
 }

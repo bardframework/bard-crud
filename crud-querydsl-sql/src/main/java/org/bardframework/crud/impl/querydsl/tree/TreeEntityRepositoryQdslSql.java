@@ -6,7 +6,7 @@ import com.querydsl.sql.RelationalPathBase;
 import com.querydsl.sql.SQLExpressions;
 import com.querydsl.sql.SQLQuery;
 import org.bardframework.crud.api.base.BaseCriteria;
-import org.bardframework.crud.api.base.BaseModelAbstract;
+import org.bardframework.crud.api.base.BaseModel;
 import org.bardframework.crud.api.tree.TreeEntityCriteria;
 import org.bardframework.crud.api.tree.TreeEntityModel;
 import org.bardframework.crud.api.tree.TreeEntityRepository;
@@ -18,7 +18,7 @@ import java.util.List;
 /**
  * Created by vahid (va.zafari@gmail.com) on 11/12/17.
  */
-public interface TreeEntityRepositoryQdslSql<M extends BaseModelAbstract<I> & TreeEntityModel<M>, C extends BaseCriteria<I> & TreeEntityCriteria<I>, I extends Comparable<? super I>, U> extends TreeEntityRepository<M, I, U>, ReadExtendedRepositoryQdslSql<C, I, U> {
+public interface TreeEntityRepositoryQdslSql<M extends BaseModel<I> & TreeEntityModel<M>, C extends BaseCriteria<I> & TreeEntityCriteria<I>, I extends Comparable<? super I>, U> extends TreeEntityRepository<M, I, U>, ReadExtendedRepositoryQdslSql<C, I, U> {
 
     <T extends SimpleExpression<I>> T getParentPath();
 
@@ -34,11 +34,19 @@ public interface TreeEntityRepositoryQdslSql<M extends BaseModelAbstract<I> & Tr
             query.where(this.getParentPath().in(criteria.getParentIds()));
         }
         if (null != criteria.getRoot()) {
-            query.where(criteria.getRoot() ? this.getParentPath().isNull() : this.getParentPath().isNotNull());
+            if (criteria.getRoot()) {
+                query.where(this.getParentPath().isNull());
+            } else {
+                query.where(this.getParentPath().isNotNull());
+            }
         }
         if (null != criteria.getLeaf()) {
             SQLQuery<I> parentIdsQuery = SQLExpressions.select(this.getParentPath()).from(this.getEntity()).where(this.getParentPath().isNotNull());
-            query.where(criteria.getLeaf() ? this.getIdentifierPath().notIn(parentIdsQuery) : this.getIdentifierPath().in(parentIdsQuery));
+            if (criteria.getLeaf()) {
+                query.where(this.getIdentifierPath().notIn(parentIdsQuery));
+            } else {
+                query.where(this.getIdentifierPath().in(parentIdsQuery));
+            }
         }
         return query;
     }

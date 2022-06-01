@@ -21,13 +21,19 @@ public final class PaginationUtil {
     private PaginationUtil() {
     }
 
-    public static <T> Page<T> getPage(List<T> content, Pageable pageable, long count) {
+    public static <T> Page<T> getPage(List<T> content, Pageable pageable, long totalCount) {
         Assert.notNull(content, "Content must not be null!");
         Assert.notNull(pageable, "Pageable must not be null!");
         if (!pageable.isUnpaged() && pageable.getOffset() != 0L) {
-            return content.size() != 0 && pageable.getPageSize() > content.size() ? new PageImpl<>(content, pageable, pageable.getOffset() + (long) content.size()) : new PageImpl<>(content, pageable, count);
+            if (content.size() != 0 && pageable.getPageSize() > content.size()) {
+                return new PageImpl<>(content, pageable, pageable.getOffset() + (long) content.size());
+            }
+            return new PageImpl<>(content, pageable, totalCount);
         } else {
-            return !pageable.isUnpaged() && pageable.getPageSize() <= content.size() ? new PageImpl<>(content, pageable, count) : new PageImpl<>(content, pageable, content.size());
+            if (!pageable.isUnpaged() && pageable.getPageSize() <= content.size()) {
+                return new PageImpl<>(content, pageable, totalCount);
+            }
+            return new PageImpl<>(content, pageable, content.size());
         }
     }
 

@@ -7,13 +7,13 @@ import com.querydsl.sql.SQLQuery;
 import com.querydsl.sql.SQLQueryFactory;
 import org.bardframework.commons.utils.AssertionUtils;
 import org.bardframework.crud.api.base.BaseCriteriaAbstract;
-import org.bardframework.crud.api.base.BaseModelAbstract;
+import org.bardframework.crud.api.base.BaseModel;
 import org.bardframework.crud.api.orderable.OrderableEntityRepository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
 
-public interface OrderableEntityRepositoryQdslSql<M extends BaseModelAbstract<I>, C extends BaseCriteriaAbstract<I>, I extends Serializable & Comparable<? super I>, U> extends OrderableEntityRepository<M, C, I, U> {
+public interface OrderableEntityRepositoryQdslSql<M extends BaseModel<I>, C extends BaseCriteriaAbstract<I>, I extends Serializable & Comparable<? super I>, U> extends OrderableEntityRepository<M, C, I, U> {
 
     @Transactional(readOnly = true)
     @Override

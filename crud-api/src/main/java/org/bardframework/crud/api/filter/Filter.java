@@ -60,8 +60,16 @@ public class Filter<FIELD_TYPE> implements Serializable {
         this.equals = filter.equals;
         this.notEquals = filter.notEquals;
         this.specified = filter.specified;
-        this.in = filter.in == null ? null : new ArrayList<>(filter.in);
-        this.notIn = filter.notIn == null ? null : new ArrayList<>(filter.notIn);
+        if (filter.in == null) {
+            this.in = null;
+        } else {
+            this.in = new ArrayList<>(filter.in);
+        }
+        if (filter.notIn == null) {
+            this.notIn = null;
+        } else {
+            this.notIn = new ArrayList<>(filter.notIn);
+        }
     }
 
     /**
@@ -205,12 +213,21 @@ public class Filter<FIELD_TYPE> implements Serializable {
      */
     @Override
     public String toString() {
+        if (getSpecified() != null) {
+            return getFilterName() + " ["
+                    + (getEquals() != null ? "equals=" + getEquals() + ", " : "")
+                    + (getNotEquals() != null ? "notEquals=" + getNotEquals() + ", " : "")
+                    + (getIn() != null ? "in=" + getIn() + ", " : "")
+                    + (getNotIn() != null ? "notIn=" + getNotIn() + ", " : "")
+                    + "specified=" + getSpecified()
+                    + "]";
+        }
         return getFilterName() + " ["
                 + (getEquals() != null ? "equals=" + getEquals() + ", " : "")
                 + (getNotEquals() != null ? "notEquals=" + getNotEquals() + ", " : "")
                 + (getIn() != null ? "in=" + getIn() + ", " : "")
                 + (getNotIn() != null ? "notIn=" + getNotIn() + ", " : "")
-                + (getSpecified() != null ? "specified=" + getSpecified() : "")
+                + ""
                 + "]";
     }
 

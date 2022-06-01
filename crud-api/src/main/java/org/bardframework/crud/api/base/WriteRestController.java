@@ -6,38 +6,51 @@ import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.Map;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 /**
  * Created by zafari on 4/12/2015.
  */
-public interface WriteRestController<M extends BaseModelAbstract<I>, D, S extends BaseService<M, ?, D, I, U>, I extends Comparable<? super I>, U> {
+public interface WriteRestController<M extends BaseModel<I>, D, S extends BaseService<M, ?, D, I, U>, I extends Comparable<? super I>, U> {
 
-    String SAVE_URL = "";
-    String UPDATE_URL = "{id}";
-    String DELETE_URL = "{id}";
+    String EMPTY_URL = "";
+    String ITEM_URL = "{id}";
 
-    @PostMapping(value = SAVE_URL, consumes = APPLICATION_JSON_VALUE)
+    @PostMapping(value = EMPTY_URL, consumes = APPLICATION_JSON_VALUE)
     default ResponseEntity<M> SAVE(@RequestBody @Validated(ValidationGroups.Save.class) D dto) throws URISyntaxException {
         M result = this.getService().save(dto, this.getUser());
-        return ResponseEntity
-                .created(new URI("" + result.getId()))
-                .body(result);
+        return ResponseEntity.created(new URI("" + result.getId())).body(result);
     }
 
-    @PutMapping(value = UPDATE_URL, consumes = APPLICATION_JSON_VALUE)
+    @PutMapping(value = ITEM_URL, consumes = APPLICATION_JSON_VALUE)
     default ResponseEntity<M> UPDATE(@PathVariable I id, @RequestBody @Validated(ValidationGroups.Update.class) D dto) {
         M result = this.getService().update(id, dto, this.getUser());
-        return ResponseEntity
-                .ok()
-                .body(result);
+        if (null != result) {
+            return ResponseEntity.ok().body(result);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
-    @DeleteMapping(value = DELETE_URL)
-    default ResponseEntity<Void> DELETE(@PathVariable I id) {
+    @PatchMapping(value = ITEM_URL, consumes = "application/json-patch+json")
+    default ResponseEntity<M> PATCH(@PathVariable I id, @RequestBody Map<String, Object> patch) {
+        M result = this.getService().patch(id, patch, this.getUser());
+        if (null != result) {
+            return ResponseEntity.ok().body(result);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @DeleteMapping(value = ITEM_URL)
+    default ResponseEntity<Long> DELETE(@PathVariable I id) {
         long result = this.getService().delete(id, this.getUser());
-        return result == 0 ? ResponseEntity.noContent().build() : ResponseEntity.ok().build();
+        if (result == 0) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok().body(result);
     }
 
     S getService();

@@ -1,13 +1,12 @@
 package org.bardframework.crud.api.base;
 
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
  *
  */
-public abstract class BaseModelAbstract<I extends Comparable<? super I>> {
+public abstract class BaseModelAbstract<I extends Comparable<? super I>> implements BaseModel<I> {
 
     protected final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
@@ -37,15 +36,25 @@ public abstract class BaseModelAbstract<I extends Comparable<? super I>> {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        BaseModelAbstract baseModel = (BaseModelAbstract) o;
-        return id != null ? id.equals(baseModel.id) : baseModel.id == null;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        BaseModelAbstract<?> baseModel = (BaseModelAbstract<?>) o;
+        if (id != null) {
+            return id.equals(baseModel.id);
+        }
+        return baseModel.id == null;
     }
 
     @Override
     public int hashCode() {
-        return id != null ? id.hashCode() : 0;
+        if (id != null) {
+            return id.hashCode();
+        }
+        return 0;
     }
 }
 

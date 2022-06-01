@@ -1,9 +1,9 @@
 package org.bardframework.crud.api.orderable;
 
 import org.bardframework.crud.api.base.BaseCriteriaAbstract;
-import org.bardframework.crud.api.base.BaseModelAbstract;
+import org.bardframework.crud.api.base.BaseModel;
 
-public interface OrderableEntityRepository<M extends BaseModelAbstract<I>, C extends BaseCriteriaAbstract<I>, I extends Comparable<? super I>, U> {
+public interface OrderableEntityRepository<M extends BaseModel<I>, C extends BaseCriteriaAbstract<I>, I extends Comparable<? super I>, U> {
 
     /**
      * @return first record filtered by criteria order by identifier

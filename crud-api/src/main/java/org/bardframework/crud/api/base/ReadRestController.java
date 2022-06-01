@@ -1,6 +1,5 @@
 package org.bardframework.crud.api.base;
 
-import org.bardframework.crud.api.util.ResponseUtil;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
@@ -10,14 +9,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import java.util.Optional;
-
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 /**
  * Created by zafari on 4/12/2015.
  */
-public interface ReadRestController<M extends BaseModelAbstract<I>, C extends BaseCriteriaAbstract<I>, S extends BaseService<M, C, ?, I, U>, I extends Comparable<? super I>, U> {
+public interface ReadRestController<M extends BaseModel<I>, C extends BaseCriteriaAbstract<I>, S extends BaseService<M, C, ?, I, U>, I extends Comparable<? super I>, U> {
 
     String GET_LIST_URL = "";
     String GET_URL = "{id}";
@@ -25,25 +22,24 @@ public interface ReadRestController<M extends BaseModelAbstract<I>, C extends Ba
 
     @GetMapping(value = GET_URL)
     default ResponseEntity<M> GET(@PathVariable I id) {
-        Optional<M> result = Optional.ofNullable(this.getService().get(id, this.getUser()));
-        return ResponseUtil
-                .wrapOrNotFound(result);
+        M result = this.getService().get(id, this.getUser());
+        if (null != result) {
+            return ResponseEntity.ok().body(result);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @PostMapping(value = FILTER_URL, consumes = APPLICATION_JSON_VALUE)
     default ResponseEntity<Page<M>> FILTER(@RequestBody @Validated C criteria, Pageable page) {
         Page<M> result = this.getService().get(criteria, page, this.getUser());
-        return ResponseEntity
-                .ok()
-                .body(result);
+        return ResponseEntity.ok().body(result);
     }
 
     @GetMapping(value = GET_LIST_URL)
     default ResponseEntity<Page<M>> GET(@Validated C criteria, Pageable page) {
         Page<M> result = this.getService().get(criteria, page, this.getUser());
-        return ResponseEntity
-                .ok()
-                .body(result);
+        return ResponseEntity.ok().body(result);
     }
 
     S getService();

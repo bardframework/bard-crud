@@ -1,7 +1,7 @@
 package org.bardframework.crud.api.tree;
 
 import org.bardframework.crud.api.base.BaseCriteria;
-import org.bardframework.crud.api.base.BaseModelAbstract;
+import org.bardframework.crud.api.base.BaseModel;
 import org.bardframework.crud.api.base.BaseRepository;
 import org.slf4j.Logger;
 
@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 /**
  * Created by vahid (va.zafari@gmail.com) on 11/12/17.
  */
-public interface TreeEntityService<M extends BaseModelAbstract<I> & TreeEntityModel<M>, C extends BaseCriteria<I> & TreeEntityCriteria<I>, R extends BaseRepository<M, C, I, U> & TreeEntityRepository<M, I, U>, I extends Comparable<? super I>, U> {
+public interface TreeEntityService<M extends BaseModel<I> & TreeEntityModel<M>, C extends BaseCriteria<I> & TreeEntityCriteria<I>, R extends BaseRepository<M, C, I, U> & TreeEntityRepository<M, I, U>, I extends Comparable<? super I>, U> {
 
     M getEmptyModel();
 
