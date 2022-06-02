@@ -5,7 +5,6 @@ import org.bardframework.crud.api.filter.IdFilter;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 
 import java.util.ArrayList;
@@ -18,13 +17,16 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 /**
  * Created by Sama-PC on 10/05/2017.
  */
-public abstract class ServiceTestAbstract<M extends BaseModel<I>, C extends BaseCriteriaAbstract<I>, D, S extends BaseServiceAbstract<M, C, D, ?, I, U>, P extends DataProviderServiceAbstract<M, C, D, ?, ?, I, U>, I extends Comparable<? super I>, U> {
+public abstract class ServiceTestAbstract<M extends BaseModel<I>, C extends BaseCriteria<I>, D, S extends BaseServiceAbstract<M, C, D, ?, I, U>, P extends DataProviderServiceAbstract<M, C, D, ?, ?, I, U>, I extends Comparable<? super I>, U> {
 
     protected final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
-    @Autowired
-    protected S service;
-    @Autowired
-    private P dataProvider;
+    protected final S service;
+    private final P dataProvider;
+
+    protected ServiceTestAbstract(S service, P dataProvider) {
+        this.service = service;
+        this.dataProvider = dataProvider;
+    }
 
     /**
      * Utility method to get an element in a collection which contains the given property.

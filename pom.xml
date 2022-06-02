@@ -16,7 +16,7 @@
 
     <properties>
         <!-- versions -->
-        <bardframework.commons.version>1.3.8</bardframework.commons.version>
+        <bardframework.commons.version>1.3.9</bardframework.commons.version>
         <guava.version>31.1-jre</guava.version>
         <jakarta-persistence.version>3.1.0</jakarta-persistence.version>
         <querydsl.version>5.0.0</querydsl.version>

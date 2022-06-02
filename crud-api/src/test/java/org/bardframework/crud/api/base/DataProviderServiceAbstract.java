@@ -1,6 +1,5 @@
 package org.bardframework.crud.api.base;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
@@ -10,10 +9,14 @@ import java.util.function.Function;
 /**
  * Created by Sama-PC on 08/05/2017.
  */
-public abstract class DataProviderServiceAbstract<M extends BaseModel<I>, C extends BaseCriteriaAbstract<I>, D, S extends BaseServiceAbstract<M, C, D, R, I, U>, R extends BaseRepository<M, C, I, U>, I extends Comparable<? super I>, U> extends DataProviderRepositoryAbstract<M, C, R, I, U> {
+public abstract class DataProviderServiceAbstract<M extends BaseModel<I>, C extends BaseCriteria<I>, D, S extends BaseServiceAbstract<M, C, D, R, I, U>, R extends BaseRepository<M, C, I, U>, I extends Comparable<? super I>, U> extends DataProviderRepositoryAbstract<M, C, R, I, U> {
 
-    @Autowired
-    protected S service;
+    protected final S service;
+
+    public DataProviderServiceAbstract(S service) {
+        super(service.getRepository());
+        this.service = service;
+    }
 
     @Override
     public final M getUnsavedModel(U user) {

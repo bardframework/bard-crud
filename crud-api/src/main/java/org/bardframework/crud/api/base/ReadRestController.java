@@ -13,9 +13,8 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 /**
  * Created by zafari on 4/12/2015.
  */
-public interface ReadRestController<M extends BaseModel<I>, C extends BaseCriteriaAbstract<I>, S extends BaseService<M, C, ?, I, U>, I extends Comparable<? super I>, U> {
+public interface ReadRestController<M extends BaseModel<I>, C extends BaseCriteria<I>, S extends BaseService<M, C, ?, I, U>, I extends Comparable<? super I>, U> {
 
-    String GET_LIST_URL = "";
     String GET_URL = "{id}";
     String FILTER_URL = "filter";
 
@@ -31,12 +30,6 @@ public interface ReadRestController<M extends BaseModel<I>, C extends BaseCriter
 
     @PostMapping(value = FILTER_URL, consumes = APPLICATION_JSON_VALUE)
     default ResponseEntity<PagedData<M>> FILTER(@RequestBody @Validated C criteria, Pageable page) {
-        PagedData<M> result = this.getService().get(criteria, page, this.getUser());
-        return ResponseEntity.ok().body(result);
-    }
-
-    @GetMapping(value = GET_LIST_URL)
-    default ResponseEntity<PagedData<M>> GET(@Validated C criteria, Pageable page) {
         PagedData<M> result = this.getService().get(criteria, page, this.getUser());
         return ResponseEntity.ok().body(result);
     }

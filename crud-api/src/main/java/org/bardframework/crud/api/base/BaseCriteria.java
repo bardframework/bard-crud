@@ -7,4 +7,6 @@ import org.bardframework.crud.api.filter.IdFilter;
  */
 public interface BaseCriteria<I extends Comparable<? super I>> {
     IdFilter<I> getId();
+
+    void setId(IdFilter<I> idFilter);
 }

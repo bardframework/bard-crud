@@ -6,7 +6,6 @@ import org.bardframework.commons.utils.ReflectionUtils;
 import org.bardframework.crud.api.filter.IdFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,17 +19,16 @@ import java.util.stream.Collectors;
 /**
  * Created by Sama-PC on 08/05/2017.
  */
-public abstract class DataProviderRepositoryAbstract<M extends BaseModel<I>, C extends BaseCriteriaAbstract<I>, R extends BaseRepository<M, C, I, U>, I extends Comparable<? super I>, U> {
+public abstract class DataProviderRepositoryAbstract<M extends BaseModel<I>, C extends BaseCriteria<I>, R extends BaseRepository<M, C, I, U>, I extends Comparable<? super I>, U> {
 
     protected final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
-    @Autowired
-    protected R repository;
+    protected final R repository;
+    protected final Class<C> criteriaClazz;
 
-    protected Class<C> criteriaClazz;
-
-    public DataProviderRepositoryAbstract() {
-        this.criteriaClazz = ReflectionUtils.getGenericSuperClass(this.getClass(), 1);
+    public DataProviderRepositoryAbstract(R repository) {
+        this.repository = repository;
+        this.criteriaClazz = ReflectionUtils.getGenericArgType(this.getClass(), 1);
     }
 
     public C getEmptyCriteria() {

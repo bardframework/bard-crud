@@ -45,8 +45,8 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
 
     public BaseRepositoryQdslSqlAbstract(SQLQueryFactory queryFactory) {
         this.queryFactory = queryFactory;
-        this.modelClazz = ReflectionUtils.getGenericClass(this.getClass(), 0);
-        this.criteriaClazz = ReflectionUtils.getGenericSuperClass(this.getClass(), 1);
+        this.modelClazz = ReflectionUtils.getGenericArgType(this.getClass(), 0);
+        this.criteriaClazz = ReflectionUtils.getGenericArgType(this.getClass(), 1);
     }
 
     protected abstract void setCriteria(C criteria, SQLQuery<?> query, U user);

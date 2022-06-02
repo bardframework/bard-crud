@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
 /**
  * Created by vahid on 1/17/17.
  */
-public abstract class BaseServiceAbstract<M extends BaseModel<I>, C extends BaseCriteriaAbstract<I>, D, R extends BaseRepository<M, C, I, U>, I extends Comparable<? super I>, U> implements BaseService<M, C, D, I, U> {
+public abstract class BaseServiceAbstract<M extends BaseModel<I>, C extends BaseCriteria<I>, D, R extends BaseRepository<M, C, I, U>, I extends Comparable<? super I>, U> implements BaseService<M, C, D, I, U> {
 
     protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
     protected final Class<M> modelClazz;
@@ -29,9 +29,9 @@ public abstract class BaseServiceAbstract<M extends BaseModel<I>, C extends Base
 
     public BaseServiceAbstract(R repository) {
         this.repository = repository;
-        this.modelClazz = ReflectionUtils.getGenericClass(this.getClass(), 0);
-        this.criteriaClazz = ReflectionUtils.getGenericSuperClass(this.getClass(), 1);
-        this.dtoClazz = ReflectionUtils.getGenericSuperClass(this.getClass(), 2);
+        this.modelClazz = ReflectionUtils.getGenericArgType(this.getClass(), 0);
+        this.criteriaClazz = ReflectionUtils.getGenericArgType(this.getClass(), 1);
+        this.dtoClazz = ReflectionUtils.getGenericArgType(this.getClass(), 2);
     }
 
     protected C getEmptyCriteria() {

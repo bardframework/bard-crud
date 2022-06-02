@@ -16,7 +16,7 @@ import static org.bardframework.crud.api.base.ReadRestController.FILTER_URL;
 /**
  * Created by Sama-PC on 14/05/2017.
  */
-public interface RestControllerTestAbstract<M extends BaseModel<I>, C extends BaseCriteriaAbstract<I>, D, P extends DataProviderServiceAbstract<M, C, D, ?, ?, I, U>, I extends Comparable<? super I>, U> extends WebTest {
+public interface RestControllerTestAbstract<M extends BaseModel<I>, C extends BaseCriteria<I>, D, P extends DataProviderServiceAbstract<M, C, D, ?, ?, I, U>, I extends Comparable<? super I>, U> extends WebTest {
 
     default String GET_URL(I id) {
         return BASE_URL() + "/" + id;
