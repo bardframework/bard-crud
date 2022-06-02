@@ -236,7 +236,7 @@ public abstract class RepositoryTestAbstract<M extends BaseModel<I>, C extends B
         C validFilter = this.getDataProvider().getEmptyCriteria();
         PagedData<M> pagedData = repository.get(validFilter, PageRequest.of(0, dataCount), this.getUser());
         assertThat(pagedData.getTotal()).isGreaterThanOrEqualTo(dataCount);
-        assertThat(pagedData.getList()).isNotEmpty();
+        assertThat(pagedData.getData()).isNotEmpty();
     }
 
     @Test

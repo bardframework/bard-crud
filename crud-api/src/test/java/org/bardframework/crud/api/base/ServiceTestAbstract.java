@@ -265,12 +265,12 @@ public abstract class ServiceTestAbstract<M extends BaseModel<I>, C extends Base
 
         assertThat(pagedData).isNotNull();
         assertThat(pagedData.getTotal()).isGreaterThanOrEqualTo(savedList.size());
-        assertThat(pagedData.getList()).isNotNull().isNotEmpty().doesNotContainNull();
+        assertThat(pagedData.getData()).isNotNull().isNotEmpty().doesNotContainNull();
         /*
             Saved model ids must be in the list of filtered ids.
         */
         List<I> savedIds = savedList.stream().map(M::getId).collect(Collectors.toList());
-        assertThat(pagedData.getList()).map(BaseModel::getId).containsAll(savedIds);
+        assertThat(pagedData.getData()).map(BaseModel::getId).containsAll(savedIds);
     }
 
     @Test

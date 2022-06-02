@@ -4,23 +4,23 @@ import java.util.List;
 
 public class PagedData<M> {
 
-    private List<M> list;
+    private List<M> data;
     private long total;
 
     public PagedData() {
     }
 
-    public PagedData(List<M> list, long total) {
-        this.list = list;
+    public PagedData(List<M> data, long total) {
+        this.data = data;
         this.total = total;
     }
 
-    public List<M> getList() {
-        return list;
+    public List<M> getData() {
+        return data;
     }
 
-    public void setList(List<M> list) {
-        this.list = list;
+    public void setData(List<M> data) {
+        this.data = data;
     }
 
     public long getTotal() {

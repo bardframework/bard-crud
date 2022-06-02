@@ -96,7 +96,7 @@ public abstract class BaseServiceAbstract<M extends BaseModel<I>, C extends Base
         AssertionUtils.notNull(pageable, "Given pageable cannot be null.");
         this.preFetch(criteria, user);
         PagedData<M> pagedData = this.getRepository().get(criteria, pageable, user);
-        this.postFetch(criteria, pagedData.getList(), user);
+        this.postFetch(criteria, pagedData.getData(), user);
         return pagedData;
     }
 
