@@ -7,7 +7,6 @@ import org.bardframework.commons.utils.ReflectionUtils;
 import org.bardframework.crud.api.filter.IdFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -40,6 +39,10 @@ public abstract class BaseServiceAbstract<M extends BaseModel<I>, C extends Base
     }
 
     public List<M> get(List<I> ids, U user) {
+        AssertionUtils.notNull(ids, "Given ids cannot be null.");
+        if (ids.isEmpty()) {
+            return Collections.emptyList();
+        }
         C criteria = this.getEmptyCriteria();
         criteria.setId((IdFilter<I>) new IdFilter<I>().setIn(ids));
         return this.get(criteria, user);
@@ -50,13 +53,13 @@ public abstract class BaseServiceAbstract<M extends BaseModel<I>, C extends Base
      */
     @Override
     public M get(I id, U user) {
+        AssertionUtils.notNull(id, "Given id cannot be null.");
         C criteria = this.getEmptyCriteria();
         criteria.setId((IdFilter<I>) new IdFilter<I>().setEquals(id));
         List<M> models = this.get(criteria, user);
         if (CollectionUtils.isEmpty(models)) {
             return null;
         }
-        this.postFetch(criteria, models, user);
         return models.get(0);
     }
 
@@ -69,6 +72,7 @@ public abstract class BaseServiceAbstract<M extends BaseModel<I>, C extends Base
      * get all data match with given <code>criteria</code>
      */
     public List<M> get(C criteria, U user) {
+        AssertionUtils.notNull(criteria, "Given criteria cannot be null.");
         this.preFetch(criteria, user);
         List<M> list = this.getRepository().get(criteria, user);
         this.postFetch(criteria, list, user);
@@ -79,6 +83,7 @@ public abstract class BaseServiceAbstract<M extends BaseModel<I>, C extends Base
      * @return one entity with given criteria
      */
     public M getOne(C criteria, U user) {
+        AssertionUtils.notNull(criteria, "Given criteria cannot be null.");
         this.preFetch(criteria, user);
         M model = this.getRepository().getOne(criteria, user);
         this.postFetch(criteria, Collections.singletonList(model), user);
@@ -86,11 +91,13 @@ public abstract class BaseServiceAbstract<M extends BaseModel<I>, C extends Base
     }
 
     @Override
-    public final Page<M> get(C criteria, Pageable pageable, U user) {
+    public PagedData<M> get(C criteria, Pageable pageable, U user) {
+        AssertionUtils.notNull(criteria, "Given criteria cannot be null.");
+        AssertionUtils.notNull(pageable, "Given pageable cannot be null.");
         this.preFetch(criteria, user);
-        Page<M> page = this.getRepository().get(criteria, pageable, user);
-        this.postFetch(criteria, page.toList(), user);
-        return page;
+        PagedData<M> pagedData = this.getRepository().get(criteria, pageable, user);
+        this.postFetch(criteria, pagedData.getList(), user);
+        return pagedData;
     }
 
     protected void preFetch(C criteria, U user) {
@@ -120,7 +127,10 @@ public abstract class BaseServiceAbstract<M extends BaseModel<I>, C extends Base
 
     @Transactional
     public long delete(List<I> ids, U user) {
-        AssertionUtils.notEmpty(ids, "ids cannot be empty.");
+        AssertionUtils.notNull(ids, "Given ids cannot be null.");
+        if (ids.isEmpty()) {
+            return 0;
+        }
         C criteria = this.getEmptyCriteria();
         criteria.setId((IdFilter<I>) new IdFilter<I>().setIn(ids));
         return this.delete(criteria, user);
@@ -128,7 +138,7 @@ public abstract class BaseServiceAbstract<M extends BaseModel<I>, C extends Base
 
     @Transactional
     public long delete(C criteria, U user) {
-        AssertionUtils.notNull(criteria, "criteria cannot be null.");
+        AssertionUtils.notNull(criteria, "Given criteria cannot be null.");
         List<M> models = this.getRepository().get(criteria, user);
         if (CollectionUtils.isEmpty(models)) {
             return 0;
@@ -190,7 +200,10 @@ public abstract class BaseServiceAbstract<M extends BaseModel<I>, C extends Base
      */
     @Transactional
     public List<M> save(List<D> dtos, U user) {
-        AssertionUtils.notEmpty(dtos, "dtos cannot be empty.");
+        AssertionUtils.notNull(dtos, "Given dtos cannot be null.");
+        if (dtos.isEmpty()) {
+            return Collections.emptyList();
+        }
         this.preSave(dtos, user);
         List<M> list = new ArrayList<>();
         for (D dto : dtos) {
@@ -230,6 +243,8 @@ public abstract class BaseServiceAbstract<M extends BaseModel<I>, C extends Base
     @Transactional
     @Override
     public M patch(I id, Map<String, Object> patch, U user) {
+        AssertionUtils.notNull(id, "id cannot be null.");
+        AssertionUtils.notEmpty(patch, "patch cannot be empty.");
         M model = this.getRepository().get(id, user);
         if (null == model) {
             return null;
@@ -250,6 +265,8 @@ public abstract class BaseServiceAbstract<M extends BaseModel<I>, C extends Base
     @Transactional
     @Override
     public M update(I id, D dto, U user) {
+        AssertionUtils.notNull(id, "id cannot be null.");
+        AssertionUtils.notNull(dto, "patch cannot be dto.");
         M model = this.getRepository().get(id, user);
         if (null == model) {
             return null;

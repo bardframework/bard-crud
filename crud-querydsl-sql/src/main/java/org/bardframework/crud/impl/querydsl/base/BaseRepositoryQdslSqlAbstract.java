@@ -4,7 +4,7 @@ import com.querydsl.core.dml.StoreClause;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Path;
 import com.querydsl.core.types.QBean;
-import com.querydsl.core.types.dsl.*;
+import com.querydsl.core.types.dsl.ComparableExpression;
 import com.querydsl.sql.RelationalPathBase;
 import com.querydsl.sql.SQLQuery;
 import com.querydsl.sql.SQLQueryFactory;
@@ -16,14 +16,11 @@ import org.bardframework.commons.utils.ReflectionUtils;
 import org.bardframework.crud.api.base.BaseCriteriaAbstract;
 import org.bardframework.crud.api.base.BaseModel;
 import org.bardframework.crud.api.base.BaseRepository;
-import org.bardframework.crud.api.filter.Filter;
+import org.bardframework.crud.api.base.PagedData;
 import org.bardframework.crud.api.filter.IdFilter;
-import org.bardframework.crud.api.filter.RangeFilter;
-import org.bardframework.crud.api.filter.StringFilter;
-import org.bardframework.crud.api.util.PaginationUtil;
+import org.bardframework.crud.impl.querydsl.utils.QueryDslUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.lang.Nullable;
@@ -75,6 +72,7 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
     @Transactional
     @Override
     public M save(M model, U user) {
+        AssertionUtils.notNull(model, "Given model cannot be null.");
         return this.save(Collections.singletonList(model), user).get(0);
     }
 
@@ -84,13 +82,14 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
     @Transactional
     @Override
     public List<M> save(List<M> models, U user) {
+        AssertionUtils.notNull(models, "Given models cannot be null.");
         if (CollectionUtils.isEmpty(models)) {
-            return models;
+            return Collections.emptyList();
         }
         SQLInsertClause insertClause = this.getQueryFactory().insert(this.getEntity());
         models.forEach(model -> {
-            this.fillClause(insertClause, model, user);
-            this.setIdentifier(model, user);
+                    this.fillClause(insertClause, model, user);
+                    this.setIdentifier(model, user);
                     AssertionUtils.notNull(model.getId(), "model identifier is not provided in 'setIdentifier' method");
                     insertClause.set(getIdentifierPath(), model.getId());
                     insertClause.addBatch();
@@ -99,7 +98,6 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
         long affectedRowsCount = insertClause.execute();
         if (models.size() != affectedRowsCount) {
             LOGGER.warn("expect insert '{}' row, but '{}' row(s) inserted.", models.size(), affectedRowsCount);
-//            throw new IllegalStateException("expect affect '" + models.size() + "' row, but " + affectedRowsCount + " row(s) inserted.");
         }
         return models;
     }
@@ -107,6 +105,7 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
     @Transactional
     @Override
     public M update(M model, U user) {
+        AssertionUtils.notNull(model, "model cannot be null.");
         SQLUpdateClause updateClause = this.getQueryFactory().update(getEntity()).where(this.getIdentifierPath().eq(model.getId()));
         updateClause = this.fillClause(updateClause, model, user);
         long affectedRowsCount = updateClause.execute();
@@ -119,6 +118,8 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
     @Transactional
     @Override
     public M patch(I id, Map<String, Object> patch, U user) {
+        AssertionUtils.notNull(id, "id cannot be null.");
+        AssertionUtils.notEmpty(patch, "patch cannot be empty.");
         final SQLUpdateClause updateClause = this.getQueryFactory().update(this.getEntity()).where(this.getIdentifierPath().eq(id));
         List<Path<?>> columns = this.getEntity().getColumns();
         for (Path<?> column : columns) {
@@ -140,7 +141,7 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
         return this.get(id, user);
     }
 
-    public abstract <T extends ComparableExpression<I>> T getIdentifierPath();
+    protected abstract <T extends ComparableExpression<I>> T getIdentifierPath();
 
     @Transactional(readOnly = true)
     @Override
@@ -166,7 +167,7 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
         this.setCriteria(criteria, query, user);
 
         if (null != criteria.getId()) {
-            query.where(buildQuery(criteria.getId(), this.getIdentifierPath()));
+            query.where(QueryDslUtils.buildQuery(criteria.getId(), this.getIdentifierPath()));
         }
 
         for (Class<?> clazz : this.getClass().getInterfaces()) {
@@ -180,35 +181,30 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
 
     @Transactional(readOnly = true)
     @Override
-    public Page<M> get(C criteria, Pageable pageable, U user) {
-        AssertionUtils.notNull(criteria, "null criteria not acceptable");
+    public PagedData<M> get(C criteria, Pageable pageable, U user) {
+        AssertionUtils.notNull(criteria, "Given criteria cannot be null.");
+        AssertionUtils.notNull(pageable, "Given pageable cannot be null.");
         SQLQuery<?> query = this.prepareQuery(criteria, pageable.getSort(), user);
-        long count = query.fetchCount();
-        if (0 >= count) {
-            return Page.empty();
+        long total = query.fetchCount();
+        if (0 >= total) {
+            return new PagedData<>();
         }
         query = query.clone(this.getQueryFactory().getConnection());
-        this.setPageAndSize(query, pageable);
-        List<M> result = query.select(this.getQBean()).fetch();
-        return PaginationUtil.getPage(result, pageable, count);
-    }
-
-    protected void setPageAndSize(SQLQuery<?> query, Pageable pageable) {
         if (pageable.getPageSize() == 0) {
             query.offset((long) (Math.max(pageable.getPageNumber(), 0)) * DEFAULT_SIZE);
-        } else {
-            query.offset(pageable.getOffset());
-        }
-        if (pageable.getPageSize() == 0) {
             query.limit(DEFAULT_SIZE);
         } else {
+            query.offset(pageable.getOffset());
             query.limit(pageable.getPageSize());
         }
+        List<M> result = query.select(this.getQBean()).fetch();
+        return new PagedData<>(result, total);
     }
 
     @Transactional(readOnly = true)
     @Override
     public long getCount(C criteria, U user) {
+        AssertionUtils.notNull(criteria, "Given criteria cannot be null.");
         return this.prepareQuery(criteria, null, user).fetchCount();
     }
 
@@ -234,7 +230,7 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
     @Transactional
     @Override
     public long delete(List<I> ids, U user) {
-        AssertionUtils.notNull(ids, "ids should not be null.");
+        AssertionUtils.notNull(ids, "Given ids cannot be null.");
         C criteria = ReflectionUtils.newInstance(criteriaClazz);
         criteria.setId((IdFilter<I>) new IdFilter<I>().setIn(ids));
 
@@ -250,6 +246,9 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
                 .execute();
     }
 
+    /**
+     * Does not use criteria to delete (User access may not be controlled)
+     */
     @Transactional
     @Override
     public long directDelete(List<I> ids, U user) {
@@ -262,6 +261,7 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
     @Transactional(readOnly = true)
     @Override
     public List<I> getIds(C criteria, U user) {
+        AssertionUtils.notNull(criteria, "Given criteria cannot be null.");
         return this.prepareQuery(criteria, null, user).select(this.getIdentifierPath()).fetch();
     }
 
@@ -288,7 +288,7 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
     protected void setJoins(SQLQuery<?> query, U user) {
     }
 
-    public void setOrders(SQLQuery<?> query, @Nullable Sort sort) {
+    protected void setOrders(SQLQuery<?> query, @Nullable Sort sort) {
         List<OrderSpecifier<?>> list;
         Map<String, OrderField> map = this.getSortColumns();
 
@@ -307,116 +307,11 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
         query.orderBy(list.toArray(new OrderSpecifier[0]));
     }
 
-    public SQLQueryFactory getQueryFactory() {
+    protected SQLQueryFactory getQueryFactory() {
         return queryFactory;
     }
 
     protected Map<String, OrderField> getSortColumns() {
         return Map.of();
-    }
-
-    protected <X extends Comparable<? super X>> BooleanExpression buildQuery(Filter<X> filter, ComparableExpression<X> expression) {
-        if (filter.getEquals() != null) {
-            return expression.eq(filter.getEquals());
-        } else if (filter.getIn() != null) {
-            return expression.in(filter.getIn());
-        } else if (filter.getNotEquals() != null) {
-            return expression.ne(filter.getNotEquals());
-        } else if (filter.getNotIn() != null) {
-            return expression.notIn(filter.getNotIn());
-        } else if (filter.getSpecified() != null) {
-            if (filter.getSpecified()) {
-                return expression.isNotNull();
-            } else {
-                return expression.isNull();
-            }
-        }
-        return Expressions.asBoolean(true).isTrue();
-    }
-
-    protected BooleanExpression buildQuery(StringFilter filter, StringExpression expression) {
-        if (filter.getEquals() != null) {
-            return expression.eq(filter.getEquals());
-        } else if (filter.getIn() != null) {
-            return expression.in(filter.getIn());
-        } else if (filter.getContains() != null) {
-//            return likeUpperSpecification(metaclassFunction, filter.getContains());
-            return expression.likeIgnoreCase("%" + filter.getContains() + "%");
-        } else if (filter.getDoesNotContain() != null) {
-            return expression.notLike("%" + filter.getDoesNotContain() + "%");
-        } else if (filter.getNotEquals() != null) {
-            return expression.ne(filter.getNotEquals());
-        } else if (filter.getNotIn() != null) {
-            return expression.notIn(filter.getNotIn());
-        } else if (filter.getSpecified() != null) {
-            if (filter.getSpecified()) {
-                return expression.isNotNull();
-            } else {
-                return expression.isNull();
-            }
-        }
-        return Expressions.asBoolean(true).isTrue();
-    }
-
-    protected <X extends Comparable<? super X>> BooleanExpression buildQuery(RangeFilter<X> filter,
-                                                                             ComparableExpression<X> expression) {
-        BooleanExpression expr = this.buildQueryInternal(filter, expression);
-
-        if (filter.getGreaterThan() != null) {
-            expr = expr.and(expression.gt(filter.getGreaterThan()));
-        }
-        if (filter.getGreaterThanOrEqual() != null) {
-            expr = expr.and(expression.goe(filter.getGreaterThanOrEqual()));
-        }
-        if (filter.getLessThan() != null) {
-            expr = expr.and(expression.lt(filter.getLessThan()));
-        }
-        if (filter.getLessThanOrEqual() != null) {
-            expr = expr.and(expression.loe(filter.getLessThanOrEqual()));
-        }
-        return expr;
-    }
-
-    private <X extends Comparable<? super X>> BooleanExpression buildQueryInternal(RangeFilter<X> filter,
-                                                                                   ComparableExpressionBase<X> expression) {
-        if (filter.getEquals() != null) {
-            return expression.eq(filter.getEquals());
-        } else if (filter.getIn() != null) {
-            return expression.in(filter.getIn());
-        }
-
-        BooleanExpression expr = Expressions.asBoolean(true);
-        if (filter.getSpecified() != null) {
-            if (filter.getSpecified()) {
-                expr.and(expression.isNotNull());
-            } else {
-                expr.and(expression.isNull());
-            }
-        }
-        if (filter.getNotEquals() != null) {
-            expr.and(expression.ne(filter.getNotEquals()));
-        } else if (filter.getNotIn() != null) {
-            expr.and(expression.notIn(filter.getNotIn()));
-        }
-        return expr;
-    }
-
-    protected <X extends Number & Comparable<? super X>> BooleanExpression buildQuery(RangeFilter<X> filter,
-                                                                                      NumberExpression<X> expression) {
-        BooleanExpression expr = this.buildQueryInternal(filter, expression);
-
-        if (filter.getGreaterThan() != null) {
-            expr.and(expression.gt(filter.getGreaterThan()));
-        }
-        if (filter.getGreaterThanOrEqual() != null) {
-            expr.and(expression.goe(filter.getGreaterThanOrEqual()));
-        }
-        if (filter.getLessThan() != null) {
-            expr.and(expression.lt(filter.getLessThan()));
-        }
-        if (filter.getLessThanOrEqual() != null) {
-            expr.and(expression.loe(filter.getLessThanOrEqual()));
-        }
-        return expr;
     }
 }

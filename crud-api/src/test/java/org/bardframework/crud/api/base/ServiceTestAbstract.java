@@ -2,12 +2,10 @@ package org.bardframework.crud.api.base;
 
 import org.apache.commons.lang3.RandomUtils;
 import org.bardframework.crud.api.filter.IdFilter;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
 import java.util.ArrayList;
@@ -65,11 +63,9 @@ public abstract class ServiceTestAbstract<M extends BaseModel<I>, C extends Base
      */
     @Test
     public void testGetByCriteria() {
-        Assertions.assertDoesNotThrow(() -> {
-            List<M> savedList = this.getDataProvider().getModels(RandomUtils.nextInt(1, 10), this.getUser());
-            List<M> models = service.get(this.getDataProvider().getEmptyCriteria(), this.getUser());
-            assertThat(models).isNotNull().isNotEmpty().doesNotContainNull().size().isGreaterThanOrEqualTo(savedList.size());
-        });
+        List<M> savedList = this.getDataProvider().getModels(RandomUtils.nextInt(1, 10), this.getUser());
+        List<M> models = service.get(this.getDataProvider().getEmptyCriteria(), this.getUser());
+        assertThat(models).isNotNull().isNotEmpty().doesNotContainNull().size().isGreaterThanOrEqualTo(savedList.size());
     }
 
     @Test
@@ -87,7 +83,7 @@ public abstract class ServiceTestAbstract<M extends BaseModel<I>, C extends Base
         C criteria = this.getDataProvider().getEmptyCriteria();
         criteria.setId((IdFilter<I>) new IdFilter<I>().setNotEquals(model.getId()));
         List<M> list = service.get(criteria, this.getUser());
-        assertThat(list).extracting("id").doesNotContain(model.getId());
+        assertThat(list.stream().map(BaseModel::getId)).doesNotContain(model.getId());
     }
 
     /**
@@ -100,51 +96,45 @@ public abstract class ServiceTestAbstract<M extends BaseModel<I>, C extends Base
 
     @Test
     public void testDeleteById() {
-        Assertions.assertDoesNotThrow(() -> {
-            M savedModel = this.getDataProvider().saveNew(1, this.getUser()).get(0);
-            long count = service.delete(savedModel.getId(), this.getUser());
-            /* Check that only one model is deleted. */
-            assertThat(count).isEqualByComparingTo(1L);
-            /* Check that deleted model cannot be found anymore. */
-            M foundModel = service.get(savedModel.getId(), this.getUser());
-            assertThat(foundModel).isNull();
-        });
+        M savedModel = this.getDataProvider().saveNew(1, this.getUser()).get(0);
+        long count = service.delete(savedModel.getId(), this.getUser());
+        /* Check that only one model is deleted. */
+        assertThat(count).isEqualByComparingTo(1L);
+        /* Check that deleted model cannot be found anymore. */
+        M foundModel = service.get(savedModel.getId(), this.getUser());
+        assertThat(foundModel).isNull();
     }
 
     @Test
     public void testDeleteByIds() {
-        Assertions.assertDoesNotThrow(() -> {
-            int count = RandomUtils.nextInt(3, 10);
-            List<M> saved = this.getDataProvider().saveNew(count, this.getUser());
-            List<I> ids = saved.stream().map(M::getId).collect(Collectors.toList());
-            long size = service.delete(ids, this.getUser());
-            assertThat(size).isEqualByComparingTo((long) saved.size());
-            /* Make sure records are deleted from DB. */
-            assertThat(service.get(ids, this.getUser())).isEmpty();
-        });
+        int count = RandomUtils.nextInt(3, 10);
+        List<M> saved = this.getDataProvider().saveNew(count, this.getUser());
+        List<I> ids = saved.stream().map(M::getId).collect(Collectors.toList());
+        long size = service.delete(ids, this.getUser());
+        assertThat(size).isEqualByComparingTo((long) saved.size());
+        /* Make sure records are deleted from DB. */
+        assertThat(service.get(ids, this.getUser())).isEmpty();
     }
 
     @Test
     public void testDeleteByIdsDuplicate() {
-        Assertions.assertDoesNotThrow(() -> {
-            int count = RandomUtils.nextInt(5, 20);
-            List<M> saved = this.getDataProvider().saveNew(count, this.getUser());
-            List<I> ids = new ArrayList<>();
-            for (M m : saved) {
-                ids.add(m.getId());
-                ids.add(m.getId());
-                ids.add(m.getId());
-            }
-            long size = service.delete(ids, this.getUser());
+        int count = RandomUtils.nextInt(5, 20);
+        List<M> saved = this.getDataProvider().saveNew(count, this.getUser());
+        List<I> ids = new ArrayList<>();
+        for (M m : saved) {
+            ids.add(m.getId());
+            ids.add(m.getId());
+            ids.add(m.getId());
+        }
+        long size = service.delete(ids, this.getUser());
         /*
           Make sure no records more than actual count, i.e save list size, are deleted.
          */
-            assertThat(size).isEqualByComparingTo((long) saved.size());
+        assertThat(size).isEqualByComparingTo((long) saved.size());
         /*
           Make sure all records are deleted from Database.
          */
-            assertThat(service.get(ids, this.getUser())).isEmpty();
-        });
+        assertThat(service.get(ids, this.getUser())).isEmpty();
     }
 
     /**
@@ -166,17 +156,15 @@ public abstract class ServiceTestAbstract<M extends BaseModel<I>, C extends Base
 
     @Test
     public void testSave() {
-        Assertions.assertDoesNotThrow(() -> {
-            D dto = this.getDataProvider().getDto(this.getUser());
-            LOGGER.debug("saving '{}'", dto);
-            M result = service.save(dto, this.getUser());
-            LOGGER.debug("save '{}', result is '{}'.", dto, result);
-            assertThat(result).isNotNull();
-            assertThat(result.getId()).isNotNull();
-            M model = service.get(result.getId(), this.getUser());
-            assertThat(model).isNotNull();
-            this.getDataProvider().assertEqualSave(result, model);
-        });
+        D dto = this.getDataProvider().getDto(this.getUser());
+        LOGGER.debug("saving '{}'", dto);
+        M result = service.save(dto, this.getUser());
+        LOGGER.debug("save '{}', result is '{}'.", dto, result);
+        assertThat(result).isNotNull();
+        assertThat(result.getId()).isNotNull();
+        M model = service.get(result.getId(), this.getUser());
+        assertThat(model).isNotNull();
+        this.getDataProvider().assertEqualSave(result, model);
     }
 
     @Test
@@ -192,18 +180,16 @@ public abstract class ServiceTestAbstract<M extends BaseModel<I>, C extends Base
 
     @Test
     public void testUpdate() {
-        Assertions.assertDoesNotThrow(() -> {
-            I id = this.getDataProvider().getId(this.getUser());
-            D dto = this.getDataProvider().getDto(this.getUser());
-            LOGGER.debug("updating '{}'", dto);
-            M result = service.update(id, dto, this.getUser());
-            LOGGER.debug("update '{}', result is '{}'.", dto, result);
-            assertThat(result).isNotNull();
-            assertThat(id).isEqualTo(result.getId());
-            M model = service.get(id, this.getUser());
-            assertThat(model).isNotNull();
-            this.getDataProvider().assertEqualUpdate(model, dto);
-        });
+        I id = this.getDataProvider().getId(this.getUser());
+        D dto = this.getDataProvider().getDto(this.getUser());
+        LOGGER.debug("updating '{}'", dto);
+        M result = service.update(id, dto, this.getUser());
+        LOGGER.debug("update '{}', result is '{}'.", dto, result);
+        assertThat(result).isNotNull();
+        assertThat(id).isEqualTo(result.getId());
+        M model = service.get(id, this.getUser());
+        assertThat(model).isNotNull();
+        this.getDataProvider().assertEqualUpdate(model, dto);
     }
 
     @Test
@@ -222,13 +208,11 @@ public abstract class ServiceTestAbstract<M extends BaseModel<I>, C extends Base
 
     @Test
     public void testFilterCount() {
-        Assertions.assertDoesNotThrow(() -> {
-            List<M> savedList = this.getDataProvider().getModels(RandomUtils.nextInt(1, 10), this.getUser());
-            long count = service.getCount(this.getDataProvider().getEmptyCriteria(), this.getUser());
+        List<M> savedList = this.getDataProvider().getModels(RandomUtils.nextInt(1, 10), this.getUser());
+        long count = service.getCount(this.getDataProvider().getEmptyCriteria(), this.getUser());
 
-            /* Check that count at least is in the size of savedModel. */
-            assertThat(count).isGreaterThanOrEqualTo(savedList.size());
-        });
+        /* Check that count at least is in the size of savedModel. */
+        assertThat(count).isGreaterThanOrEqualTo(savedList.size());
     }
 
     @Test
@@ -239,16 +223,13 @@ public abstract class ServiceTestAbstract<M extends BaseModel<I>, C extends Base
     /*
        testFilterCountInvalid(): is page & size neutral. So, invalid page and size is not checked for this method.
      */
-
     @Test
     public void testFilterIds() {
-        Assertions.assertDoesNotThrow(() -> {
-            List<M> savedList = this.getDataProvider().getModels(RandomUtils.nextInt(1, 5), this.getUser());
-            List<I> savedIds = savedList.stream().map(M::getId).collect(Collectors.toList());
-            List<I> ids = service.getIds(this.getDataProvider().getEmptyCriteria(), this.getUser());
-            /* Saved model ids must be in the list of filtered ids. */
-            assertThat(ids).isNotNull().isNotEmpty().doesNotContainNull().containsAll(savedIds);
-        });
+        List<M> savedList = this.getDataProvider().getModels(RandomUtils.nextInt(1, 5), this.getUser());
+        List<I> savedIds = savedList.stream().map(M::getId).collect(Collectors.toList());
+        List<I> ids = service.getIds(this.getDataProvider().getEmptyCriteria(), this.getUser());
+        /* Saved model ids must be in the list of filtered ids. */
+        assertThat(ids).isNotNull().isNotEmpty().doesNotContainNull().containsAll(savedIds);
     }
 
     @Test
@@ -271,23 +252,23 @@ public abstract class ServiceTestAbstract<M extends BaseModel<I>, C extends Base
 
     @Test
     public void testFilter() {
-        Assertions.assertDoesNotThrow(() -> {
-            List<M> savedList = this.getDataProvider().getModels(RandomUtils.nextInt(1, 10), this.getUser());
-            /* Create a criteria that returns all the result in one page. */
-            long count = service.getCount(this.getDataProvider().getCriteria(), this.getUser());
-            C onePageCriteria = this.getDataProvider().getCriteria();
-
-            Page<M> dataTable = service.get(onePageCriteria, PageRequest.of(0, (int) count), this.getUser());
-
-            assertThat(dataTable).isNotNull();
-            assertThat(dataTable.getTotalElements()).isGreaterThanOrEqualTo(savedList.size());
-            assertThat(dataTable.getContent()).isNotNull().isNotEmpty().doesNotContainNull();
+        List<M> savedList = this.getDataProvider().getModels(RandomUtils.nextInt(1, 10), this.getUser());
         /*
-          Saved model ids must be in the list of filtered ids.
-          */
-            List<I> savedIds = savedList.stream().map(M::getId).collect(Collectors.toList());
-            assertThat(dataTable.getContent()).extracting("id").containsAll(savedIds);
-        });
+            Create a criteria that returns all the result in one page.
+        */
+        long count = service.getCount(this.getDataProvider().getCriteria(), this.getUser());
+        C criteria = this.getDataProvider().getCriteria();
+
+        PagedData<M> pagedData = service.get(criteria, PageRequest.of(0, (int) count), this.getUser());
+
+        assertThat(pagedData).isNotNull();
+        assertThat(pagedData.getTotal()).isGreaterThanOrEqualTo(savedList.size());
+        assertThat(pagedData.getList()).isNotNull().isNotEmpty().doesNotContainNull();
+        /*
+            Saved model ids must be in the list of filtered ids.
+        */
+        List<I> savedIds = savedList.stream().map(M::getId).collect(Collectors.toList());
+        assertThat(pagedData.getList()).map(BaseModel::getId).containsAll(savedIds);
     }
 
     @Test

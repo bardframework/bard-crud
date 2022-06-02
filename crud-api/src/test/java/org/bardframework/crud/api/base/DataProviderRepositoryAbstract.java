@@ -2,6 +2,7 @@ package org.bardframework.crud.api.base;
 
 import org.apache.commons.lang3.RandomUtils;
 import org.assertj.core.api.Assertions;
+import org.bardframework.commons.utils.ReflectionUtils;
 import org.bardframework.crud.api.filter.IdFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,7 +11,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.lang.reflect.ParameterizedType;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -30,27 +30,11 @@ public abstract class DataProviderRepositoryAbstract<M extends BaseModel<I>, C e
     protected Class<C> criteriaClazz;
 
     public DataProviderRepositoryAbstract() {
-        Class<?> targetCLazz = this.getClass();
-        while (null != targetCLazz && !(targetCLazz.getGenericSuperclass() instanceof ParameterizedType)) {
-            targetCLazz = targetCLazz.getSuperclass();
-        }
-        try {
-            ParameterizedType parameterizedType = (ParameterizedType) targetCLazz.getGenericSuperclass();
-            this.criteriaClazz = (Class) parameterizedType.getActualTypeArguments()[1];
-        } catch (Exception e) {
-            this.LOGGER.debug("can't determine class from generic type!", e);
-            throw new IllegalArgumentException("can't determine class from generic type!", e);
-        }
+        this.criteriaClazz = ReflectionUtils.getGenericSuperClass(this.getClass(), 1);
     }
 
     public C getEmptyCriteria() {
-        C criteria;
-        try {
-            criteria = criteriaClazz.newInstance();
-        } catch (IllegalAccessException | InstantiationException e) {
-            throw new IllegalStateException(e);
-        }
-        return criteria;
+        return ReflectionUtils.newInstance(criteriaClazz);
     }
 
     public I getId(U user) {
@@ -120,7 +104,7 @@ public abstract class DataProviderRepositoryAbstract<M extends BaseModel<I>, C e
             criteria.setId((IdFilter<I>) new IdFilter<I>().setNotIn(Arrays.asList(excludeIds)));
         }
         this.saveNew(count - repository.getCount(criteria, user), user);
-        return this.repository.get(criteria, PageRequest.of(0, count), user).getContent();
+        return this.repository.get(criteria, PageRequest.of(0, count), user).getList();
     }
 
     public M getModel(C criteria, M unsavedModel, U user) {
@@ -129,7 +113,7 @@ public abstract class DataProviderRepositoryAbstract<M extends BaseModel<I>, C e
             //TODO save model that pass give criteria restrictions
             return repository.save(unsavedModel, user);
         }
-        return repository.get(criteria, PageRequest.of(RandomUtils.nextInt(0, (int) count), 1), user).getContent().get(0);
+        return repository.get(criteria, PageRequest.of(RandomUtils.nextInt(0, (int) count), 1), user).getList().get(0);
     }
 
     /**
@@ -167,7 +151,7 @@ public abstract class DataProviderRepositoryAbstract<M extends BaseModel<I>, C e
             return null;
         }
         for (int i = 0; i < count; i++) {
-            M model = repository.get(criteria, PageRequest.of(i, 1), user).getContent().get(0);
+            M model = repository.get(criteria, PageRequest.of(i, 1), user).getList().get(0);
             if (validateFunction.apply(model)) {
                 return model;
             }

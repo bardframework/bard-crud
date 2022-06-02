@@ -2,15 +2,11 @@ package org.bardframework.crud.api.base;
 
 import org.apache.commons.lang3.RandomUtils;
 import org.bardframework.crud.api.filter.IdFilter;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 
 import java.util.*;
 
@@ -63,7 +59,7 @@ public abstract class RepositoryTestAbstract<M extends BaseModel<I>, C extends B
         LOGGER.debug("test get by duplicate ids '{}'.", duplicateIds);
         List<M> result = repository.get(duplicateIds, this.getUser());
         LOGGER.debug("get by duplicate ids '{}', result  is '{}'.", duplicateIds, result);
-        assertThat(result).hasSize(1).extracting("id").containsOnly(id);
+        assertThat(result).hasSize(1).map(BaseModel::getId).containsOnly(id);
     }
 
     @Test
@@ -119,7 +115,7 @@ public abstract class RepositoryTestAbstract<M extends BaseModel<I>, C extends B
         LOGGER.debug("get by criteria '{}'.", criteria);
         List<M> foundEntities = repository.get(criteria, this.getUser());
         LOGGER.debug("get by criteria '{}', result is '{}'.", criteria, foundEntities);
-        assertThat(foundEntities).extracting("id").doesNotContain(ids);
+        assertThat(foundEntities).map(BaseModel::getId).doesNotContainAnyElementsOf(ids);
     }
 
     @Test
@@ -205,8 +201,7 @@ public abstract class RepositoryTestAbstract<M extends BaseModel<I>, C extends B
 
     @Test
     public void testSaveCollectionNull() {
-        List<M> saved = repository.save((List<M>) null, this.getUser());
-        assertThat(saved).isNull();
+        assertThatExceptionOfType(Exception.class).isThrownBy(() -> repository.save((List<M>) null, this.getUser()));
     }
     /*----------------------- Update ---------------------*/
 
@@ -228,16 +223,6 @@ public abstract class RepositoryTestAbstract<M extends BaseModel<I>, C extends B
     }
 
     @Test
-    public void testUpdateInvalidId() {
-        /*
-          Get a valid saved model and set its id to an invalid number.
-          */
-        M model = this.getDataProvider().getModel(this.getUser());
-        //model.setId(this.getDataProvider().getInvalidId());
-        assertThatExceptionOfType(Exception.class).isThrownBy(() -> repository.update(model, this.getUser()));
-    }
-
-    @Test
     public void testUpdateUnsavedModel() {
         M model = this.getDataProvider().getUnsavedModel(this.getUser());
         assertThatExceptionOfType(Exception.class).isThrownBy(() -> repository.update(model, this.getUser()));
@@ -246,15 +231,12 @@ public abstract class RepositoryTestAbstract<M extends BaseModel<I>, C extends B
     /*---------------------- Filter ------------------------*/
     @Test
     public void testFilter() {
-        Assertions.assertDoesNotThrow(() -> {
-            int dataCount = RandomUtils.nextInt(1, 3);
-            this.getDataProvider().getModels(dataCount, this.getUser());
-            C validFilter = this.getDataProvider().getEmptyCriteria();
-            Page<M> filterResult = repository.get(validFilter, PageRequest.of(0, dataCount), this.getUser());
-            assertThat(filterResult.getTotalElements()).isGreaterThanOrEqualTo(dataCount);
-            assertThat(filterResult.getContent()).isNotEmpty();
-            assertThat(dataCount).isEqualByComparingTo(filterResult.getSize());
-        });
+        int dataCount = RandomUtils.nextInt(1, 3);
+        this.getDataProvider().getModels(dataCount, this.getUser());
+        C validFilter = this.getDataProvider().getEmptyCriteria();
+        PagedData<M> pagedData = repository.get(validFilter, PageRequest.of(0, dataCount), this.getUser());
+        assertThat(pagedData.getTotal()).isGreaterThanOrEqualTo(dataCount);
+        assertThat(pagedData.getList()).isNotEmpty();
     }
 
     @Test
@@ -323,20 +305,6 @@ public abstract class RepositoryTestAbstract<M extends BaseModel<I>, C extends B
     public void testIsExistNull() {
         assertThatExceptionOfType(Exception.class).isThrownBy(() -> repository.isExist(null, this.getUser()));
     }
-
-    @Test
-    public void testSort() {
-        Assertions.assertDoesNotThrow(() -> {
-            List<M> savedList = this.getDataProvider().getModels(RandomUtils.nextInt(1, 10), this.getUser());
-            Pageable pageable = PageRequest.of(1, 20, Sort.by(Sort.Direction.ASC, "id"));
-            assertThat(repository.get(this.getDataProvider().getEmptyCriteria(), pageable, this.getUser())).hasSameSizeAs(savedList);
-        });
-    }
-
-     /*
-      testIsExistInvalid():  does not consider page & size. It uses just other fields of criteria.
-      So, We can't have invalid criteria for this method in api class.
-     */
 
     public P getDataProvider() {
         return dataProvider;

@@ -1,6 +1,5 @@
 package org.bardframework.crud.api.base;
 
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
@@ -56,7 +55,7 @@ public interface BaseRepository<M extends BaseModel<I>, C extends BaseCriteria<I
 
     M patch(I id, Map<String, Object> fields, U user);
 
-    Page<M> get(C criteria, Pageable pageable, U user);
+    PagedData<M> get(C criteria, Pageable pageable, U user);
 
     List<I> getIds(C criteria, U user);
 

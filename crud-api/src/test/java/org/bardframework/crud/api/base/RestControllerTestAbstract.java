@@ -3,7 +3,6 @@ package org.bardframework.crud.api.base;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.junit.jupiter.api.Test;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -79,8 +78,8 @@ public interface RestControllerTestAbstract<M extends BaseModel<I>, C extends Ba
          */
         this.getDataProvider().getModel(this.getUser());
         MockHttpServletRequestBuilder request = this.FILTER(this.getDataProvider().getCriteria(), this.getDataProvider().getPageable());
-        Page<M> response = executeOk(request, getDataModelTypeReference());
-        assertThat(response.getTotalElements()).isGreaterThan(0);
+        PagedData<M> response = this.executeOk(request, this.getDataModelTypeReference());
+        assertThat(response.getTotal()).isGreaterThan(0);
     }
 
     @Test
@@ -88,7 +87,7 @@ public interface RestControllerTestAbstract<M extends BaseModel<I>, C extends Ba
             throws Exception {
         I id = this.getDataProvider().getId(this.getUser());
         MockHttpServletRequestBuilder request = this.GET(id);
-        M result = executeOk(request, getModelTypeReference());
+        M result = this.executeOk(request, getModelTypeReference());
         assertThat(result.getId()).isEqualTo(id);
     }
 
@@ -123,7 +122,7 @@ public interface RestControllerTestAbstract<M extends BaseModel<I>, C extends Ba
         I id = this.getDataProvider().getId(this.getUser());
         D dto = this.getDataProvider().getDto(this.getUser());
         MockHttpServletRequestBuilder request = this.UPDATE(id, dto);
-        M response = executeOk(request, getModelTypeReference());
+        M response = this.executeOk(request, getModelTypeReference());
         this.getDataProvider().assertEqualUpdate(response, dto);
     }
 
@@ -141,14 +140,14 @@ public interface RestControllerTestAbstract<M extends BaseModel<I>, C extends Ba
             throws Exception {
         M savedModel = this.getDataProvider().saveNew(1, this.getUser()).get(0);
         MockHttpServletRequestBuilder request = this.DELETE(savedModel.getId());
-        executeOk(request, this.getDeleteTypeReference());
+        this.executeOk(request, this.getDeleteTypeReference());
     }
 
     @Test
     default void testDELETEUnsuccessful()
             throws Exception {
         MockHttpServletRequestBuilder request = this.DELETE(this.getDataProvider().getInvalidId());
-        execute(request, this.getDeleteTypeReference(), HttpStatus.NO_CONTENT);
+        execute(request, this.getDeleteTypeReference(), HttpStatus.NOT_FOUND);
     }
 
     U getUser();
@@ -159,5 +158,5 @@ public interface RestControllerTestAbstract<M extends BaseModel<I>, C extends Ba
 
     TypeReference<M> getModelTypeReference();
 
-    TypeReference<? extends Page<M>> getDataModelTypeReference();
+    TypeReference<? extends PagedData<M>> getDataModelTypeReference();
 }

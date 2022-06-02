@@ -1,6 +1,5 @@
 package org.bardframework.crud.api.base;
 
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -31,14 +30,14 @@ public interface ReadRestController<M extends BaseModel<I>, C extends BaseCriter
     }
 
     @PostMapping(value = FILTER_URL, consumes = APPLICATION_JSON_VALUE)
-    default ResponseEntity<Page<M>> FILTER(@RequestBody @Validated C criteria, Pageable page) {
-        Page<M> result = this.getService().get(criteria, page, this.getUser());
+    default ResponseEntity<PagedData<M>> FILTER(@RequestBody @Validated C criteria, Pageable page) {
+        PagedData<M> result = this.getService().get(criteria, page, this.getUser());
         return ResponseEntity.ok().body(result);
     }
 
     @GetMapping(value = GET_LIST_URL)
-    default ResponseEntity<Page<M>> GET(@Validated C criteria, Pageable page) {
-        Page<M> result = this.getService().get(criteria, page, this.getUser());
+    default ResponseEntity<PagedData<M>> GET(@Validated C criteria, Pageable page) {
+        PagedData<M> result = this.getService().get(criteria, page, this.getUser());
         return ResponseEntity.ok().body(result);
     }
 
