@@ -1,5 +1,6 @@
 package org.bardframework.crud.api.base;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class PagedData<M> {
@@ -8,6 +9,7 @@ public class PagedData<M> {
     private long total;
 
     public PagedData() {
+        this.data = new ArrayList<>();
     }
 
     public PagedData(List<M> data, long total) {
