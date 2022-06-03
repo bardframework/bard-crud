@@ -22,7 +22,6 @@ public final class QueryDslUtils {
         return Projections.bean(type, exprs);
     }
 
-
     public static BooleanExpression buildQuery(StringFilter filter, StringExpression expression) {
         if (filter.getEquals() != null) {
             return expression.eq(filter.getEquals());

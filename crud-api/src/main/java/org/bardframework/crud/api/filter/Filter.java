@@ -1,28 +1,7 @@
-/*
- * Copyright 2016-2020 the original author or authors from the JHipster project.
- *
- * This file is part of the JHipster project, see https://www.jhipster.tech/
- * for more information.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
 
 package org.bardframework.crud.api.filter;
 
-import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Base class for the various attribute filters. It can be added to a criteria class as a member, to support the
@@ -36,14 +15,12 @@ import java.util.Objects;
  *      fieldName.notIn='something','other'
  * </pre>
  */
-public class Filter<FIELD_TYPE> implements Serializable {
-
-    private static final long serialVersionUID = 1L;
-    private FIELD_TYPE equals;
-    private FIELD_TYPE notEquals;
+public class Filter<T> {
+    private T equals;
+    private T notEquals;
     private Boolean specified;
-    private List<FIELD_TYPE> in;
-    private List<FIELD_TYPE> notIn;
+    private List<T> in;
+    private List<T> notIn;
 
     /**
      * <p>Constructor for Filter.</p>
@@ -52,51 +29,21 @@ public class Filter<FIELD_TYPE> implements Serializable {
     }
 
     /**
-     * <p>Constructor for Filter.</p>
-     *
-     * @param filter a {@link Filter} object.
-     */
-    public Filter(Filter<FIELD_TYPE> filter) {
-        this.equals = filter.equals;
-        this.notEquals = filter.notEquals;
-        this.specified = filter.specified;
-        if (filter.in == null) {
-            this.in = null;
-        } else {
-            this.in = new ArrayList<>(filter.in);
-        }
-        if (filter.notIn == null) {
-            this.notIn = null;
-        } else {
-            this.notIn = new ArrayList<>(filter.notIn);
-        }
-    }
-
-    /**
-     * <p>copy.</p>
-     *
-     * @return a {@link Filter} object.
-     */
-    public Filter<FIELD_TYPE> copy() {
-        return new Filter<>(this);
-    }
-
-    /**
      * <p>Getter for the field <code>equals</code>.</p>
      *
-     * @return a FIELD_TYPE object.
+     * @return a T object.
      */
-    public FIELD_TYPE getEquals() {
+    public T getEquals() {
         return equals;
     }
 
     /**
      * <p>Setter for the field <code>equals</code>.</p>
      *
-     * @param equals a FIELD_TYPE object.
+     * @param equals a T object.
      * @return a {@link Filter} object.
      */
-    public Filter<FIELD_TYPE> setEquals(FIELD_TYPE equals) {
+    public Filter<T> setEquals(T equals) {
         this.equals = equals;
         return this;
     }
@@ -104,19 +51,19 @@ public class Filter<FIELD_TYPE> implements Serializable {
     /**
      * <p>Getter for the field <code>notEquals</code>.</p>
      *
-     * @return a FIELD_TYPE object.
+     * @return a T object.
      */
-    public FIELD_TYPE getNotEquals() {
+    public T getNotEquals() {
         return notEquals;
     }
 
     /**
      * <p>Setter for the field <code>notEquals</code>.</p>
      *
-     * @param notEquals a FIELD_TYPE object.
+     * @param notEquals a T object.
      * @return a {@link Filter} object.
      */
-    public Filter<FIELD_TYPE> setNotEquals(FIELD_TYPE notEquals) {
+    public Filter<T> setNotEquals(T notEquals) {
         this.notEquals = notEquals;
         return this;
     }
@@ -136,7 +83,7 @@ public class Filter<FIELD_TYPE> implements Serializable {
      * @param specified a {@link Boolean} object.
      * @return a {@link Filter} object.
      */
-    public Filter<FIELD_TYPE> setSpecified(Boolean specified) {
+    public Filter<T> setSpecified(Boolean specified) {
         this.specified = specified;
         return this;
     }
@@ -146,7 +93,7 @@ public class Filter<FIELD_TYPE> implements Serializable {
      *
      * @return a {@link List} object.
      */
-    public List<FIELD_TYPE> getIn() {
+    public List<T> getIn() {
         return in;
     }
 
@@ -156,7 +103,7 @@ public class Filter<FIELD_TYPE> implements Serializable {
      * @param in a {@link List} object.
      * @return a {@link Filter} object.
      */
-    public Filter<FIELD_TYPE> setIn(List<FIELD_TYPE> in) {
+    public Filter<T> setIn(List<T> in) {
         this.in = in;
         return this;
     }
@@ -166,7 +113,7 @@ public class Filter<FIELD_TYPE> implements Serializable {
      *
      * @return a {@link List} object.
      */
-    public List<FIELD_TYPE> getNotIn() {
+    public List<T> getNotIn() {
         return notIn;
     }
 
@@ -176,59 +123,9 @@ public class Filter<FIELD_TYPE> implements Serializable {
      * @param notIn a {@link List} object.
      * @return a {@link Filter} object.
      */
-    public Filter<FIELD_TYPE> setNotIn(List<FIELD_TYPE> notIn) {
+    public Filter<T> setNotIn(List<T> notIn) {
         this.notIn = notIn;
         return this;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public boolean equals(final Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
-        final Filter<?> filter = (Filter<?>) o;
-        return Objects.equals(equals, filter.equals) &&
-                Objects.equals(notEquals, filter.notEquals) &&
-                Objects.equals(specified, filter.specified) &&
-                Objects.equals(in, filter.in) &&
-                Objects.equals(notIn, filter.notIn);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public int hashCode() {
-        return Objects.hash(equals, notEquals, specified, in, notIn);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public String toString() {
-        if (getSpecified() != null) {
-            return getFilterName() + " ["
-                    + (getEquals() != null ? "equals=" + getEquals() + ", " : "")
-                    + (getNotEquals() != null ? "notEquals=" + getNotEquals() + ", " : "")
-                    + (getIn() != null ? "in=" + getIn() + ", " : "")
-                    + (getNotIn() != null ? "notIn=" + getNotIn() + ", " : "")
-                    + "specified=" + getSpecified()
-                    + "]";
-        }
-        return getFilterName() + " ["
-                + (getEquals() != null ? "equals=" + getEquals() + ", " : "")
-                + (getNotEquals() != null ? "notEquals=" + getNotEquals() + ", " : "")
-                + (getIn() != null ? "in=" + getIn() + ", " : "")
-                + (getNotIn() != null ? "notIn=" + getNotIn() + ", " : "")
-                + ""
-                + "]";
     }
 
     /**

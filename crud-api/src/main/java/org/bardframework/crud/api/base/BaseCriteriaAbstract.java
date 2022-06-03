@@ -1,23 +1,23 @@
 package org.bardframework.crud.api.base;
 
-import org.bardframework.crud.api.filter.IdFilter;
+import org.bardframework.crud.api.filter.Filter;
 
 /**
  * Created by vahid on 3/14/17.
  */
 public abstract class BaseCriteriaAbstract<I extends Comparable<? super I>> implements BaseCriteria<I> {
 
-    protected IdFilter<I> id;
+    protected Filter<I> id;
 
     public BaseCriteriaAbstract() {
     }
 
     @Override
-    public IdFilter<I> getId() {
+    public Filter<I> getId() {
         return id;
     }
 
-    public void setId(IdFilter<I> id) {
-        this.id = id;
+    public void setId(Filter<I> filter) {
+        this.id = filter;
     }
 }

@@ -1,7 +1,7 @@
 package org.bardframework.crud.api.base;
 
 import org.apache.commons.lang3.RandomUtils;
-import org.bardframework.crud.api.filter.IdFilter;
+import org.bardframework.crud.api.filter.Filter;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -111,7 +111,7 @@ public abstract class RepositoryTestAbstract<M extends BaseModel<I>, C extends B
         List<I> ids = Collections.singletonList(model.getId());
         /* Page & size are neutral for get(Criteria c) method. */
         C criteria = this.getDataProvider().getEmptyCriteria();
-        criteria.setId((IdFilter<I>) new IdFilter<I>().setNotIn(ids));
+        criteria.setId(new Filter<I>().setNotIn(ids));
         LOGGER.debug("get by criteria '{}'.", criteria);
         List<M> foundEntities = repository.get(criteria, this.getUser());
         LOGGER.debug("get by criteria '{}', result is '{}'.", criteria, foundEntities);
@@ -272,7 +272,7 @@ public abstract class RepositoryTestAbstract<M extends BaseModel<I>, C extends B
         List<I> ids = Collections.singletonList(model.getId());
         /* Page & size are neutral for filterIds(). */
         C criteria = this.getDataProvider().getEmptyCriteria();
-        criteria.setId((IdFilter<I>) new IdFilter<I>().setNotIn(ids));
+        criteria.setId(new Filter<I>().setNotIn(ids));
         List<I> list = repository.getIds(criteria, this.getUser());
         assertThat(list).doesNotContain(model.getId());
     }

@@ -3,7 +3,7 @@ package org.bardframework.crud.api.base;
 import org.apache.commons.lang3.RandomUtils;
 import org.assertj.core.api.Assertions;
 import org.bardframework.commons.utils.ReflectionUtils;
-import org.bardframework.crud.api.filter.IdFilter;
+import org.bardframework.crud.api.filter.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
@@ -99,7 +99,7 @@ public abstract class DataProviderRepositoryAbstract<M extends BaseModel<I>, C e
     public List<M> getModels(int count, U user, I... excludeIds) {
         C criteria = this.getEmptyCriteria();
         if (excludeIds.length > 0) {
-            criteria.setId((IdFilter<I>) new IdFilter<I>().setNotIn(Arrays.asList(excludeIds)));
+            criteria.setId(new Filter<I>().setNotIn(Arrays.asList(excludeIds)));
         }
         this.saveNew(count - repository.getCount(criteria, user), user);
         return this.repository.get(criteria, PageRequest.of(0, count), user).getData();

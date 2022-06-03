@@ -1,12 +1,12 @@
 package org.bardframework.crud.api.base;
 
-import org.bardframework.crud.api.filter.IdFilter;
+import org.bardframework.crud.api.filter.Filter;
 
 /**
  * Created by vahid on 3/14/17.
  */
 public interface BaseCriteria<I extends Comparable<? super I>> {
-    IdFilter<I> getId();
+    Filter<I> getId();
 
-    void setId(IdFilter<I> idFilter);
+    void setId(Filter<I> filter);
 }

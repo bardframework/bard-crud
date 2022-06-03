@@ -1,7 +1,7 @@
 package org.bardframework.crud.api.base;
 
 import org.apache.commons.lang3.RandomUtils;
-import org.bardframework.crud.api.filter.IdFilter;
+import org.bardframework.crud.api.filter.Filter;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -81,7 +81,7 @@ public abstract class ServiceTestAbstract<M extends BaseModel<I>, C extends Base
     public void testGetByCriteriaNotIn() {
         M model = this.getDataProvider().getModel(this.getUser());
         C criteria = this.getDataProvider().getEmptyCriteria();
-        criteria.setId((IdFilter<I>) new IdFilter<I>().setNotEquals(model.getId()));
+        criteria.setId(new Filter<I>().setNotEquals(model.getId()));
         List<M> list = service.get(criteria, this.getUser());
         assertThat(list.stream().map(BaseModel::getId)).doesNotContain(model.getId());
     }
@@ -245,7 +245,7 @@ public abstract class ServiceTestAbstract<M extends BaseModel<I>, C extends Base
     public void testFilterIdsNotIn() {
         M model = this.getDataProvider().getModel(this.getUser());
         C criteria = this.getDataProvider().getEmptyCriteria();
-        criteria.setId((IdFilter<I>) new IdFilter<I>().setNotEquals(model.getId()));
+        criteria.setId(new Filter<I>().setNotEquals(model.getId()));
         List<I> list = service.getIds(criteria, this.getUser());
         assertThat(list).doesNotContain(model.getId());
     }
