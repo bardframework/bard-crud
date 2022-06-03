@@ -16,7 +16,7 @@ import static org.bardframework.crud.api.base.ReadRestController.FILTER_URL;
 /**
  * Created by Sama-PC on 14/05/2017.
  */
-public interface RestControllerTestAbstract<M extends BaseModel<I>, C extends BaseCriteria<I>, D, P extends DataProviderServiceAbstract<M, C, D, ?, ?, I, U>, I extends Comparable<? super I>, U> extends WebTest {
+public interface RestControllerTest<M extends BaseModel<I>, C extends BaseCriteria<I>, D, P extends DataProviderService<M, C, D, ?, ?, I, U>, I extends Comparable<? super I>, U> extends WebTest {
 
     default String GET_URL(I id) {
         return BASE_URL() + "/" + id;
@@ -76,7 +76,7 @@ public interface RestControllerTestAbstract<M extends BaseModel<I>, C extends Ba
         /*
           to be sure at least one model exist.
          */
-        this.getDataProvider().getModel(this.getUser());
+        this.getDataProvider().getModel(this.getDataProvider().getUser());
         MockHttpServletRequestBuilder request = this.FILTER(this.getDataProvider().getCriteria(), this.getDataProvider().getPageable());
         PagedData<M> response = this.executeOk(request, this.getDataModelTypeReference());
         assertThat(response.getTotal()).isGreaterThan(0);
@@ -85,7 +85,7 @@ public interface RestControllerTestAbstract<M extends BaseModel<I>, C extends Ba
     @Test
     default void testGET()
             throws Exception {
-        I id = this.getDataProvider().getId(this.getUser());
+        I id = this.getDataProvider().getId(this.getDataProvider().getUser());
         MockHttpServletRequestBuilder request = this.GET(id);
         M result = this.executeOk(request, getModelTypeReference());
         assertThat(result.getId()).isEqualTo(id);
@@ -101,7 +101,7 @@ public interface RestControllerTestAbstract<M extends BaseModel<I>, C extends Ba
     @Test
     default void testSAVE()
             throws Exception {
-        D dto = this.getDataProvider().getDto(this.getUser());
+        D dto = this.getDataProvider().getDto();
         MockHttpServletRequestBuilder request = this.SAVE(dto);
         M result = execute(request, getModelTypeReference(), HttpStatus.CREATED);
         assertThat(result.getId()).isNotNull();
@@ -111,7 +111,7 @@ public interface RestControllerTestAbstract<M extends BaseModel<I>, C extends Ba
     @Test
     default void testSAVEUnsuccessful()
             throws Exception {
-        MockHttpServletRequestBuilder request = this.SAVE(this.getDataProvider().getUnsavedInvalidDto(this.getUser()));
+        MockHttpServletRequestBuilder request = this.SAVE(this.getDataProvider().getUnsavedInvalidDto());
         MvcResult response = executeNotAcceptable(request);
         assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.NOT_ACCEPTABLE.value());
     }
@@ -119,8 +119,8 @@ public interface RestControllerTestAbstract<M extends BaseModel<I>, C extends Ba
     @Test
     default void testUPDATE()
             throws Exception {
-        I id = this.getDataProvider().getId(this.getUser());
-        D dto = this.getDataProvider().getDto(this.getUser());
+        I id = this.getDataProvider().getId(this.getDataProvider().getUser());
+        D dto = this.getDataProvider().getDto();
         MockHttpServletRequestBuilder request = this.UPDATE(id, dto);
         M response = this.executeOk(request, getModelTypeReference());
         this.getDataProvider().assertEqualUpdate(response, dto);
@@ -129,8 +129,8 @@ public interface RestControllerTestAbstract<M extends BaseModel<I>, C extends Ba
     @Test
     default void testUPDATEUnsuccessful()
             throws Exception {
-        I id = this.getDataProvider().getId(this.getUser());
-        MockHttpServletRequestBuilder request = this.UPDATE(id, this.getDataProvider().getInvalidDto(this.getUser()));
+        I id = this.getDataProvider().getId(this.getDataProvider().getUser());
+        MockHttpServletRequestBuilder request = this.UPDATE(id, this.getDataProvider().getInvalidDto());
         MvcResult response = executeNotAcceptable(request);
         assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.NOT_ACCEPTABLE.value());
     }
@@ -138,9 +138,10 @@ public interface RestControllerTestAbstract<M extends BaseModel<I>, C extends Ba
     @Test
     default void testDELETE()
             throws Exception {
-        M savedModel = this.getDataProvider().saveNew(1, this.getUser()).get(0);
+        M savedModel = this.getDataProvider().saveNew(1, this.getDataProvider().getUser()).get(0);
         MockHttpServletRequestBuilder request = this.DELETE(savedModel.getId());
         this.executeOk(request, this.getDeleteTypeReference());
+        this.execute(this.GET(savedModel.getId()), HttpStatus.NOT_FOUND);
     }
 
     @Test
@@ -149,8 +150,6 @@ public interface RestControllerTestAbstract<M extends BaseModel<I>, C extends Ba
         MockHttpServletRequestBuilder request = this.DELETE(this.getDataProvider().getInvalidId());
         execute(request, this.getDeleteTypeReference(), HttpStatus.NOT_FOUND);
     }
-
-    U getUser();
 
     String BASE_URL();
 

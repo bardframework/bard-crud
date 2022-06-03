@@ -267,18 +267,19 @@ public abstract class BaseServiceAbstract<M extends BaseModel<I>, C extends Base
     public M update(I id, D dto, U user) {
         AssertionUtils.notNull(id, "id cannot be null.");
         AssertionUtils.notNull(dto, "patch cannot be dto.");
-        M model = this.getRepository().get(id, user);
-        if (null == model) {
+        M entity = this.getRepository().get(id, user);
+        if (null == entity) {
             return null;
         }
-        M pre = SerializationUtils.clone(model);
+        M pre = SerializationUtils.clone(entity);
         this.preUpdate(pre, dto, user);
-        M updated = this.getRepository().update(this.onUpdate(dto, model, user), user);
+        this.onUpdate(dto, entity, user);
+        M updated = this.getRepository().update(entity, user);
         this.postUpdate(pre, updated, dto, user);
-        return this.get(model.getId(), user);
+        return this.get(entity.getId(), user);
     }
 
-    protected abstract M onUpdate(D dto, M previousModel, U user);
+    protected abstract void onUpdate(D dto, M previousModel, U user);
 
     protected void preUpdate(M previousModel, D dto, U user) {
     }
