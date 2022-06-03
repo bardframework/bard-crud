@@ -13,7 +13,7 @@ import com.querydsl.sql.dml.SQLUpdateClause;
 import org.apache.commons.collections4.CollectionUtils;
 import org.bardframework.commons.utils.AssertionUtils;
 import org.bardframework.commons.utils.ReflectionUtils;
-import org.bardframework.crud.api.base.BaseCriteriaAbstract;
+import org.bardframework.crud.api.base.BaseCriteria;
 import org.bardframework.crud.api.base.BaseModel;
 import org.bardframework.crud.api.base.BaseRepository;
 import org.bardframework.crud.api.base.PagedData;
@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
 /**
  * Created by vahid on 1/17/17.
  */
-public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C extends BaseCriteriaAbstract<I>, I extends Comparable<? super I>, U> implements BaseRepository<M, C, I, U> {
+public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C extends BaseCriteria<I>, I extends Comparable<? super I>, U> implements BaseRepository<M, C, I, U> {
 
     private static final int DEFAULT_SIZE = 20;
     protected final Logger LOGGER = LoggerFactory.getLogger(getClass());

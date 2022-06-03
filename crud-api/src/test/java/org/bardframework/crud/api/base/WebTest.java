@@ -3,6 +3,7 @@ package org.bardframework.crud.api.base;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
+import org.assertj.core.api.Assertions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -62,7 +63,7 @@ public interface WebTest {
         ResponseEntity<T> responseEntity;
         responseEntity = this.getRestTemplate().exchange(uri, HttpMethod.POST, new HttpEntity<>(dto), responseType);
         LOGGER.info("response of calling [{}] is [{}]", uri, responseEntity.getBody());
-        org.assertj.core.api.Assertions.assertThat(responseEntity.getStatusCodeValue()).isEqualTo(status.value());
+        Assertions.assertThat(responseEntity.getStatusCodeValue()).isEqualTo(status.value());
         return responseEntity;
     }
 
