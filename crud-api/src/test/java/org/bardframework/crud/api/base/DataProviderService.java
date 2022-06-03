@@ -53,7 +53,9 @@ public interface DataProviderService<M extends BaseModel<I>, C extends BaseCrite
     }
 
     default D getInvalidDto() {
-        return this.makeInvalid(this.getDto());
+        D dto = this.getDto();
+        this.makeInvalid(dto);
+        return dto;
     }
 
     default D getUnsavedInvalidDto() {

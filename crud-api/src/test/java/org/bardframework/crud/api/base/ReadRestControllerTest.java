@@ -39,7 +39,8 @@ public interface ReadRestControllerTest<M extends BaseModel<I>, C extends BaseCr
         /*
           to be sure at least one model exist.
          */
-        this.getDataProvider().getModel(this.getDataProvider().getUser());
+        U user = this.getDataProvider().getUser();
+        this.getDataProvider().getModel(user);
         MockHttpServletRequestBuilder request = this.FILTER(this.getDataProvider().getCriteria(), this.getDataProvider().getPageable());
         PagedData<M> response = this.executeOk(request, this.getDataModelTypeReference());
         assertThat(response.getTotal()).isGreaterThan(0);
@@ -47,7 +48,8 @@ public interface ReadRestControllerTest<M extends BaseModel<I>, C extends BaseCr
 
     @Test
     default void testGET() throws Exception {
-        I id = this.getDataProvider().getId(this.getDataProvider().getUser());
+        U user = this.getDataProvider().getUser();
+        I id = this.getDataProvider().getId(user);
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get(this.GET_URL(id));
         M result = this.executeOk(request, getModelTypeReference());
         assertThat(result.getId()).isEqualTo(id);

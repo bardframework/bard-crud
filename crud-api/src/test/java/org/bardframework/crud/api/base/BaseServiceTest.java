@@ -36,15 +36,17 @@ public interface BaseServiceTest<M extends BaseModel<I>, C extends BaseCriteria<
 
     @Test
     default void testGetById() {
-        I id = this.getDataProvider().getId(this.getDataProvider().getUser());
-        M foundModel = this.getService().get(id, this.getDataProvider().getUser());
+        U user = this.getDataProvider().getUser();
+        I id = this.getDataProvider().getId(user);
+        M foundModel = this.getService().get(id, user);
         assertThat(foundModel).isNotNull();
         assertThat(foundModel.getId()).isEqualTo(id);
     }
 
     @Test
     default void testGetByIdNull() {
-        assertThatExceptionOfType(Exception.class).isThrownBy(() -> this.getService().get((I) null, this.getDataProvider().getUser()));
+        U user = this.getDataProvider().getUser();
+        assertThatExceptionOfType(Exception.class).isThrownBy(() -> this.getService().get((I) null, user));
     }
 
     /**
@@ -52,8 +54,9 @@ public interface BaseServiceTest<M extends BaseModel<I>, C extends BaseCriteria<
      */
     @Test
     default void testGetByIdInvalid() {
+        U user = this.getDataProvider().getUser();
         I id = this.getDataProvider().getInvalidId();
-        M model = this.getService().get(id, this.getDataProvider().getUser());
+        M model = this.getService().get(id, user);
         assertThat(model).isNull();
     }
 
@@ -62,14 +65,16 @@ public interface BaseServiceTest<M extends BaseModel<I>, C extends BaseCriteria<
      */
     @Test
     default void testGetByCriteria() {
-        List<M> savedList = this.getDataProvider().getModels(RandomUtils.nextInt(1, 10), this.getDataProvider().getUser());
-        List<M> models = this.getService().get(this.getDataProvider().getEmptyCriteria(), this.getDataProvider().getUser());
+        U user = this.getDataProvider().getUser();
+        List<M> savedList = this.getDataProvider().getModels(RandomUtils.nextInt(1, 10), user);
+        List<M> models = this.getService().get(this.getDataProvider().getEmptyCriteria(), user);
         assertThat(models).isNotNull().isNotEmpty().doesNotContainNull().size().isGreaterThanOrEqualTo(savedList.size());
     }
 
     @Test
     default void testGetByCriteriaNull() {
-        assertThatExceptionOfType(Exception.class).isThrownBy(() -> this.getService().get((C) null, this.getDataProvider().getUser()));
+        U user = this.getDataProvider().getUser();
+        assertThatExceptionOfType(Exception.class).isThrownBy(() -> this.getService().get((C) null, user));
     }
 
     /**
@@ -78,47 +83,51 @@ public interface BaseServiceTest<M extends BaseModel<I>, C extends BaseCriteria<
 
     @Test
     default void testGetByCriteriaNotIn() {
-        M model = this.getDataProvider().getModel(this.getDataProvider().getUser());
+        U user = this.getDataProvider().getUser();
+        M model = this.getDataProvider().getModel(user);
         C criteria = this.getDataProvider().getEmptyCriteria();
         criteria.setId(new Filter<I>().setNotEquals(model.getId()));
-        List<M> list = this.getService().get(criteria, this.getDataProvider().getUser());
+        List<M> list = this.getService().get(criteria, user);
         assertThat(list.stream().map(BaseModel::getId)).doesNotContain(model.getId());
     }
     /*------------------------------- Delete ------------------------------*/
 
     @Test
     default void testDeleteById() {
-        M savedModel = this.getDataProvider().saveNew(1, this.getDataProvider().getUser()).get(0);
-        long count = this.getService().delete(savedModel.getId(), this.getDataProvider().getUser());
+        U user = this.getDataProvider().getUser();
+        M savedModel = this.getDataProvider().saveNew(1, user).get(0);
+        long count = this.getService().delete(savedModel.getId(), user);
         /* Check that only one model is deleted. */
         assertThat(count).isEqualByComparingTo(1L);
         /* Check that deleted model cannot be found anymore. */
-        M foundModel = this.getService().get(savedModel.getId(), this.getDataProvider().getUser());
+        M foundModel = this.getService().get(savedModel.getId(), user);
         assertThat(foundModel).isNull();
     }
 
     @Test
     default void testDeleteByIds() {
+        U user = this.getDataProvider().getUser();
         int count = RandomUtils.nextInt(3, 10);
-        List<M> saved = this.getDataProvider().saveNew(count, this.getDataProvider().getUser());
+        List<M> saved = this.getDataProvider().saveNew(count, user);
         List<I> ids = saved.stream().map(M::getId).collect(Collectors.toList());
-        long size = this.getService().delete(ids, this.getDataProvider().getUser());
+        long size = this.getService().delete(ids, user);
         assertThat(size).isEqualByComparingTo((long) saved.size());
         /* Make sure records are deleted from DB. */
-        assertThat(this.getService().get(ids, this.getDataProvider().getUser())).isEmpty();
+        assertThat(this.getService().get(ids, user)).isEmpty();
     }
 
     @Test
     default void testDeleteByIdsDuplicate() {
+        U user = this.getDataProvider().getUser();
         int count = RandomUtils.nextInt(5, 20);
-        List<M> saved = this.getDataProvider().saveNew(count, this.getDataProvider().getUser());
+        List<M> saved = this.getDataProvider().saveNew(count, user);
         List<I> ids = new ArrayList<>();
         for (M m : saved) {
             ids.add(m.getId());
             ids.add(m.getId());
             ids.add(m.getId());
         }
-        long size = this.getService().delete(ids, this.getDataProvider().getUser());
+        long size = this.getService().delete(ids, user);
         /*
           Make sure no records more than actual count, i.e save list size, are deleted.
          */
@@ -126,7 +135,7 @@ public interface BaseServiceTest<M extends BaseModel<I>, C extends BaseCriteria<
         /*
           Make sure all records are deleted from Database.
          */
-        assertThat(this.getService().get(ids, this.getDataProvider().getUser())).isEmpty();
+        assertThat(this.getService().get(ids, user)).isEmpty();
     }
 
     /**
@@ -134,67 +143,78 @@ public interface BaseServiceTest<M extends BaseModel<I>, C extends BaseCriteria<
      */
     @Test
     default void testDeleteByIdInvalid() {
-        long count = this.getService().delete(this.getDataProvider().getInvalidId(), this.getDataProvider().getUser());
+        U user = this.getDataProvider().getUser();
+        I invalidId = this.getDataProvider().getInvalidId();
+        long count = this.getService().delete(invalidId, user);
         /* deleted record count should be zero. */
         assertThat(count).isEqualByComparingTo(0L);
     }
 
     @Test
     default void testSave() {
+        U user = this.getDataProvider().getUser();
         D dto = this.getDataProvider().getDto();
         LOGGER.debug("saving '{}'", dto);
-        M result = this.getService().save(dto, this.getDataProvider().getUser());
+        M result = this.getService().save(dto, user);
         LOGGER.debug("save '{}', result is '{}'.", dto, result);
         assertThat(result).isNotNull();
         assertThat(result.getId()).isNotNull();
-        M model = this.getService().get(result.getId(), this.getDataProvider().getUser());
+        M model = this.getService().get(result.getId(), user);
         assertThat(model).isNotNull();
         this.getDataProvider().assertEqualSave(result, model);
     }
 
     @Test
     default void testSaveInvalid() {
-        assertThatExceptionOfType(Exception.class).isThrownBy(() -> this.getService().save(this.getDataProvider().getUnsavedInvalidDto(), this.getDataProvider().getUser()));
+        U user = this.getDataProvider().getUser();
+        D invalidDto = this.getDataProvider().getUnsavedInvalidDto();
+        assertThatExceptionOfType(Exception.class).isThrownBy(() -> this.getService().save(invalidDto, user));
     }
 
     @Test
     default void testSaveNull() {
-        assertThatExceptionOfType(Exception.class).isThrownBy(() -> this.getService().save((D) null, this.getDataProvider().getUser()));
+        U user = this.getDataProvider().getUser();
+        assertThatExceptionOfType(Exception.class).isThrownBy(() -> this.getService().save((D) null, user));
     }
     /*------------------------------- Update ------------------------------*/
 
     @Test
     default void testUpdate() {
-        I id = this.getDataProvider().getId(this.getDataProvider().getUser());
+        U user = this.getDataProvider().getUser();
+        I id = this.getDataProvider().getId(user);
         D dto = this.getDataProvider().getDto();
         LOGGER.debug("updating '{}'", dto);
-        M result = this.getService().update(id, dto, this.getDataProvider().getUser());
+        M result = this.getService().update(id, dto, user);
         LOGGER.debug("update '{}', result is '{}'.", dto, result);
         assertThat(result).isNotNull();
         assertThat(id).isEqualTo(result.getId());
-        M model = this.getService().get(id, this.getDataProvider().getUser());
+        M model = this.getService().get(id, user);
         assertThat(model).isNotNull();
         this.getDataProvider().assertEqualUpdate(model, dto);
     }
 
     @Test
     default void testUpdateInvalid() {
-        I id = this.getDataProvider().getId(this.getDataProvider().getUser());
-        assertThatExceptionOfType(Exception.class).isThrownBy(() -> this.getService().update(id, this.getDataProvider().getInvalidDto(), this.getDataProvider().getUser()));
+        U user = this.getDataProvider().getUser();
+        I id = this.getDataProvider().getId(user);
+        D invalidDto = this.getDataProvider().getInvalidDto();
+        assertThatExceptionOfType(Exception.class).isThrownBy(() -> this.getService().update(id, invalidDto, user));
     }
 
     @Test
     default void testUpdateNull() {
-        I id = this.getDataProvider().getId(this.getDataProvider().getUser());
-        assertThatExceptionOfType(Exception.class).isThrownBy(() -> this.getService().update(id, null, this.getDataProvider().getUser()));
+        U user = this.getDataProvider().getUser();
+        I id = this.getDataProvider().getId(user);
+        assertThatExceptionOfType(Exception.class).isThrownBy(() -> this.getService().update(id, null, user));
     }
 
     /*------------------------------- Filter ------------------------------*/
 
     @Test
     default void testFilterCount() {
-        List<M> savedList = this.getDataProvider().getModels(RandomUtils.nextInt(1, 10), this.getDataProvider().getUser());
-        long count = this.getService().getCount(this.getDataProvider().getEmptyCriteria(), this.getDataProvider().getUser());
+        U user = this.getDataProvider().getUser();
+        List<M> savedList = this.getDataProvider().getModels(RandomUtils.nextInt(1, 10), user);
+        long count = this.getService().getCount(this.getDataProvider().getEmptyCriteria(), user);
 
         /* Check that count at least is in the size of savedModel. */
         assertThat(count).isGreaterThanOrEqualTo(savedList.size());
@@ -202,7 +222,8 @@ public interface BaseServiceTest<M extends BaseModel<I>, C extends BaseCriteria<
 
     @Test
     default void testFilterCountNull() {
-        assertThatExceptionOfType(Exception.class).isThrownBy(() -> this.getService().getCount(null, this.getDataProvider().getUser()));
+        U user = this.getDataProvider().getUser();
+        assertThatExceptionOfType(Exception.class).isThrownBy(() -> this.getService().getCount(null, user));
     }
 
     /*
@@ -210,16 +231,18 @@ public interface BaseServiceTest<M extends BaseModel<I>, C extends BaseCriteria<
      */
     @Test
     default void testFilterIds() {
-        List<M> savedList = this.getDataProvider().getModels(RandomUtils.nextInt(1, 5), this.getDataProvider().getUser());
+        U user = this.getDataProvider().getUser();
+        List<M> savedList = this.getDataProvider().getModels(RandomUtils.nextInt(1, 5), user);
         List<I> savedIds = savedList.stream().map(M::getId).collect(Collectors.toList());
-        List<I> ids = this.getService().getIds(this.getDataProvider().getEmptyCriteria(), this.getDataProvider().getUser());
+        List<I> ids = this.getService().getIds(this.getDataProvider().getEmptyCriteria(), user);
         /* Saved model ids must be in the list of filtered ids. */
         assertThat(ids).isNotNull().isNotEmpty().doesNotContainNull().containsAll(savedIds);
     }
 
     @Test
     default void testFilterIdsNull() {
-        assertThatExceptionOfType(Exception.class).isThrownBy(() -> this.getService().getIds(null, this.getDataProvider().getUser()));
+        U user = this.getDataProvider().getUser();
+        assertThatExceptionOfType(Exception.class).isThrownBy(() -> this.getService().getIds(null, user));
     }
 
     /**
@@ -228,23 +251,25 @@ public interface BaseServiceTest<M extends BaseModel<I>, C extends BaseCriteria<
 
     @Test
     default void testFilterIdsNotIn() {
-        M model = this.getDataProvider().getModel(this.getDataProvider().getUser());
+        U user = this.getDataProvider().getUser();
+        M model = this.getDataProvider().getModel(user);
         C criteria = this.getDataProvider().getEmptyCriteria();
         criteria.setId(new Filter<I>().setNotEquals(model.getId()));
-        List<I> list = this.getService().getIds(criteria, this.getDataProvider().getUser());
+        List<I> list = this.getService().getIds(criteria, user);
         assertThat(list).doesNotContain(model.getId());
     }
 
     @Test
     default void testFilter() {
-        List<M> savedList = this.getDataProvider().getModels(RandomUtils.nextInt(1, 10), this.getDataProvider().getUser());
+        U user = this.getDataProvider().getUser();
+        List<M> savedList = this.getDataProvider().getModels(RandomUtils.nextInt(1, 10), user);
         /*
             Create a criteria that returns all the result in one page.
         */
-        long count = this.getService().getCount(this.getDataProvider().getCriteria(), this.getDataProvider().getUser());
+        long count = this.getService().getCount(this.getDataProvider().getCriteria(), user);
         C criteria = this.getDataProvider().getCriteria();
 
-        PagedData<M> pagedData = this.getService().get(criteria, PageRequest.of(0, (int) count), this.getDataProvider().getUser());
+        PagedData<M> pagedData = this.getService().get(criteria, PageRequest.of(0, (int) count), user);
 
         assertThat(pagedData).isNotNull();
         assertThat(pagedData.getTotal()).isGreaterThanOrEqualTo(savedList.size());
@@ -258,6 +283,7 @@ public interface BaseServiceTest<M extends BaseModel<I>, C extends BaseCriteria<
 
     @Test
     default void testFilterNull() {
-        assertThatExceptionOfType(Exception.class).isThrownBy(() -> this.getService().get(null, PageRequest.of(0, Integer.MAX_VALUE), this.getDataProvider().getUser()));
+        U user = this.getDataProvider().getUser();
+        assertThatExceptionOfType(Exception.class).isThrownBy(() -> this.getService().get(null, PageRequest.of(0, Integer.MAX_VALUE), user));
     }
 }

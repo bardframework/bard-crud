@@ -74,7 +74,8 @@ public interface WriteRestControllerTest<M extends BaseModel<I>, D, P extends Da
 
     @Test
     default void testUPDATE() throws Exception {
-        I id = this.getDataProvider().getId(this.getDataProvider().getUser());
+        U user = this.getDataProvider().getUser();
+        I id = this.getDataProvider().getId(user);
         D dto = this.getDataProvider().getDto();
         MockHttpServletRequestBuilder request = this.UPDATE(id, dto);
         M response = this.executeOk(request, getModelTypeReference());
@@ -83,7 +84,8 @@ public interface WriteRestControllerTest<M extends BaseModel<I>, D, P extends Da
 
     @Test
     default void testUPDATEUnsuccessful() throws Exception {
-        I id = this.getDataProvider().getId(this.getDataProvider().getUser());
+        U user = this.getDataProvider().getUser();
+        I id = this.getDataProvider().getId(user);
         MockHttpServletRequestBuilder request = this.UPDATE(id, this.getDataProvider().getInvalidDto());
         MvcResult response = executeNotAcceptable(request);
         assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.NOT_ACCEPTABLE.value());
@@ -91,7 +93,8 @@ public interface WriteRestControllerTest<M extends BaseModel<I>, D, P extends Da
 
     @Test
     default void testDELETE() throws Exception {
-        M savedModel = this.getDataProvider().saveNew(1, this.getDataProvider().getUser()).get(0);
+        U user = this.getDataProvider().getUser();
+        M savedModel = this.getDataProvider().saveNew(1, user).get(0);
         MockHttpServletRequestBuilder request = this.DELETE(savedModel.getId());
         this.executeOk(request, this.getDeleteTypeReference());
         this.execute(MockMvcRequestBuilders.get(this.GET_URL(savedModel.getId())), HttpStatus.NOT_FOUND);
