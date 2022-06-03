@@ -20,6 +20,14 @@ public interface WebTest {
 
     Logger LOGGER = LoggerFactory.getLogger(WebTest.class);
 
+    TestRestTemplate getRestTemplate();
+
+    MockMvc getMockMvc();
+
+    ObjectMapper getObjectMapper();
+
+    MockHttpServletRequestBuilder setAuthentication(MockHttpServletRequestBuilder request);
+
     default <T> T executeOk(MockHttpServletRequestBuilder request, TypeReference<T> returnType)
             throws Exception {
         MvcResult result = this.execute(request, HttpStatus.OK);
@@ -66,12 +74,4 @@ public interface WebTest {
         Assertions.assertThat(responseEntity.getStatusCodeValue()).isEqualTo(status.value());
         return responseEntity;
     }
-
-    TestRestTemplate getRestTemplate();
-
-    MockMvc getMockMvc();
-
-    ObjectMapper getObjectMapper();
-
-    MockHttpServletRequestBuilder setAuthentication(MockHttpServletRequestBuilder request);
 }

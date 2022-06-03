@@ -17,9 +17,9 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 /**
  * Created by Sama-PC on 10/05/2017.
  */
-public interface ServiceTest<M extends BaseModel<I>, C extends BaseCriteria<I>, D, S extends BaseServiceAbstract<M, C, D, ?, I, U>, P extends DataProviderService<M, C, D, ?, ?, I, U>, I extends Comparable<? super I>, U> {
+public interface BaseServiceTest<M extends BaseModel<I>, C extends BaseCriteria<I>, D, S extends BaseServiceAbstract<M, C, D, ?, I, U>, P extends DataProviderService<M, C, D, ?, ?, I, U>, I extends Comparable<? super I>, U> {
 
-    Logger LOGGER = LoggerFactory.getLogger(ServiceTest.class);
+    Logger LOGGER = LoggerFactory.getLogger(BaseServiceTest.class);
 
     S getService();
 
