@@ -18,6 +18,8 @@ public class StringFilter extends Filter<String> {
 
     private String contains;
     private String doesNotContain;
+    private String startWith;
+    private String endWith;
 
     /**
      * <p>Constructor for StringFilter.</p>
@@ -65,4 +67,21 @@ public class StringFilter extends Filter<String> {
         return this;
     }
 
+    public String getStartWith() {
+        return startWith;
+    }
+
+    public StringFilter setStartWith(String startWith) {
+        this.startWith = startWith;
+        return this;
+    }
+
+    public String getEndWith() {
+        return endWith;
+    }
+
+    public StringFilter setEndWith(String endWith) {
+        this.endWith = endWith;
+        return this;
+    }
 }

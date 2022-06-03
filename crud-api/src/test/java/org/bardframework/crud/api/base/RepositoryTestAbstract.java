@@ -10,8 +10,7 @@ import org.springframework.data.domain.PageRequest;
 
 import java.util.*;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.*;
 
 /**
  * Created by Sama-PC on 09/05/2017.
@@ -72,9 +71,7 @@ public abstract class RepositoryTestAbstract<M extends BaseModel<I>, C extends B
 
     @Test
     public void testGetByIdsEmpty() {
-        List<M> result = repository.get(Collections.EMPTY_LIST, this.getUser());
-        LOGGER.debug("fetched entity from db by empty ids list, expect found entities '{}'.", result);
-        assertThat(result).isEmpty();
+        assertThatThrownBy(() -> repository.get(List.of(), this.getUser()));
     }
 
     @Test

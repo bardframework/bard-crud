@@ -155,7 +155,7 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
     @Transactional(readOnly = true)
     @Override
     public List<M> get(List<I> ids, U user) {
-        AssertionUtils.notNull(ids, "Given Identifiers cannot be null.");
+        AssertionUtils.notEmpty(ids, "Given Identifiers cannot be empty.");
         C criteria = ReflectionUtils.newInstance(criteriaClazz);
         criteria.setId(new Filter<I>().setIn(ids));
         return this.get(criteria, user);
@@ -165,11 +165,7 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
         SQLQuery<?> query = this.getQueryFactory().query().from(this.getEntity());
         this.setJoins(query, user);
         this.setCriteria(criteria, query, user);
-
-        if (null != criteria.getId()) {
-            query.where(QueryDslUtils.buildQuery(criteria.getId(), this.getIdentifierPath()));
-        }
-
+        QueryDslUtils.applyFilter(query, criteria.getId(), this.getIdentifierPath());
         for (Class<?> clazz : this.getClass().getInterfaces()) {
             if (ReadExtendedRepositoryQdslSql.class.isAssignableFrom(clazz)) {
                 ((ReadExtendedRepositoryQdslSql<C, I, U>) this).process(criteria, query, user);
@@ -230,7 +226,7 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
     @Transactional
     @Override
     public long delete(List<I> ids, U user) {
-        AssertionUtils.notNull(ids, "Given ids cannot be null.");
+        AssertionUtils.notEmpty(ids, "Given ids cannot be null.");
         C criteria = ReflectionUtils.newInstance(criteriaClazz);
         criteria.setId(new Filter<I>().setIn(ids));
 

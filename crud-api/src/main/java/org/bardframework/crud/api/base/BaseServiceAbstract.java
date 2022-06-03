@@ -39,7 +39,7 @@ public abstract class BaseServiceAbstract<M extends BaseModel<I>, C extends Base
     }
 
     public List<M> get(List<I> ids, U user) {
-        AssertionUtils.notNull(ids, "Given ids cannot be null.");
+        AssertionUtils.notEmpty(ids, "Given ids cannot be empty.");
         if (ids.isEmpty()) {
             return Collections.emptyList();
         }
@@ -127,7 +127,7 @@ public abstract class BaseServiceAbstract<M extends BaseModel<I>, C extends Base
 
     @Transactional
     public long delete(List<I> ids, U user) {
-        AssertionUtils.notNull(ids, "Given ids cannot be null.");
+        AssertionUtils.notEmpty(ids, "Given ids cannot be empty.");
         if (ids.isEmpty()) {
             return 0;
         }
