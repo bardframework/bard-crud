@@ -55,7 +55,10 @@ public interface WriteRestControllerTest<M extends BaseModel<I>, D, P extends Da
     @Test
     default void testSAVEUnsuccessful() throws Exception {
         D invalidDto = this.getDataProvider().getInvalidDto();
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post(SAVE_URL()).content(this.getObjectMapper().writeValueAsBytes(invalidDto)).contentType(MediaType.APPLICATION_JSON);
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post(SAVE_URL())
+                .content(this.getObjectMapper().writeValueAsBytes(invalidDto))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON);
         MvcResult response = this.execute(request);
         assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.NOT_ACCEPTABLE.value());
     }
@@ -75,7 +78,10 @@ public interface WriteRestControllerTest<M extends BaseModel<I>, D, P extends Da
         U user = this.getDataProvider().getUser();
         I id = this.getDataProvider().getId(user);
         D invalidDto = this.getDataProvider().getInvalidDto();
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.put(this.UPDATE_URL(id)).contentType(MediaType.APPLICATION_JSON).content(this.getObjectMapper().writeValueAsBytes(invalidDto));
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.put(this.UPDATE_URL(id))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(this.getObjectMapper().writeValueAsBytes(invalidDto));
         MvcResult response = this.execute(request);
         assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.NOT_ACCEPTABLE.value());
     }

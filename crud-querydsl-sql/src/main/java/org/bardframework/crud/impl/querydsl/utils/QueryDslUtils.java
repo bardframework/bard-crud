@@ -55,17 +55,11 @@ public final class QueryDslUtils {
             return;
         }
         QueryDslUtils.applyFilter(query, (Filter<T>) filter, path);
-        if (filter.getGreaterThan() != null) {
-            query.where(path.gt(filter.getGreaterThan()));
+        if (filter.getFrom() != null) {
+            query.where(path.goe(filter.getFrom()));
         }
-        if (filter.getGreaterThanOrEqual() != null) {
-            query.where(path.goe(filter.getGreaterThanOrEqual()));
-        }
-        if (filter.getLessThan() != null) {
-            query.where(path.lt(filter.getLessThan()));
-        }
-        if (filter.getLessThanOrEqual() != null) {
-            query.where(path.loe(filter.getLessThanOrEqual()));
+        if (filter.getTo() != null) {
+            query.where(path.loe(filter.getTo()));
         }
     }
 

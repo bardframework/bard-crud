@@ -31,54 +31,26 @@ package org.bardframework.crud.api.filter;
  */
 public class RangeFilter<T extends Comparable<? super T>> extends Filter<T> {
 
-    private T greaterThan;
-    private T lessThan;
-    private T greaterThanOrEqual;
-    private T lessThanOrEqual;
-
-    /**
-     * <p>Constructor for RangeFilter.</p>
-     */
-    public RangeFilter() {
-    }
-
-    /**
-     * <p>Getter for the field <code>greaterThan</code>.</p>
-     *
-     * @return a T object.
-     */
-    public T getGreaterThan() {
-        return greaterThan;
-    }
-
-    /**
-     * <p>Setter for the field <code>greaterThan</code>.</p>
-     *
-     * @param greaterThan a T object.
-     * @return a {@link RangeFilter} object.
-     */
-    public RangeFilter<T> setGreaterThan(T greaterThan) {
-        this.greaterThan = greaterThan;
-        return this;
-    }
+    private T from;
+    private T to;
 
     /**
      * <p>Getter for the field <code>greaterThanOrEqual</code>.</p>
      *
      * @return a T object.
      */
-    public T getGreaterThanOrEqual() {
-        return greaterThanOrEqual;
+    public T getFrom() {
+        return from;
     }
 
     /**
      * <p>Setter for the field <code>greaterThanOrEqual</code>.</p>
      *
-     * @param greaterThanOrEqual a T object.
+     * @param from a T object.
      * @return a {@link RangeFilter} object.
      */
-    public RangeFilter<T> setGreaterThanOrEqual(T greaterThanOrEqual) {
-        this.greaterThanOrEqual = greaterThanOrEqual;
+    public RangeFilter<T> setFrom(T from) {
+        this.from = from;
         return this;
     }
 
@@ -87,31 +59,11 @@ public class RangeFilter<T extends Comparable<? super T>> extends Filter<T> {
      *
      * @param greaterThanOrEqual a T object.
      * @return a {@link RangeFilter} object.
-     * @deprecated Equivalent to {@link #setLessThanOrEqual}
+     * @deprecated Equivalent to {@link #setTo}
      */
     @Deprecated
     public RangeFilter<T> setGreaterOrEqualThan(T greaterThanOrEqual) {
-        this.greaterThanOrEqual = greaterThanOrEqual;
-        return this;
-    }
-
-    /**
-     * <p>Getter for the field <code>lessThan</code>.</p>
-     *
-     * @return a T object.
-     */
-    public T getLessThan() {
-        return lessThan;
-    }
-
-    /**
-     * <p>Setter for the field <code>lessThan</code>.</p>
-     *
-     * @param lessThan a T object.
-     * @return a {@link RangeFilter} object.
-     */
-    public RangeFilter<T> setLessThan(T lessThan) {
-        this.lessThan = lessThan;
+        this.from = greaterThanOrEqual;
         return this;
     }
 
@@ -120,18 +72,18 @@ public class RangeFilter<T extends Comparable<? super T>> extends Filter<T> {
      *
      * @return a T object.
      */
-    public T getLessThanOrEqual() {
-        return lessThanOrEqual;
+    public T getTo() {
+        return to;
     }
 
     /**
      * <p>Setter for the field <code>lessThanOrEqual</code>.</p>
      *
-     * @param lessThanOrEqual a T object.
+     * @param to a T object.
      * @return a {@link RangeFilter} object.
      */
-    public RangeFilter<T> setLessThanOrEqual(T lessThanOrEqual) {
-        this.lessThanOrEqual = lessThanOrEqual;
+    public RangeFilter<T> setTo(T to) {
+        this.to = to;
         return this;
     }
 
@@ -140,11 +92,11 @@ public class RangeFilter<T extends Comparable<? super T>> extends Filter<T> {
      *
      * @param lessThanOrEqual a T object.
      * @return a {@link RangeFilter} object.
-     * @deprecated Equivalent to {@link #setLessThanOrEqual}
+     * @deprecated Equivalent to {@link #setTo}
      */
     @Deprecated
     public RangeFilter<T> setLessOrEqualThan(T lessThanOrEqual) {
-        this.lessThanOrEqual = lessThanOrEqual;
+        this.to = lessThanOrEqual;
         return this;
     }
 
