@@ -1,6 +1,7 @@
 package org.bardframework.crud.api.base;
 
 import com.fasterxml.jackson.core.type.TypeReference;
+import org.bardframework.commons.web.WebTestHelper;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -14,7 +15,7 @@ import static org.bardframework.crud.api.base.ReadRestController.FILTER_URL;
 /**
  * Created by Sama-PC on 14/05/2017.
  */
-public interface ReadRestControllerTest<M extends BaseModel<I>, C extends BaseCriteria<I>, P extends DataProviderService<M, C, ?, ?, ?, I, U>, I extends Comparable<? super I>, U> extends WebTest {
+public interface ReadRestControllerTest<M extends BaseModel<I>, C extends BaseCriteria<I>, P extends DataProviderService<M, C, ?, ?, ?, I, U>, I extends Comparable<? super I>, U> extends WebTestHelper {
 
     P getDataProvider();
 
@@ -42,7 +43,7 @@ public interface ReadRestControllerTest<M extends BaseModel<I>, C extends BaseCr
         U user = this.getDataProvider().getUser();
         this.getDataProvider().getModel(user);
         MockHttpServletRequestBuilder request = this.FILTER(this.getDataProvider().getFilterCriteria(), this.getDataProvider().getPageable());
-        PagedData<M> response = this.executeOk(request, this.getDataModelTypeReference());
+        PagedData<M> response = this.execute(request, HttpStatus.OK, this.getDataModelTypeReference());
         assertThat(response.getTotal()).isGreaterThan(0);
     }
 
@@ -51,13 +52,13 @@ public interface ReadRestControllerTest<M extends BaseModel<I>, C extends BaseCr
         U user = this.getDataProvider().getUser();
         I id = this.getDataProvider().getId(user);
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get(this.GET_URL(id));
-        M result = this.executeOk(request, getModelTypeReference());
+        M result = this.execute(request, HttpStatus.OK, getModelTypeReference());
         assertThat(result.getId()).isEqualTo(id);
     }
 
     @Test
     default void testGETInvalidId() throws Exception {
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get(this.GET_URL(this.getDataProvider().getInvalidId()));
-        execute(request, getModelTypeReference(), HttpStatus.NOT_FOUND);
+        this.execute(request, HttpStatus.NOT_FOUND, getModelTypeReference());
     }
 }

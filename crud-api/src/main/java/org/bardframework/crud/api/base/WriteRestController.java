@@ -4,8 +4,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.Map;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -19,9 +17,9 @@ public interface WriteRestController<M extends BaseModel<I>, D, S extends BaseSe
     String ITEM_URL = "{id}";
 
     @PostMapping(value = EMPTY_URL, consumes = APPLICATION_JSON_VALUE)
-    default ResponseEntity<M> SAVE(@RequestBody @Validated(ValidationGroups.Save.class) D dto) throws URISyntaxException {
+    default ResponseEntity<M> SAVE(@RequestBody @Validated(ValidationGroups.Save.class) D dto) {
         M result = this.getService().save(dto, this.getUser());
-        return ResponseEntity.created(new URI("" + result.getId())).body(result);
+        return ResponseEntity.ok(result);
     }
 
     @PutMapping(value = ITEM_URL, consumes = APPLICATION_JSON_VALUE)

@@ -53,6 +53,13 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <groupId>org.bardframework.commons</groupId>
+            <artifactId>common-web</artifactId>
+            <scope>test</scope>
+            <type>test-jar</type>
+            <version>${bardframework.commons.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
