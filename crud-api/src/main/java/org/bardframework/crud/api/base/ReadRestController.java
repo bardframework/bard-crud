@@ -29,9 +29,8 @@ public interface ReadRestController<M extends BaseModel<I>, C extends BaseCriter
     }
 
     @PostMapping(value = FILTER_URL, consumes = APPLICATION_JSON_VALUE)
-    default ResponseEntity<PagedData<M>> FILTER(@RequestBody @Validated C criteria, Pageable page) {
-        PagedData<M> result = this.getService().get(criteria, page, this.getUser());
-        return ResponseEntity.ok().body(result);
+    default PagedData<M> FILTER(@RequestBody @Validated C criteria, Pageable page) {
+        return this.getService().get(criteria, page, this.getUser());
     }
 
     S getService();

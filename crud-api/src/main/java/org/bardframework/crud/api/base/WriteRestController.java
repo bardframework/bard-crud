@@ -17,9 +17,8 @@ public interface WriteRestController<M extends BaseModel<I>, D, S extends BaseSe
     String ITEM_URL = "{id}";
 
     @PostMapping(value = EMPTY_URL, consumes = APPLICATION_JSON_VALUE)
-    default ResponseEntity<M> SAVE(@RequestBody @Validated(ValidationGroups.Save.class) D dto) {
-        M result = this.getService().save(dto, this.getUser());
-        return ResponseEntity.ok(result);
+    default M SAVE(@RequestBody @Validated(ValidationGroups.Save.class) D dto) {
+        return this.getService().save(dto, this.getUser());
     }
 
     @PutMapping(value = ITEM_URL, consumes = APPLICATION_JSON_VALUE)

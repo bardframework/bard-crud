@@ -25,24 +25,25 @@ public interface ReadRestControllerTest<M extends BaseModel<I>, C extends BaseCr
 
     String BASE_URL();
 
-    String GET_URL(I id);
+    default String GET_URL(I id) {
+        return BASE_URL() + "/" + id;
+    }
 
     default String FILTER_URL() {
         return BASE_URL() + "/" + FILTER_URL;
     }
 
-    default MockHttpServletRequestBuilder FILTER(C criteria, Pageable pageable) throws Exception {
-        return MockMvcRequestBuilders.post(this.FILTER_URL()).content(this.getObjectMapper().writeValueAsString(criteria)).contentType(MediaType.APPLICATION_JSON);
-    }
-
     @Test
     default void testFilter() throws Exception {
+        U user = this.getDataProvider().getUser();
         /*
           to be sure at least one model exist.
          */
-        U user = this.getDataProvider().getUser();
         this.getDataProvider().getModel(user);
-        MockHttpServletRequestBuilder request = this.FILTER(this.getDataProvider().getFilterCriteria(), this.getDataProvider().getPageable());
+        C criteria = this.getDataProvider().getFilterCriteria();
+        Pageable pageable = this.getDataProvider().getPageable();
+        //FIXME set pageable
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post(this.FILTER_URL()).content(this.getObjectMapper().writeValueAsBytes(criteria)).contentType(MediaType.APPLICATION_JSON);
         PagedData<M> response = this.execute(request, HttpStatus.OK, this.getDataModelTypeReference());
         assertThat(response.getTotal()).isGreaterThan(0);
     }
@@ -58,7 +59,8 @@ public interface ReadRestControllerTest<M extends BaseModel<I>, C extends BaseCr
 
     @Test
     default void testGETInvalidId() throws Exception {
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get(this.GET_URL(this.getDataProvider().getInvalidId()));
+        I invalidId = this.getDataProvider().getInvalidId();
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get(this.GET_URL(invalidId));
         this.execute(request, HttpStatus.NOT_FOUND, getModelTypeReference());
     }
 }

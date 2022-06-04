@@ -18,11 +18,13 @@ public interface WriteRestControllerTest<M extends BaseModel<I>, D, P extends Da
 
     String BASE_URL();
 
-    String GET_URL(I id);
-
     P getDataProvider();
 
     TypeReference<M> getModelTypeReference();
+
+    default String GET_URL(I id) {
+        return BASE_URL() + "/" + id;
+    }
 
     default String DELETE_URL(I id) {
         return BASE_URL() + "/" + id;
@@ -41,26 +43,10 @@ public interface WriteRestControllerTest<M extends BaseModel<I>, D, P extends Da
         };
     }
 
-    default MockHttpServletRequestBuilder SAVE(D dto) throws Exception {
-        return MockMvcRequestBuilders.post(SAVE_URL())
-                .content(this.getObjectMapper().writeValueAsString(dto))
-                .contentType(MediaType.APPLICATION_JSON);
-    }
-
-    default MockHttpServletRequestBuilder UPDATE(I id, D dto) throws Exception {
-        return MockMvcRequestBuilders.put(this.UPDATE_URL(id))
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(this.getObjectMapper().writeValueAsString(dto));
-    }
-
-    default MockHttpServletRequestBuilder DELETE(I id) throws Exception {
-        return MockMvcRequestBuilders.delete(this.DELETE_URL(id));
-    }
-
     @Test
     default void testSAVE() throws Exception {
         D dto = this.getDataProvider().getDto();
-        MockHttpServletRequestBuilder request = this.SAVE(dto);
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post(SAVE_URL()).content(this.getObjectMapper().writeValueAsBytes(dto)).contentType(MediaType.APPLICATION_JSON);
         M result = execute(request, HttpStatus.OK, getModelTypeReference());
         assertThat(result.getId()).isNotNull();
         this.getDataProvider().assertEqualSave(result, dto);
@@ -68,7 +54,8 @@ public interface WriteRestControllerTest<M extends BaseModel<I>, D, P extends Da
 
     @Test
     default void testSAVEUnsuccessful() throws Exception {
-        MockHttpServletRequestBuilder request = this.SAVE(this.getDataProvider().getInvalidDto());
+        D invalidDto = this.getDataProvider().getInvalidDto();
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post(SAVE_URL()).content(this.getObjectMapper().writeValueAsBytes(invalidDto)).contentType(MediaType.APPLICATION_JSON);
         MvcResult response = this.execute(request);
         assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.NOT_ACCEPTABLE.value());
     }
@@ -78,7 +65,7 @@ public interface WriteRestControllerTest<M extends BaseModel<I>, D, P extends Da
         U user = this.getDataProvider().getUser();
         I id = this.getDataProvider().getId(user);
         D dto = this.getDataProvider().getDto();
-        MockHttpServletRequestBuilder request = this.UPDATE(id, dto);
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.put(this.UPDATE_URL(id)).contentType(MediaType.APPLICATION_JSON).content(this.getObjectMapper().writeValueAsBytes(dto));
         M response = this.execute(request, HttpStatus.OK, getModelTypeReference());
         this.getDataProvider().assertEqualUpdate(response, dto);
     }
@@ -88,7 +75,7 @@ public interface WriteRestControllerTest<M extends BaseModel<I>, D, P extends Da
         U user = this.getDataProvider().getUser();
         I id = this.getDataProvider().getId(user);
         D invalidDto = this.getDataProvider().getInvalidDto();
-        MockHttpServletRequestBuilder request = this.UPDATE(id, invalidDto);
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.put(this.UPDATE_URL(id)).contentType(MediaType.APPLICATION_JSON).content(this.getObjectMapper().writeValueAsBytes(invalidDto));
         MvcResult response = this.execute(request);
         assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.NOT_ACCEPTABLE.value());
     }
@@ -97,7 +84,7 @@ public interface WriteRestControllerTest<M extends BaseModel<I>, D, P extends Da
     default void testDELETE() throws Exception {
         U user = this.getDataProvider().getUser();
         M savedModel = this.getDataProvider().saveNew(1, user).get(0);
-        MockHttpServletRequestBuilder request = this.DELETE(savedModel.getId());
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.delete(this.DELETE_URL(savedModel.getId()));
         this.execute(request, HttpStatus.OK, this.getDeleteTypeReference());
         MvcResult response = this.execute(MockMvcRequestBuilders.get(this.GET_URL(savedModel.getId())));
         assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.NOT_FOUND.value());
@@ -105,7 +92,8 @@ public interface WriteRestControllerTest<M extends BaseModel<I>, D, P extends Da
 
     @Test
     default void testDELETEUnsuccessful() throws Exception {
-        MockHttpServletRequestBuilder request = this.DELETE(this.getDataProvider().getInvalidId());
+        I invalidId = this.getDataProvider().getInvalidId();
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.delete(this.DELETE_URL(invalidId));
         execute(request, HttpStatus.NOT_FOUND, this.getDeleteTypeReference());
     }
 }
