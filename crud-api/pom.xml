@@ -55,9 +55,9 @@
         <dependency>
             <groupId>org.bardframework.commons</groupId>
             <artifactId>common-web</artifactId>
+            <version>${bardframework.commons.version}</version>
             <scope>test</scope>
             <type>test-jar</type>
-            <version>${bardframework.commons.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
