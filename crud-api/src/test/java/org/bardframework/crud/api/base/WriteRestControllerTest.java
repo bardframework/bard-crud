@@ -67,7 +67,7 @@ public interface WriteRestControllerTest<M extends BaseModel<I>, D, P extends Da
 
     @Test
     default void testSAVEUnsuccessful() throws Exception {
-        MockHttpServletRequestBuilder request = this.SAVE(this.getDataProvider().getUnsavedInvalidDto());
+        MockHttpServletRequestBuilder request = this.SAVE(this.getDataProvider().getInvalidDto());
         MvcResult response = executeNotAcceptable(request);
         assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.NOT_ACCEPTABLE.value());
     }
@@ -86,8 +86,9 @@ public interface WriteRestControllerTest<M extends BaseModel<I>, D, P extends Da
     default void testUPDATEUnsuccessful() throws Exception {
         U user = this.getDataProvider().getUser();
         I id = this.getDataProvider().getId(user);
-        MockHttpServletRequestBuilder request = this.UPDATE(id, this.getDataProvider().getInvalidDto());
-        MvcResult response = executeNotAcceptable(request);
+        D invalidDto = this.getDataProvider().getInvalidDto();
+        MockHttpServletRequestBuilder request = this.UPDATE(id, invalidDto);
+        MvcResult response = this.executeNotAcceptable(request);
         assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.NOT_ACCEPTABLE.value());
     }
 

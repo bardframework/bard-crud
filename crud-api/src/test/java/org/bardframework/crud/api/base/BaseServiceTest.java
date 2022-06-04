@@ -167,7 +167,7 @@ public interface BaseServiceTest<M extends BaseModel<I>, C extends BaseCriteria<
     @Test
     default void testSaveInvalid() {
         U user = this.getDataProvider().getUser();
-        D invalidDto = this.getDataProvider().getUnsavedInvalidDto();
+        D invalidDto = this.getDataProvider().getInvalidDto();
         assertThatExceptionOfType(Exception.class).isThrownBy(() -> this.getService().save(invalidDto, user));
     }
 
@@ -266,8 +266,8 @@ public interface BaseServiceTest<M extends BaseModel<I>, C extends BaseCriteria<
         /*
             Create a criteria that returns all the result in one page.
         */
-        long count = this.getService().getCount(this.getDataProvider().getCriteria(), user);
-        C criteria = this.getDataProvider().getCriteria();
+        C criteria = this.getDataProvider().getFilterCriteria();
+        long count = this.getService().getCount(criteria, user);
 
         PagedData<M> pagedData = this.getService().get(criteria, PageRequest.of(0, (int) count), user);
 

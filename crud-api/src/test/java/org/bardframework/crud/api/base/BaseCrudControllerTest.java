@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-public abstract class RestControllerTest<CL, P extends DataProviderService<?, ?, ?, ?, ?, I, ?>, I extends Comparable<? super I>> extends ControllerTest {
+public abstract class BaseCrudControllerTest<CL, P extends DataProviderService<?, ?, ?, ?, ?, I, ?>, I extends Comparable<? super I>> extends BaseRestControllerTest {
 
     @Autowired
     private P dataProvider;

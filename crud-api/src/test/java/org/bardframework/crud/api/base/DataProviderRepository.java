@@ -1,7 +1,6 @@
 package org.bardframework.crud.api.base;
 
 import org.apache.commons.lang3.RandomUtils;
-import org.assertj.core.api.Assertions;
 import org.bardframework.crud.api.filter.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +29,7 @@ public interface DataProviderRepository<M extends BaseModel<I>, C extends BaseCr
 
     void assertEqualUpdate(M first, M second);
 
-    M makeInvalid(M model);
+    void makeInvalid(M model);
 
     C getEmptyCriteria();
 
@@ -56,22 +55,26 @@ public interface DataProviderRepository<M extends BaseModel<I>, C extends BaseCr
 
 
     default M getModel(U user) {
-        return this.getModel(this.getEmptyCriteria(), this.getUnsavedModel(), user);
+        M unsavedModel = this.getUnsavedModel();
+        return this.getModel(this.getEmptyCriteria(), unsavedModel, user);
     }
 
     default M getInvalidModel(U user) {
-        return this.makeInvalid(this.getModel(user));
+        M model = this.getModel(user);
+        this.makeInvalid(model);
+        return model;
     }
 
     default M getUnsavedInvalidModel() {
-        return this.makeInvalid(this.getUnsavedModel());
+        M unsavedModel = this.getUnsavedModel();
+        this.makeInvalid(unsavedModel);
+        return unsavedModel;
     }
     //...Model
 
     //Filter...
-    default C getCriteria() {
-        C criteria = getEmptyCriteria();
-        return criteria;
+    default C getFilterCriteria() {
+        return this.getEmptyCriteria();
     }
 
     default Pageable getPageable() {
@@ -79,14 +82,6 @@ public interface DataProviderRepository<M extends BaseModel<I>, C extends BaseCr
     }
 
     //...Filter
-
-
-    default <I extends Comparable<? super I>> void assertNullOrEqualIds(BaseModel<I> first, BaseModel<I> second) {
-        Assertions.assertThat(first == null ^ second == null).isFalse();
-        if (first != null) {
-            Assertions.assertThat(first.getId()).isEqualTo(second.getId());
-        }
-    }
 
     default I getId(C criteria, M unsavedModel, U user) {
         return this.getModel(criteria, unsavedModel, user).getId();

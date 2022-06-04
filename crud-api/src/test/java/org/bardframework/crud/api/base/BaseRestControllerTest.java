@@ -7,7 +7,7 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.test.web.servlet.MockMvc;
 
 @AutoConfigureMockMvc
-public abstract class ControllerTest {
+public abstract class BaseRestControllerTest {
 
     @Autowired
     private ObjectMapper objectMapper;

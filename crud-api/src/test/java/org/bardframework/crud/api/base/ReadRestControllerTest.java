@@ -41,7 +41,7 @@ public interface ReadRestControllerTest<M extends BaseModel<I>, C extends BaseCr
          */
         U user = this.getDataProvider().getUser();
         this.getDataProvider().getModel(user);
-        MockHttpServletRequestBuilder request = this.FILTER(this.getDataProvider().getCriteria(), this.getDataProvider().getPageable());
+        MockHttpServletRequestBuilder request = this.FILTER(this.getDataProvider().getFilterCriteria(), this.getDataProvider().getPageable());
         PagedData<M> response = this.executeOk(request, this.getDataModelTypeReference());
         assertThat(response.getTotal()).isGreaterThan(0);
     }
