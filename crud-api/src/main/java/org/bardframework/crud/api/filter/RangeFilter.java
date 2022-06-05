@@ -25,7 +25,6 @@ package org.bardframework.crud.api.filter;
  * @see LocalDateFilter
  * @see InstantFilter
  * @see ShortFilter
- * @see ZonedDateTimeFilter
  */
 public class RangeFilter<T extends Comparable<? super T>> extends Filter<T> {
 
