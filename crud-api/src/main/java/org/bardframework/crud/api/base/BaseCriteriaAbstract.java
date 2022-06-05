@@ -17,6 +17,7 @@ public abstract class BaseCriteriaAbstract<I extends Comparable<? super I>> impl
         return id;
     }
 
+    @Override
     public void setId(Filter<I> filter) {
         this.id = filter;
     }

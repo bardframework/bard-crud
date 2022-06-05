@@ -19,6 +19,7 @@ public abstract class BaseModelAbstract<I extends Comparable<? super I>> impleme
         this.id = id;
     }
 
+    @Override
     public I getId() {
         return id;
     }

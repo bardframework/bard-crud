@@ -16,9 +16,11 @@ public abstract class BaseCrudRestControllerAbstract<M extends BaseModel<I>, C e
         this.service = service;
     }
 
+    @Override
     public S getService() {
         return service;
     }
 
+    @Override
     public abstract U getUser();
 }
