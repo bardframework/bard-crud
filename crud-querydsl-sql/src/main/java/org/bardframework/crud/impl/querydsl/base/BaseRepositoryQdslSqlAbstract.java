@@ -96,9 +96,9 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
         SQLInsertClause insertClause = this.getQueryFactory().insert(this.getEntity());
         models.forEach(model -> {
                     this.fillClause(insertClause, model, user);
-            this.setIdentifier(model, user);
-            this.setIdentifier(insertClause, model.getId(), user);
-            insertClause.addBatch();
+                    this.setIdentifier(model, user);
+                    this.setIdentifier(insertClause, model.getId(), user);
+                    insertClause.addBatch();
                 }
         );
         long affectedRowsCount = insertClause.execute();
