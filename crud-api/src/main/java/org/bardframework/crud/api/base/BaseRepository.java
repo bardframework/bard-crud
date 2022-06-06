@@ -53,6 +53,8 @@ public interface BaseRepository<M extends BaseModel<I>, C extends BaseCriteria<I
 
     M update(M model, U user);
 
+    List<M> update(List<M> models, U user);
+
     M patch(I id, Map<String, Object> fields, U user);
 
     PagedData<M> get(C criteria, Pageable pageable, U user);

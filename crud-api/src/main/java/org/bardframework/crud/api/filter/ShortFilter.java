@@ -6,7 +6,7 @@ package org.bardframework.crud.api.filter;
  *
  * @see RangeFilter
  */
-public class ShortFilter extends RangeFilter<Short> {
+public class ShortFilter extends RangeFilter<Short, ShortFilter> {
 
     /**
      * <p>Constructor for ShortFilter.</p>

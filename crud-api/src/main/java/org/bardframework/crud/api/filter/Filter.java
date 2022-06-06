@@ -15,7 +15,7 @@ import java.util.List;
  *      fieldName.notIn='something','other'
  * </pre>
  */
-public class Filter<T> {
+public class Filter<T, F> {
     private T equals;
     private T notEquals;
     private Boolean specified;
@@ -43,9 +43,9 @@ public class Filter<T> {
      * @param equals a T object.
      * @return a {@link Filter} object.
      */
-    public Filter<T> setEquals(T equals) {
+    public F setEquals(T equals) {
         this.equals = equals;
-        return this;
+        return (F) this;
     }
 
     /**
@@ -63,9 +63,9 @@ public class Filter<T> {
      * @param notEquals a T object.
      * @return a {@link Filter} object.
      */
-    public Filter<T> setNotEquals(T notEquals) {
+    public F setNotEquals(T notEquals) {
         this.notEquals = notEquals;
-        return this;
+        return (F) this;
     }
 
     /**
@@ -83,9 +83,9 @@ public class Filter<T> {
      * @param specified a {@link Boolean} object.
      * @return a {@link Filter} object.
      */
-    public Filter<T> setSpecified(Boolean specified) {
+    public F setSpecified(Boolean specified) {
         this.specified = specified;
-        return this;
+        return (F) this;
     }
 
     /**
@@ -103,9 +103,9 @@ public class Filter<T> {
      * @param in a {@link List} object.
      * @return a {@link Filter} object.
      */
-    public Filter<T> setIn(List<T> in) {
+    public F setIn(List<T> in) {
         this.in = in;
-        return this;
+        return (F) this;
     }
 
     /**
@@ -123,9 +123,9 @@ public class Filter<T> {
      * @param notIn a {@link List} object.
      * @return a {@link Filter} object.
      */
-    public Filter<T> setNotIn(List<T> notIn) {
+    public F setNotIn(List<T> notIn) {
         this.notIn = notIn;
-        return this;
+        return (F) this;
     }
 
     /**

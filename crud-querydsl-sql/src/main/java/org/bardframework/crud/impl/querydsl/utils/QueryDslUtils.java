@@ -35,7 +35,7 @@ public final class QueryDslUtils {
         if (null == filter) {
             return;
         }
-        QueryDslUtils.applyFilter(query, (Filter<String>) filter, path);
+        QueryDslUtils.applyFilter(query, (Filter<String, ?>) filter, path);
         if (StringUtils.isNotBlank(filter.getContains())) {
             query.where(path.likeIgnoreCase("%" + filter.getContains() + "%"));
         }
@@ -50,11 +50,11 @@ public final class QueryDslUtils {
         }
     }
 
-    public static <T extends Comparable<? super T>> void applyFilter(SQLQuery<?> query, RangeFilter<T> filter, ComparableExpression<T> path) {
+    public static <T extends Comparable<? super T>> void applyFilter(SQLQuery<?> query, RangeFilter<T, ?> filter, ComparableExpression<T> path) {
         if (null == filter) {
             return;
         }
-        QueryDslUtils.applyFilter(query, (Filter<T>) filter, path);
+        QueryDslUtils.applyFilter(query, (Filter<T, ?>) filter, path);
         if (filter.getFrom() != null) {
             query.where(path.goe(filter.getFrom()));
         }
@@ -63,7 +63,7 @@ public final class QueryDslUtils {
         }
     }
 
-    public static <T extends Comparable<? super T>> void applyFilter(SQLQuery<?> query, Filter<T> filter, ComparableExpression<T> path) {
+    public static <T extends Comparable<? super T>> void applyFilter(SQLQuery<?> query, Filter<T, ?> filter, ComparableExpression<T> path) {
         if (null == filter) {
             return;
         }

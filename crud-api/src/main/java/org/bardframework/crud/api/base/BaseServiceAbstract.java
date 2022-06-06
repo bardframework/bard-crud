@@ -44,7 +44,7 @@ public abstract class BaseServiceAbstract<M extends BaseModel<I>, C extends Base
             return Collections.emptyList();
         }
         C criteria = this.getEmptyCriteria();
-        criteria.setId(new Filter<I>().setIn(ids));
+        criteria.setId(new Filter<I, Filter<I, ?>>().setIn(ids));
         return this.get(criteria, user);
     }
 
@@ -55,7 +55,7 @@ public abstract class BaseServiceAbstract<M extends BaseModel<I>, C extends Base
     public M get(I id, U user) {
         AssertionUtils.notNull(id, "Given id cannot be null.");
         C criteria = this.getEmptyCriteria();
-        criteria.setId(new Filter<I>().setEquals(id));
+        criteria.setId(new Filter<I, Filter<I, ?>>().setEquals(id));
         List<M> models = this.get(criteria, user);
         if (CollectionUtils.isEmpty(models)) {
             return null;
@@ -132,7 +132,7 @@ public abstract class BaseServiceAbstract<M extends BaseModel<I>, C extends Base
             return 0;
         }
         C criteria = this.getEmptyCriteria();
-        criteria.setId(new Filter<I>().setIn(ids));
+        criteria.setId(new Filter<I, Filter<I, ?>>().setIn(ids));
         return this.delete(criteria, user);
     }
 
@@ -159,11 +159,11 @@ public abstract class BaseServiceAbstract<M extends BaseModel<I>, C extends Base
      */
     protected void preDelete(C criteria, List<M> models, U user) {
         for (M model : models) {
-            this.preDelete(model, user);
+            this.preDelete(criteria, model, user);
         }
     }
 
-    protected void preDelete(M model, U user) {
+    protected void preDelete(C criteria, M model, U user) {
     }
 
     protected void postDelete(C criteria, List<M> deletedModels, long deletedCount, U user) {

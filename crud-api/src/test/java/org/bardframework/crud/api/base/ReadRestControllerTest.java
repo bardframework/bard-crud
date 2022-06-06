@@ -2,6 +2,7 @@ package org.bardframework.crud.api.base;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import org.bardframework.commons.web.WebTestHelper;
+import org.bardframework.crud.api.utils.TestUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -42,8 +43,7 @@ public interface ReadRestControllerTest<M extends BaseModel<I>, C extends BaseCr
         this.getDataProvider().getModel(user);
         C criteria = this.getDataProvider().getFilterCriteria();
         Pageable pageable = this.getDataProvider().getPageable();
-        //FIXME set pageable
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post(this.FILTER_URL()).content(this.getObjectMapper().writeValueAsBytes(criteria)).contentType(MediaType.APPLICATION_JSON);
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post(TestUtils.setPage(this.FILTER_URL(), pageable)).content(this.getObjectMapper().writeValueAsBytes(criteria)).contentType(MediaType.APPLICATION_JSON);
         PagedData<M> response = this.execute(request, HttpStatus.OK, this.getDataModelTypeReference());
         assertThat(response.getTotal()).isGreaterThan(0);
     }

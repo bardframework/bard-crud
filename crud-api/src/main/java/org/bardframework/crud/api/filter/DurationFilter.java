@@ -7,6 +7,6 @@ import java.time.Duration;
  *
  * @see Filter
  */
-public class DurationFilter extends RangeFilter<Duration> {
+public class DurationFilter extends RangeFilter<Duration, DurationFilter> {
 
 }

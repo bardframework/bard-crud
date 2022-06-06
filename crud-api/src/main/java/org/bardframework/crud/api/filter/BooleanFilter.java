@@ -10,6 +10,6 @@ package org.bardframework.crud.api.filter;
  *      fieldName.in=true,false
  * </pre>
  */
-public class BooleanFilter extends Filter<Boolean> {
+public class BooleanFilter extends Filter<Boolean, BooleanFilter> {
 
 }

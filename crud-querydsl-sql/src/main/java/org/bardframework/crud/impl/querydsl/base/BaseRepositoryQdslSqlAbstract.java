@@ -55,18 +55,25 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
 
     protected abstract QBean<M> getQBean();
 
-    protected abstract <T extends StoreClause<T>> T toClause(T clause, M model, U user);
+    protected abstract <T extends StoreClause<T>> void toClause(T clause, M model, U user);
 
     protected abstract void setIdentifier(M entity, U user);
 
-    protected <T extends StoreClause<T>> T fillClause(T clause, M model, U user) {
-        clause = this.toClause(clause, model, user);
+    protected void setIdentifier(SQLInsertClause clause, I identifier, U user) {
+        clause.set(this.getIdentifierPath(), identifier);
+    }
+
+    protected void setIdentifier(SQLUpdateClause clause, I identifier, U user) {
+        clause.where(this.getIdentifierPath().eq(identifier));
+    }
+
+    protected <T extends StoreClause<T>> void fillClause(T clause, M model, U user) {
+        this.toClause(clause, model, user);
         for (Class<?> clazz : this.getClass().getInterfaces()) {
             if (WriteExtendedRepositoryQdslSql.class.isAssignableFrom(clazz)) {
                 ((WriteExtendedRepositoryQdslSql) this).process(clause, model, user);
             }
         }
-        return clause;
     }
 
     @Transactional
@@ -89,10 +96,9 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
         SQLInsertClause insertClause = this.getQueryFactory().insert(this.getEntity());
         models.forEach(model -> {
                     this.fillClause(insertClause, model, user);
-                    this.setIdentifier(model, user);
-                    AssertionUtils.notNull(model.getId(), "model identifier is not provided in 'setIdentifier' method");
-                    insertClause.set(getIdentifierPath(), model.getId());
-                    insertClause.addBatch();
+            this.setIdentifier(model, user);
+            this.setIdentifier(insertClause, model.getId(), user);
+            insertClause.addBatch();
                 }
         );
         long affectedRowsCount = insertClause.execute();
@@ -106,13 +112,30 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
     @Override
     public M update(M model, U user) {
         AssertionUtils.notNull(model, "model cannot be null.");
-        SQLUpdateClause updateClause = this.getQueryFactory().update(getEntity()).where(this.getIdentifierPath().eq(model.getId()));
-        updateClause = this.fillClause(updateClause, model, user);
-        long affectedRowsCount = updateClause.execute();
-        if (1 != affectedRowsCount) {
-            throw new IllegalStateException("expect affect one row, but " + affectedRowsCount + " row(s) updated.");
+        return this.update(Collections.singletonList(model), user).get(0);
+    }
+
+    @Transactional
+    @Override
+    public List<M> update(List<M> models, U user) {
+        AssertionUtils.notNull(models, "Given models cannot be null.");
+        if (CollectionUtils.isEmpty(models)) {
+            return Collections.emptyList();
         }
-        return model;
+        SQLUpdateClause updateClause = this.getQueryFactory().update(this.getEntity());
+        models.forEach(model ->
+                {
+                    AssertionUtils.notNull(model.getId(), "model identifier is not provided, can't update");
+                    this.setIdentifier(updateClause, model.getId(), user);
+                    this.fillClause(updateClause, model, user);
+                    updateClause.addBatch();
+                }
+        );
+        long affectedRowsCount = updateClause.execute();
+        if (models.size() != affectedRowsCount) {
+            LOGGER.warn("expect update '{}' row, but '{}' row(s) updated.", models.size(), affectedRowsCount);
+        }
+        return models;
     }
 
     @Transactional
@@ -120,7 +143,8 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
     public M patch(I id, Map<String, Object> patch, U user) {
         AssertionUtils.notNull(id, "id cannot be null.");
         AssertionUtils.notEmpty(patch, "patch cannot be empty.");
-        final SQLUpdateClause updateClause = this.getQueryFactory().update(this.getEntity()).where(this.getIdentifierPath().eq(id));
+        final SQLUpdateClause updateClause = this.getQueryFactory().update(this.getEntity());
+        this.setIdentifier(updateClause, id, user);
         List<Path<?>> columns = this.getEntity().getColumns();
         for (Path<?> column : columns) {
             String property = column.getMetadata().getName();
@@ -148,7 +172,7 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
     public M get(I identifier, U user) {
         AssertionUtils.notNull(identifier, "Given Identifier cannot be null.");
         C criteria = ReflectionUtils.newInstance(criteriaClazz);
-        criteria.setId(new Filter<I>().setEquals(identifier));
+        criteria.setId(new Filter<I, Filter<I, ?>>().setEquals(identifier));
         return this.getOne(criteria, user);
     }
 
@@ -157,7 +181,7 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
     public List<M> get(List<I> ids, U user) {
         AssertionUtils.notEmpty(ids, "Given Identifiers cannot be empty.");
         C criteria = ReflectionUtils.newInstance(criteriaClazz);
-        criteria.setId(new Filter<I>().setIn(ids));
+        criteria.setId(new Filter<I, Filter<I, ?>>().setIn(ids));
         return this.get(criteria, user);
     }
 
@@ -228,7 +252,7 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
     public long delete(List<I> ids, U user) {
         AssertionUtils.notEmpty(ids, "Given ids cannot be null.");
         C criteria = ReflectionUtils.newInstance(criteriaClazz);
-        criteria.setId(new Filter<I>().setIn(ids));
+        criteria.setId(new Filter<I, Filter<I, ?>>().setIn(ids));
 
         return this.delete(criteria, user);
     }

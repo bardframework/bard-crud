@@ -23,10 +23,9 @@ package org.bardframework.crud.api.filter;
  * @see FloatFilter
  * @see LongFilter
  * @see LocalDateFilter
- * @see InstantFilter
  * @see ShortFilter
  */
-public class RangeFilter<T extends Comparable<? super T>> extends Filter<T> {
+public class RangeFilter<T extends Comparable<? super T>, F extends RangeFilter<T, F>> extends Filter<T, F> {
 
     private T from;
     private T to;
@@ -46,9 +45,9 @@ public class RangeFilter<T extends Comparable<? super T>> extends Filter<T> {
      * @param from a T object.
      * @return a {@link RangeFilter} object.
      */
-    public RangeFilter<T> setFrom(T from) {
+    public F setFrom(T from) {
         this.from = from;
-        return this;
+        return (F) this;
     }
 
     /**
@@ -66,8 +65,8 @@ public class RangeFilter<T extends Comparable<? super T>> extends Filter<T> {
      * @param to a T object.
      * @return a {@link RangeFilter} object.
      */
-    public RangeFilter<T> setTo(T to) {
+    public F setTo(T to) {
         this.to = to;
-        return this;
+        return (F) this;
     }
 }

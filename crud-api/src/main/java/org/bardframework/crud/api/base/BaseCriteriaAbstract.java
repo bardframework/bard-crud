@@ -7,18 +7,18 @@ import org.bardframework.crud.api.filter.Filter;
  */
 public abstract class BaseCriteriaAbstract<I extends Comparable<? super I>> implements BaseCriteria<I> {
 
-    protected Filter<I> id;
+    protected Filter<I, ?> id;
 
     public BaseCriteriaAbstract() {
     }
 
     @Override
-    public Filter<I> getId() {
+    public Filter<I, ?> getId() {
         return id;
     }
 
     @Override
-    public void setId(Filter<I> filter) {
+    public void setId(Filter<I, ?> filter) {
         this.id = filter;
     }
 }

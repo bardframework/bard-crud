@@ -94,7 +94,7 @@ public interface DataProviderRepository<M extends BaseModel<I>, C extends BaseCr
     default List<M> getModels(int count, U user, I... excludeIds) {
         C criteria = this.getEmptyCriteria();
         if (excludeIds.length > 0) {
-            criteria.setId(new Filter<I>().setNotIn(Arrays.asList(excludeIds)));
+            criteria.setId(new Filter<I, Filter<I, ?>>().setNotIn(Arrays.asList(excludeIds)));
         }
         this.saveNew(count - this.getRepository().getCount(criteria, user), user);
         return this.getRepository().get(criteria, PageRequest.of(0, count), user).getData();

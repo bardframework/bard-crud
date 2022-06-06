@@ -14,7 +14,7 @@ package org.bardframework.crud.api.filter;
  * fieldName.contains='thing'
  * </code>
  */
-public class StringFilter extends Filter<String> {
+public class StringFilter extends Filter<String, StringFilter> {
 
     private String contains;
     private String doesNotContain;

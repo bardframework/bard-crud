@@ -86,7 +86,7 @@ public interface BaseServiceTest<M extends BaseModel<I>, C extends BaseCriteria<
         U user = this.getDataProvider().getUser();
         M model = this.getDataProvider().getModel(user);
         C criteria = this.getDataProvider().getEmptyCriteria();
-        criteria.setId(new Filter<I>().setNotEquals(model.getId()));
+        criteria.setId(new Filter<I, Filter<I, ?>>().setNotEquals(model.getId()));
         List<M> list = this.getService().get(criteria, user);
         assertThat(list.stream().map(BaseModel::getId)).doesNotContain(model.getId());
     }
@@ -254,7 +254,7 @@ public interface BaseServiceTest<M extends BaseModel<I>, C extends BaseCriteria<
         U user = this.getDataProvider().getUser();
         M model = this.getDataProvider().getModel(user);
         C criteria = this.getDataProvider().getEmptyCriteria();
-        criteria.setId(new Filter<I>().setNotEquals(model.getId()));
+        criteria.setId(new Filter<I, Filter<I, ?>>().setNotEquals(model.getId()));
         List<I> list = this.getService().getIds(criteria, user);
         assertThat(list).doesNotContain(model.getId());
     }

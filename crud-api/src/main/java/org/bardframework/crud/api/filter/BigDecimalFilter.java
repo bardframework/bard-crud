@@ -7,7 +7,7 @@ import java.math.BigDecimal;
  *
  * @see RangeFilter
  */
-public class BigDecimalFilter extends RangeFilter<BigDecimal> {
+public class BigDecimalFilter extends RangeFilter<BigDecimal, BigDecimalFilter> {
 
 
 }

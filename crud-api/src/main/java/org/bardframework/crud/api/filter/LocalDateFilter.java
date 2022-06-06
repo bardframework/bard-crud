@@ -8,6 +8,6 @@ import java.time.LocalDate;
  *
  * @see RangeFilter
  */
-public class LocalDateFilter extends RangeFilter<LocalDate> {
+public class LocalDateFilter extends RangeFilter<LocalDate, LocalDateFilter> {
 
 }

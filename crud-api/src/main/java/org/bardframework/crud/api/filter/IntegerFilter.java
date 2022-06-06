@@ -6,6 +6,6 @@ package org.bardframework.crud.api.filter;
  *
  * @see RangeFilter
  */
-public class IntegerFilter extends RangeFilter<Integer> {
+public class IntegerFilter extends RangeFilter<Integer, IntegerFilter> {
 
 }

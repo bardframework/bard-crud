@@ -5,6 +5,6 @@ package org.bardframework.crud.api.filter;
  *
  * @see RangeFilter
  */
-public class DoubleFilter extends RangeFilter<Double> {
+public class DoubleFilter extends RangeFilter<Double, DoubleFilter> {
 
 }

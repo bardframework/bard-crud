@@ -5,6 +5,6 @@ package org.bardframework.crud.api.filter;
  *
  * @see RangeFilter
  */
-public class FloatFilter extends RangeFilter<Float> {
+public class FloatFilter extends RangeFilter<Float, FloatFilter> {
 
 }
