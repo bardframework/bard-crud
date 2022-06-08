@@ -1,7 +1,6 @@
 package org.bardframework.crud.api.base;
 
 import org.apache.commons.lang3.RandomUtils;
-import org.bardframework.crud.api.filter.Filter;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,7 +85,7 @@ public interface BaseServiceTest<M extends BaseModel<I>, C extends BaseCriteria<
         U user = this.getDataProvider().getUser();
         M model = this.getDataProvider().getModel(user);
         C criteria = this.getDataProvider().getEmptyCriteria();
-        criteria.setId(new Filter<I, Filter<I, ?>>().setNotEquals(model.getId()));
+        criteria.setId(new IdFilter<I>().setNotEquals(model.getId()));
         List<M> list = this.getService().get(criteria, user);
         assertThat(list.stream().map(BaseModel::getId)).doesNotContain(model.getId());
     }
@@ -254,7 +253,7 @@ public interface BaseServiceTest<M extends BaseModel<I>, C extends BaseCriteria<
         U user = this.getDataProvider().getUser();
         M model = this.getDataProvider().getModel(user);
         C criteria = this.getDataProvider().getEmptyCriteria();
-        criteria.setId(new Filter<I, Filter<I, ?>>().setNotEquals(model.getId()));
+        criteria.setId(new IdFilter<I>().setNotEquals(model.getId()));
         List<I> list = this.getService().getIds(criteria, user);
         assertThat(list).doesNotContain(model.getId());
     }

@@ -4,7 +4,7 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.SerializationUtils;
 import org.bardframework.commons.utils.AssertionUtils;
 import org.bardframework.commons.utils.ReflectionUtils;
-import org.bardframework.crud.api.filter.Filter;
+import org.bardframework.form.filter.IdFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Pageable;
@@ -44,7 +44,7 @@ public abstract class BaseServiceAbstract<M extends BaseModel<I>, C extends Base
             return Collections.emptyList();
         }
         C criteria = this.getEmptyCriteria();
-        criteria.setId(new Filter<I, Filter<I, ?>>().setIn(ids));
+        criteria.setId(new IdFilter<I>().setIn(ids));
         return this.get(criteria, user);
     }
 
@@ -55,7 +55,7 @@ public abstract class BaseServiceAbstract<M extends BaseModel<I>, C extends Base
     public M get(I id, U user) {
         AssertionUtils.notNull(id, "Given id cannot be null.");
         C criteria = this.getEmptyCriteria();
-        criteria.setId(new Filter<I, Filter<I, ?>>().setEquals(id));
+        criteria.setId(new IdFilter<I>().setEquals(id));
         List<M> models = this.get(criteria, user);
         if (CollectionUtils.isEmpty(models)) {
             return null;
@@ -132,7 +132,7 @@ public abstract class BaseServiceAbstract<M extends BaseModel<I>, C extends Base
             return 0;
         }
         C criteria = this.getEmptyCriteria();
-        criteria.setId(new Filter<I, Filter<I, ?>>().setIn(ids));
+        criteria.setId(new IdFilter<I>().setIn(ids));
         return this.delete(criteria, user);
     }
 

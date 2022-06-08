@@ -1,7 +1,6 @@
 package org.bardframework.crud.api.base;
 
 import org.apache.commons.lang3.RandomUtils;
-import org.bardframework.crud.api.filter.Filter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
@@ -94,7 +93,7 @@ public interface DataProviderRepository<M extends BaseModel<I>, C extends BaseCr
     default List<M> getModels(int count, U user, I... excludeIds) {
         C criteria = this.getEmptyCriteria();
         if (excludeIds.length > 0) {
-            criteria.setId(new Filter<I, Filter<I, ?>>().setNotIn(Arrays.asList(excludeIds)));
+            criteria.setId(new IdFilter<I>().setNotIn(Arrays.asList(excludeIds)));
         }
         this.saveNew(count - this.getRepository().getCount(criteria, user), user);
         return this.getRepository().get(criteria, PageRequest.of(0, count), user).getData();

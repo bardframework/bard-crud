@@ -17,8 +17,8 @@ import org.bardframework.crud.api.base.BaseCriteria;
 import org.bardframework.crud.api.base.BaseModel;
 import org.bardframework.crud.api.base.BaseRepository;
 import org.bardframework.crud.api.base.PagedData;
-import org.bardframework.crud.api.filter.Filter;
 import org.bardframework.crud.impl.querydsl.utils.QueryDslUtils;
+import org.bardframework.form.filter.IdFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Pageable;
@@ -173,7 +173,7 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
     public M get(I identifier, U user) {
         AssertionUtils.notNull(identifier, "Given Identifier cannot be null.");
         C criteria = ReflectionUtils.newInstance(criteriaClazz);
-        criteria.setId(new Filter<I, Filter<I, ?>>().setEquals(identifier));
+        criteria.setId(new IdFilter<I>().setEquals(identifier));
         return this.getOne(criteria, user);
     }
 
@@ -182,7 +182,7 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
     public List<M> get(List<I> ids, U user) {
         AssertionUtils.notEmpty(ids, "Given Identifiers cannot be empty.");
         C criteria = ReflectionUtils.newInstance(criteriaClazz);
-        criteria.setId(new Filter<I, Filter<I, ?>>().setIn(ids));
+        criteria.setId(new IdFilter<I>().setIn(ids));
         return this.get(criteria, user);
     }
 
@@ -253,7 +253,7 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
     public long delete(List<I> ids, U user) {
         AssertionUtils.notEmpty(ids, "Given ids cannot be null.");
         C criteria = ReflectionUtils.newInstance(criteriaClazz);
-        criteria.setId(new Filter<I, Filter<I, ?>>().setIn(ids));
+        criteria.setId(new IdFilter<I>().setIn(ids));
 
         return this.delete(criteria, user);
     }
