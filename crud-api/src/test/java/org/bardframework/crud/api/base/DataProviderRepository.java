@@ -1,6 +1,7 @@
 package org.bardframework.crud.api.base;
 
 import org.apache.commons.lang3.RandomUtils;
+import org.bardframework.form.filter.IdFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
