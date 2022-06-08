@@ -1,6 +1,6 @@
 package org.bardframework.crud.api.base;
 
-import org.bardframework.form.filter.IdFilter;
+import org.bardframework.form.model.filter.IdFilter;
 
 /**
  * Created by vahid on 3/14/17.

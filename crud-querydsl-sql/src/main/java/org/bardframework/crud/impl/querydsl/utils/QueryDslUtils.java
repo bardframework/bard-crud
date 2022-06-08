@@ -9,9 +9,9 @@ import com.querydsl.core.types.dsl.StringPath;
 import com.querydsl.sql.SQLQuery;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.bardframework.form.filter.Filter;
-import org.bardframework.form.filter.RangeFilter;
-import org.bardframework.form.filter.StringFilter;
+import org.bardframework.form.model.filter.Filter;
+import org.bardframework.form.model.filter.RangeFilter;
+import org.bardframework.form.model.filter.StringFilter;
 
 /**
  * Created by vahid (va.zafari@gmail.com) on 10/30/17.

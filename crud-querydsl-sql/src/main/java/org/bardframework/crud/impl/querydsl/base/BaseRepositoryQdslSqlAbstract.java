@@ -18,7 +18,7 @@ import org.bardframework.crud.api.base.BaseModel;
 import org.bardframework.crud.api.base.BaseRepository;
 import org.bardframework.crud.api.base.PagedData;
 import org.bardframework.crud.impl.querydsl.utils.QueryDslUtils;
-import org.bardframework.form.filter.IdFilter;
+import org.bardframework.form.model.filter.IdFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Pageable;
