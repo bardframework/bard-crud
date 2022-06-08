@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 public interface SearchableEntityRepositoryQdslSql<M extends BaseModel<I>, C extends BaseCriteria<I> & SearchableCriteria, I extends Comparable<? super I>, U> extends SearchableEntityRepository<M, C, I, U>, ReadExtendedRepositoryQdslSql<C, I, U> {
 
@@ -61,7 +62,7 @@ public interface SearchableEntityRepositoryQdslSql<M extends BaseModel<I>, C ext
     default String getStringPath(Path<?> path) {
         String stringPath = path.getMetadata().getElement().toString();
         if (!path.getRoot().equals(path.getMetadata().getParent())) {
-            stringPath = path.getMetadata().getParent().getMetadata().getElement() + "." + stringPath;
+            stringPath = Objects.requireNonNull(path.getMetadata().getParent()).getMetadata().getElement() + "." + stringPath;
         }
         return stringPath;
     }
