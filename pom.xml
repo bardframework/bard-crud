@@ -11,16 +11,16 @@
 
     <groupId>org.bardframework.crud</groupId>
     <artifactId>bard-crud</artifactId>
-    <version>1.3.27</version>
+    <version>1.4.7</version>
     <packaging>pom</packaging>
 
     <properties>
         <!-- versions -->
         <bardframework.commons.version>1.3.26</bardframework.commons.version>
-        <!--FIXME remove cyclic dependency-->
-        <bardframework.form.version>1.3.29</bardframework.form.version>
+        <bardframework.form.version>1.4.9</bardframework.form.version>
         <guava.version>31.1-jre</guava.version>
         <jakarta-persistence.version>3.1.0</jakarta-persistence.version>
+        <poi.version>5.2.2</poi.version>
         <querydsl.version>5.0.0</querydsl.version>
         <spring-boot-dependencies.version>2.7.1</spring-boot-dependencies.version>
     </properties>
@@ -28,6 +28,7 @@
     <modules>
         <module>crud-api</module>
         <module>crud-querydsl-sql</module>
+        <module>crud-table</module>
     </modules>
 
     <dependencies>
