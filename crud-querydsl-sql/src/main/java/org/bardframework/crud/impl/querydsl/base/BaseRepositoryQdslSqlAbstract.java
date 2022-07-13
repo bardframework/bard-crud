@@ -5,6 +5,7 @@ import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Path;
 import com.querydsl.core.types.QBean;
 import com.querydsl.core.types.dsl.ComparableExpression;
+import com.querydsl.core.types.dsl.ComparableExpressionBase;
 import com.querydsl.sql.RelationalPathBase;
 import com.querydsl.sql.SQLQuery;
 import com.querydsl.sql.SQLQueryFactory;
@@ -29,7 +30,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * Created by vahid on 1/17/17.
@@ -146,16 +146,12 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
         AssertionUtils.notEmpty(patch, "patch cannot be empty.");
         final SQLUpdateClause updateClause = this.getQueryFactory().update(this.getEntity());
         this.setIdentifier(updateClause, id, user);
-        List<Path<?>> columns = this.getEntity().getColumns();
-        for (Path<?> column : columns) {
-            String property = column.getMetadata().getName();
-            if (patch.containsKey(property)) {
-                Object value = patch.get(property);
-                if (null == value) {
-                    updateClause.setNull(column);
-                } else {
-                    updateClause.set((Path<Object>) column, value);
-                }
+        for (Map.Entry<String, Object> entry : patch.entrySet()) {
+            Path<Object> path = (Path<Object>) this.getPath(entry.getKey());
+            if (null == entry.getValue()) {
+                updateClause.setNull(path);
+            } else {
+                updateClause.set(path, entry.getValue());
             }
         }
 
@@ -310,29 +306,35 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
     }
 
     protected void setOrders(SQLQuery<?> query, @Nullable Sort sort) {
-        List<OrderSpecifier<?>> list;
-        Map<String, OrderField> map = this.getSortColumns();
-
-        if (sort == null || sort.isUnsorted()) {
-            list = map.values().stream().map(OrderField::getColumnDirection).collect(Collectors.toList());
-        } else {
-            list = sort.stream()
-                    .filter(b -> map.containsKey(b.getProperty()))
-                    .map(b -> {
-                        if (b.isAscending()) {
-                            return map.get(b.getProperty()).getColumn().asc();
-                        }
-                        return map.get(b.getProperty()).getColumn().desc();
-                    }).collect(Collectors.toList());
+        if (null == sort || sort.isEmpty()) {
+            if (CollectionUtils.isNotEmpty(this.getDefaultOrders())) {
+                query.orderBy(this.getDefaultOrders().toArray(new OrderSpecifier[0]));
+            }
+            return;
         }
-        query.orderBy(list.toArray(new OrderSpecifier[0]));
+        query.orderBy(sort.stream().map(this::toOrderSpecifier).toArray(OrderSpecifier[]::new));
+    }
+
+    protected OrderSpecifier<?> toOrderSpecifier(Sort.Order order) {
+        ComparableExpressionBase<?> column = (ComparableExpressionBase<?>) this.getPath(order.getProperty());
+        return order.isAscending() ? column.asc() : column.desc();
+    }
+
+    protected Path<?> getPath(String columnName) {
+        List<Path<?>> columns = this.getEntity().getColumns();
+        for (Path<?> column : columns) {
+            if (column.getMetadata().getName().equals(columnName)) {
+                return column;
+            }
+        }
+        throw new IllegalStateException(String.format("column[%s] not found in entity[%s] ", columnName, this.getEntity().getTableName()));
     }
 
     protected SQLQueryFactory getQueryFactory() {
         return queryFactory;
     }
 
-    protected Map<String, OrderField> getSortColumns() {
-        return Map.of();
+    protected List<OrderSpecifier<?>> getDefaultOrders() {
+        return List.of();
     }
 }
