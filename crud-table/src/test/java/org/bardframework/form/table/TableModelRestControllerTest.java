@@ -6,6 +6,7 @@ import org.bardframework.crud.api.base.BaseCriteria;
 import org.bardframework.crud.api.base.BaseModel;
 import org.bardframework.crud.api.base.DataProviderService;
 import org.bardframework.crud.api.utils.TestUtils;
+import org.bardframework.form.flow.FlowData;
 import org.bardframework.form.table.utils.TableModeCheckUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Pageable;
@@ -93,7 +94,9 @@ public interface TableModelRestControllerTest<CL extends TableModelRestControlle
     @Test
     default void checkTableModelI18n() {
         for (Locale locale : this.getLocales()) {
-            List<String> notExistKeys = TableModeCheckUtils.checkI18nExistence(this.getController().getTableTemplate(), locale);
+            FlowData flowData = new FlowData();
+            flowData.setLocale(locale);
+            List<String> notExistKeys = TableModeCheckUtils.checkI18nExistence(this.getController().getTableTemplate(), flowData);
             Assertions.assertThat(notExistKeys).withFailMessage("these message translation not found in lang <%s>:\n<%s>\n", String.join("\n", notExistKeys), locale).isEmpty();
         }
     }
@@ -101,7 +104,9 @@ public interface TableModelRestControllerTest<CL extends TableModelRestControlle
     @Test
     default void checkTableDefinitionValidity() {
         for (Locale locale : this.getLocales()) {
-            TableModeCheckUtils.checkDefinitionValidity(this.getController().getTableTemplate(), locale);
+            FlowData flowData = new FlowData();
+            flowData.setLocale(locale);
+            TableModeCheckUtils.checkDefinitionValidity(this.getController().getTableTemplate(), flowData);
         }
     }
 }
