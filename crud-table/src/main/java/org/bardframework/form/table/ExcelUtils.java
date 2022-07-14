@@ -12,6 +12,7 @@ import org.bardframework.form.table.header.TableHeaderTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.servlet.http.HttpServletRequest;
 import java.io.OutputStream;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -26,7 +27,7 @@ public class ExcelUtils {
          */
     }
 
-    public static void generateExcel(TableTemplate tableTemplate, TableData tableData, OutputStream outputStream, Locale locale, boolean rtl) throws Exception {
+    public static void generateExcel(TableTemplate tableTemplate, TableData tableData, OutputStream outputStream, Locale locale, boolean rtl, HttpServletRequest httpRequest) throws Exception {
         try (Workbook workbook = new SXSSFWorkbook()) {
             Font headerFont = workbook.createFont();
             headerFont.setBold(true);
@@ -46,7 +47,7 @@ public class ExcelUtils {
             dataStyle.setAlignment(HorizontalAlignment.GENERAL);
             dataStyle.setVerticalAlignment(VerticalAlignment.CENTER);
 
-            ExcelUtils.createSheet(workbook, tableTemplate, tableData, headerStyle, dataStyle, locale);
+            ExcelUtils.createSheet(workbook, tableTemplate, tableData, headerStyle, dataStyle, locale, httpRequest);
 
             for (int i = 0; i < workbook.getNumberOfSheets(); i++) {
                 workbook.getSheetAt(i).setRightToLeft(rtl);
@@ -55,8 +56,8 @@ public class ExcelUtils {
         }
     }
 
-    public static void createSheet(Workbook workbook, TableTemplate tableTemplate, TableData tableData, CellStyle headerStyle, CellStyle dataStyle, Locale locale) throws Exception {
-        TableModel tableModel = TableUtils.toTable(tableTemplate, locale, Map.of());
+    public static void createSheet(Workbook workbook, TableTemplate tableTemplate, TableData tableData, CellStyle headerStyle, CellStyle dataStyle, Locale locale, HttpServletRequest httpRequest) throws Exception {
+        TableModel tableModel = TableUtils.toTable(tableTemplate, locale, Map.of(), httpRequest);
         Sheet sheet = workbook.createSheet(tableModel.getName());
         ((SXSSFSheet) sheet).trackAllColumnsForAutoSizing();
         int rowIndex = 0;

@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.OutputStream;
 import java.util.Locale;
@@ -34,8 +35,8 @@ public interface TableModelRestController<M extends BaseModel<?>, C extends Base
     String getExportFileName(String contentType, Locale locale, U user);
 
     @GetMapping(path = TABLE_GET_URL, produces = MediaType.APPLICATION_JSON_VALUE)
-    default TableModel getTableModel(Locale locale) throws Exception {
-        return TableUtils.toTable(this.getTableTemplate(), locale, Map.of());
+    default TableModel getTableModel(Locale locale, HttpServletRequest httpRequest) throws Exception {
+        return TableUtils.toTable(this.getTableTemplate(), locale, Map.of(), httpRequest);
     }
 
     @PostMapping(path = TABLE_FILTER_URL, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -45,13 +46,13 @@ public interface TableModelRestController<M extends BaseModel<?>, C extends Base
     }
 
     @PostMapping(path = TABLE_EXPORT_URL, consumes = MediaType.APPLICATION_JSON_VALUE, produces = APPLICATION_OOXML_SHEET)
-    default void exportTable(@RequestBody @Validated C criteria, Locale locale, HttpServletResponse httpResponse) throws Exception {
+    default void exportTable(@RequestBody @Validated C criteria, Locale locale, HttpServletRequest httpRequest, HttpServletResponse httpResponse) throws Exception {
         PagedData<M> pagedData = this.getService().get(criteria, Pageable.ofSize(Integer.MAX_VALUE), this.getUser());
         TableData tableData = ExcelUtils.toTableData(pagedData, this.getTableTemplate(), locale);
         try (OutputStream outputStream = httpResponse.getOutputStream()) {
             httpResponse.setContentType(APPLICATION_OOXML_SHEET);
             httpResponse.addHeader("Content-Disposition", "attachment;filename=\"" + this.getExportFileName(APPLICATION_OOXML_SHEET, locale, this.getUser()) + " \"");
-            ExcelUtils.generateExcel(this.getTableTemplate(), tableData, outputStream, locale, this.isRtl(locale));
+            ExcelUtils.generateExcel(this.getTableTemplate(), tableData, outputStream, locale, this.isRtl(locale), httpRequest);
         }
     }
 }
