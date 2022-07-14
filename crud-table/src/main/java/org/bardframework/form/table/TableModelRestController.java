@@ -4,6 +4,10 @@ import org.bardframework.crud.api.base.BaseCriteria;
 import org.bardframework.crud.api.base.BaseModel;
 import org.bardframework.crud.api.base.BaseService;
 import org.bardframework.crud.api.base.PagedData;
+import org.bardframework.table.TableData;
+import org.bardframework.table.TableModel;
+import org.bardframework.table.TableTemplate;
+import org.bardframework.table.TableUtils;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
@@ -36,7 +40,7 @@ public interface TableModelRestController<M extends BaseModel<?>, C extends Base
 
     @GetMapping(path = TABLE_GET_URL, produces = MediaType.APPLICATION_JSON_VALUE)
     default TableModel getTableModel(Locale locale, HttpServletRequest httpRequest) throws Exception {
-        return TableUtils.toTable(this.getTableTemplate(), locale, Map.of(), httpRequest);
+        return TableUtils.toTable(this.getTableTemplate(), Map.of(), locale, httpRequest);
     }
 
     @PostMapping(path = TABLE_FILTER_URL, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)

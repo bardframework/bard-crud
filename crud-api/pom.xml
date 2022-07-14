@@ -15,7 +15,7 @@
     <dependencies>
         <dependency>
             <groupId>org.bardframework.form</groupId>
-            <artifactId>form-common</artifactId>
+            <artifactId>bard-form-common</artifactId>
             <version>${bardframework.form.version}</version>
         </dependency>
         <dependency>

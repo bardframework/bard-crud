@@ -6,8 +6,9 @@ import org.bardframework.crud.api.base.BaseCriteria;
 import org.bardframework.crud.api.base.BaseModel;
 import org.bardframework.crud.api.base.DataProviderService;
 import org.bardframework.crud.api.utils.TestUtils;
-import org.bardframework.form.flow.FlowData;
 import org.bardframework.form.table.utils.TableModeCheckUtils;
+import org.bardframework.table.TableData;
+import org.bardframework.table.TableModel;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -18,6 +19,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.bardframework.form.table.TableModelRestController.*;
@@ -94,9 +96,7 @@ public interface TableModelRestControllerTest<CL extends TableModelRestControlle
     @Test
     default void checkTableModelI18n() {
         for (Locale locale : this.getLocales()) {
-            FlowData flowData = new FlowData();
-            flowData.setLocale(locale);
-            List<String> notExistKeys = TableModeCheckUtils.checkI18nExistence(this.getController().getTableTemplate(), flowData);
+            List<String> notExistKeys = TableModeCheckUtils.checkI18nExistence(this.getController().getTableTemplate(), Map.of(), locale);
             Assertions.assertThat(notExistKeys).withFailMessage("these message translation not found in lang <%s>:\n<%s>\n", String.join("\n", notExistKeys), locale).isEmpty();
         }
     }
@@ -104,9 +104,7 @@ public interface TableModelRestControllerTest<CL extends TableModelRestControlle
     @Test
     default void checkTableDefinitionValidity() {
         for (Locale locale : this.getLocales()) {
-            FlowData flowData = new FlowData();
-            flowData.setLocale(locale);
-            TableModeCheckUtils.checkDefinitionValidity(this.getController().getTableTemplate(), flowData);
+            TableModeCheckUtils.checkDefinitionValidity(this.getController().getTableTemplate(), Map.of(), locale);
         }
     }
 }

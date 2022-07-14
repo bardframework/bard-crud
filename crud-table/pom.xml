@@ -15,7 +15,7 @@
     <dependencies>
         <dependency>
             <groupId>org.bardframework.form</groupId>
-            <artifactId>form</artifactId>
+            <artifactId>bard-table</artifactId>
             <version>${bardframework.form.version}</version>
         </dependency>
         <dependency>
@@ -44,7 +44,7 @@
         </dependency>
         <dependency>
             <groupId>org.bardframework.form</groupId>
-            <artifactId>form</artifactId>
+            <artifactId>bard-form</artifactId>
             <version>${bardframework.form.version}</version>
             <scope>test</scope>
             <type>test-jar</type>
