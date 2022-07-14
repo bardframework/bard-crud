@@ -1,13 +1,9 @@
-package org.bardframework.form.table;
+package org.bardframework.table;
 
 import org.bardframework.crud.api.base.BaseCriteria;
 import org.bardframework.crud.api.base.BaseModel;
 import org.bardframework.crud.api.base.BaseService;
 import org.bardframework.crud.api.base.PagedData;
-import org.bardframework.table.TableData;
-import org.bardframework.table.TableModel;
-import org.bardframework.table.TableTemplate;
-import org.bardframework.table.TableUtils;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;

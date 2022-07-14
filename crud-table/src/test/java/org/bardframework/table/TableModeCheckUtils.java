@@ -1,12 +1,10 @@
-package org.bardframework.form.table.utils;
+package org.bardframework.table;
 
 import org.apache.commons.lang3.StringUtils;
 import org.assertj.core.api.Assertions;
 import org.bardframework.commons.utils.ReflectionUtils;
 import org.bardframework.form.FormTemplate;
 import org.bardframework.form.field.FieldTemplate;
-import org.bardframework.table.TableTemplate;
-import org.bardframework.table.TableUtils;
 import org.bardframework.table.header.TableHeaderTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

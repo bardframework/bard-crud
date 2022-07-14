@@ -1,4 +1,4 @@
-package org.bardframework.form.table;
+package org.bardframework.table;
 
 import org.assertj.core.api.Assertions;
 import org.bardframework.commons.web.WebTestHelper;
@@ -6,9 +6,6 @@ import org.bardframework.crud.api.base.BaseCriteria;
 import org.bardframework.crud.api.base.BaseModel;
 import org.bardframework.crud.api.base.DataProviderService;
 import org.bardframework.crud.api.utils.TestUtils;
-import org.bardframework.form.table.utils.TableModeCheckUtils;
-import org.bardframework.table.TableData;
-import org.bardframework.table.TableModel;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -22,7 +19,7 @@ import java.util.Locale;
 import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.bardframework.form.table.TableModelRestController.*;
+import static org.bardframework.table.TableModelRestController.*;
 
 /**
  * Created by Sama-PC on 14/05/2017.
