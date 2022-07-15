@@ -65,8 +65,8 @@ public class TableModeCheckUtils {
         if (TableModeCheckUtils.isNotExist(template.getTitle(), template.getMessageSource(), locale)) {
             notExistence.add(template.getTitle());
         }
-        if (TableModeCheckUtils.isNotExist(template.getHint(), template.getMessageSource(), locale)) {
-            notExistence.add(template.getHint());
+        if (TableModeCheckUtils.isNotExist(template.getDescription(), template.getMessageSource(), locale)) {
+            notExistence.add(template.getDescription());
         }
         template.getHeaderTemplates().forEach(header -> notExistence.addAll(TableModeCheckUtils.checkI18nExistence(header, template.getMessageSource(), locale)));
 
@@ -85,15 +85,6 @@ public class TableModeCheckUtils {
             return Collections.emptyList();
         }
         List<String> notExistence = new ArrayList<>();
-        if (TableModeCheckUtils.isNotExist(template.getTitle(), template.getMessageSource(), locale)) {
-            notExistence.add(template.getTitle());
-        }
-        if (TableModeCheckUtils.isNotExist(template.getConfirmMessage(), template.getMessageSource(), locale)) {
-            notExistence.add(template.getConfirmMessage());
-        }
-        if (TableModeCheckUtils.isNotExist(template.getSubmitLabel(), template.getMessageSource(), locale)) {
-            notExistence.add(template.getSubmitLabel());
-        }
         template.getFieldTemplates(args).forEach(field -> notExistence.addAll(TableModeCheckUtils.checkI18nExistence(field, template.getMessageSource(), locale)));
         return notExistence;
     }
