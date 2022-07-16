@@ -27,9 +27,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.lang.Nullable;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by vahid on 1/17/17.
@@ -88,24 +86,24 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
      */
     @Transactional
     @Override
-    public List<M> save(List<M> models, U user) {
+    public List<M> save(Collection<M> models, U user) {
         AssertionUtils.notNull(models, "Given models cannot be null.");
         if (CollectionUtils.isEmpty(models)) {
             return Collections.emptyList();
         }
         SQLInsertClause insertClause = this.getQueryFactory().insert(this.getEntity());
         models.forEach(model -> {
-                    this.fillClause(insertClause, model, user);
-                    this.setIdentifier(model, user);
-                    this.setIdentifier(insertClause, model.getId(), user);
-                    insertClause.addBatch();
+            this.fillClause(insertClause, model, user);
+            this.setIdentifier(model, user);
+            this.setIdentifier(insertClause, model.getId(), user);
+            insertClause.addBatch();
                 }
         );
         long affectedRowsCount = insertClause.execute();
         if (models.size() != affectedRowsCount) {
             LOGGER.warn("expect insert '{}' row, but '{}' row(s) inserted.", models.size(), affectedRowsCount);
         }
-        return models;
+        return new ArrayList<>(models);
     }
 
     @Transactional
@@ -117,7 +115,7 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
 
     @Transactional
     @Override
-    public List<M> update(List<M> models, U user) {
+    public List<M> update(Collection<M> models, U user) {
         AssertionUtils.notNull(models, "Given models cannot be null.");
         if (CollectionUtils.isEmpty(models)) {
             return Collections.emptyList();
@@ -136,7 +134,7 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
             LOGGER.error("expect update '{}' row, but '{}' row(s) updated.", models.size(), affectedRowsCount);
             throw new IllegalStateException("affected rows in update not valid");
         }
-        return models;
+        return new ArrayList<>(models);
     }
 
     @Transactional
@@ -175,7 +173,7 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
 
     @Transactional(readOnly = true)
     @Override
-    public List<M> get(List<I> ids, U user) {
+    public List<M> get(Collection<I> ids, U user) {
         AssertionUtils.notEmpty(ids, "Given Identifiers cannot be empty.");
         C criteria = ReflectionUtils.newInstance(criteriaClazz);
         criteria.setId(new IdFilter<I>().setIn(ids));
@@ -246,7 +244,7 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
 
     @Transactional
     @Override
-    public long delete(List<I> ids, U user) {
+    public long delete(Collection<I> ids, U user) {
         AssertionUtils.notEmpty(ids, "Given ids cannot be null.");
         C criteria = ReflectionUtils.newInstance(criteriaClazz);
         criteria.setId(new IdFilter<I>().setIn(ids));
@@ -268,7 +266,7 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
      */
     @Transactional
     @Override
-    public long directDelete(List<I> ids, U user) {
+    public long directDelete(Collection<I> ids, U user) {
         AssertionUtils.notEmpty(ids, "ids should not be empty.");
         return this.getQueryFactory().delete(this.getEntity())
                 .where(this.getIdentifierPath().in(ids))

@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -109,7 +110,7 @@ public interface BaseServiceTest<M extends BaseModel<I>, C extends BaseCriteria<
         U user = this.getDataProvider().getUser();
         int count = RandomUtils.nextInt(3, 10);
         List<M> saved = this.getDataProvider().saveNew(count, user);
-        List<I> ids = saved.stream().map(M::getId).collect(Collectors.toList());
+        Collection<I> ids = saved.stream().map(M::getId).collect(Collectors.toList());
         long size = this.getService().delete(ids, user);
         assertThat(size).isEqualByComparingTo((long) saved.size());
         /* Make sure records are deleted from DB. */

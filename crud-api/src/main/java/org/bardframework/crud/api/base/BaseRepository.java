@@ -3,6 +3,7 @@ package org.bardframework.crud.api.base;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -13,7 +14,7 @@ public interface BaseRepository<M extends BaseModel<I>, C extends BaseCriteria<I
 
     M get(I id, U user);
 
-    List<M> get(List<I> ids, U user);
+    List<M> get(Collection<I> ids, U user);
 
     List<M> get(C criteria, U user);
 
@@ -37,23 +38,23 @@ public interface BaseRepository<M extends BaseModel<I>, C extends BaseCriteria<I
      * @return count of deleted record
      * @see #delete(BaseCriteria, Object)
      */
-    long delete(List<I> ids, U user);
+    long delete(Collection<I> ids, U user);
 
     /**
      * direct delete, not used criteria
      *
      * @return count of deleted record
      */
-    long directDelete(List<I> ids, U user);
+    long directDelete(Collection<I> ids, U user);
 
 
     M save(M model, U user);
 
-    List<M> save(List<M> models, U user);
+    List<M> save(Collection<M> models, U user);
 
     M update(M model, U user);
 
-    List<M> update(List<M> models, U user);
+    List<M> update(Collection<M> models, U user);
 
     M patch(I id, Map<String, Object> fields, U user);
 

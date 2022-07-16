@@ -10,10 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -38,7 +35,7 @@ public abstract class BaseServiceAbstract<M extends BaseModel<I>, C extends Base
         return ReflectionUtils.newInstance(criteriaClazz);
     }
 
-    public List<M> get(List<I> ids, U user) {
+    public List<M> get(Collection<I> ids, U user) {
         AssertionUtils.notEmpty(ids, "Given ids cannot be empty.");
         if (ids.isEmpty()) {
             return Collections.emptyList();
@@ -126,7 +123,7 @@ public abstract class BaseServiceAbstract<M extends BaseModel<I>, C extends Base
     }
 
     @Transactional
-    public long delete(List<I> ids, U user) {
+    public long delete(Collection<I> ids, U user) {
         AssertionUtils.notEmpty(ids, "Given ids cannot be empty.");
         if (ids.isEmpty()) {
             return 0;
