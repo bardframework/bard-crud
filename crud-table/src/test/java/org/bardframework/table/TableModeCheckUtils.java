@@ -5,7 +5,7 @@ import org.assertj.core.api.Assertions;
 import org.bardframework.commons.utils.ReflectionUtils;
 import org.bardframework.form.FormTemplate;
 import org.bardframework.form.field.FieldTemplate;
-import org.bardframework.table.header.TableHeaderTemplate;
+import org.bardframework.table.header.HeaderTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.MessageSource;
@@ -19,7 +19,7 @@ public class TableModeCheckUtils {
 
     public static void checkDefinitionValidity(TableTemplate template, Map<String, String> args, Locale locale) {
         Assertions.assertThat(template.getModelClass()).withFailMessage("model class of [%s] table not set", template.getName()).isNotNull();
-        for (TableHeaderTemplate<?, ?> headerTemplate : template.getHeaderTemplates()) {
+        for (HeaderTemplate<?, ?> headerTemplate : template.getHeaderTemplates()) {
             Assertions.assertThat(headerTemplate.getName()).withFailMessage("some headers name of table [%s] is empty.", template.getName()).isNotEmpty();
             try {
                 ReflectionUtils.getGetterMethod(template.getModelClass(), headerTemplate.getName());
@@ -89,7 +89,7 @@ public class TableModeCheckUtils {
         return notExistence;
     }
 
-    private static List<String> checkI18nExistence(TableHeaderTemplate<?, ?> headerTemplate, MessageSource messageSource, Locale locale) {
+    private static List<String> checkI18nExistence(HeaderTemplate<?, ?> headerTemplate, MessageSource messageSource, Locale locale) {
         List<String> notExistence = new ArrayList<>();
         if (TableModeCheckUtils.isNotExist(headerTemplate.getTitle(), messageSource, locale)) {
             notExistence.add(headerTemplate.getTitle());

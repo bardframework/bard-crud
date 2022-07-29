@@ -4,18 +4,17 @@ import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
-import org.bardframework.commons.utils.ReflectionUtils;
-import org.bardframework.crud.api.base.BaseModel;
-import org.bardframework.crud.api.base.PagedData;
+import org.bardframework.table.header.HeaderTemplate;
 import org.bardframework.table.header.TableHeader;
-import org.bardframework.table.header.TableHeaderTemplate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.OutputStream;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 
 public class ExcelUtils {
 
@@ -76,7 +75,7 @@ public class ExcelUtils {
          ساخت استایل های مورد نیاز همه ی هدرها
          */
         Map<String, CellStyle> styles = new HashMap<>();
-        for (TableHeaderTemplate<?, ?> headerModel : tableTemplate.getHeaderTemplates()) {
+        for (HeaderTemplate<?, ?> headerModel : tableTemplate.getHeaderTemplates()) {
             if (null != headerModel.getExcelFormat()) {
                 CellStyle cellStyle = workbook.createCellStyle();
                 cellStyle.cloneStyleFrom(dataStyle);
@@ -94,7 +93,7 @@ public class ExcelUtils {
             for (int index = 0; index < tableTemplate.getHeaderTemplates().size(); index++) {
                 Cell cell = row.createCell(index);
                 Object cellValue = rowData.get(index);
-                TableHeaderTemplate<?, ?> headerTemplate = tableTemplate.getHeaderTemplates().get(index);
+                HeaderTemplate<?, ?> headerTemplate = tableTemplate.getHeaderTemplates().get(index);
                 if (null == cellValue) {
                     cell.setBlank();
                 } else {
@@ -116,26 +115,6 @@ public class ExcelUtils {
             sheet.autoSizeColumn(i);
         }
         sheet.createFreezePane(0, 1);
-    }
-
-
-    public static <M extends BaseModel<?>> TableData toTableData(PagedData<M> pagedData, TableTemplate tableTemplate, Locale locale) {
-        TableData tableData = new TableData();
-        tableData.setTotal(pagedData.getTotal());
-        tableData.setHeaders(tableTemplate.getHeaderTemplates().stream().map(TableHeader::getName).collect(Collectors.toList()));
-        for (M model : pagedData.getData()) {
-            List<Object> values = new ArrayList<>();
-            for (TableHeaderTemplate headerTemplate : tableTemplate.getHeaderTemplates()) {
-                try {
-                    Object value = ReflectionUtils.getPropertyValue(model, headerTemplate.getName());
-                    values.add(headerTemplate.format(value, locale));
-                } catch (Exception e) {
-                    throw new IllegalStateException(String.format("can't read property [%s] of [%s] instance and convert it, table [%s]", headerTemplate.getName(), model.getClass(), tableTemplate.getName()), e);
-                }
-            }
-            tableData.addData(model.getId().toString(), values);
-        }
-        return tableData;
     }
 
 }
