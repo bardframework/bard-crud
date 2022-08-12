@@ -59,7 +59,7 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
 
     protected abstract void setIdentifier(M entity, U user);
 
-    protected void setIdentifier(SQLInsertClause clause, I identifier, U user) {
+    protected void setIdentifierInternal(SQLInsertClause clause, I identifier, U user) {
         clause.set(this.getIdentifierPath(), identifier);
     }
 
@@ -104,9 +104,9 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
         }
         SQLInsertClause insertClause = this.getQueryFactory().insert(this.getEntity());
         models.forEach(model -> {
-            this.onSaveInternal(insertClause, model, user);
-            this.setIdentifier(model, user);
-                    this.setIdentifier(insertClause, model.getId(), user);
+                    this.setIdentifier(model, user);
+                    this.onSaveInternal(insertClause, model, user);
+                    this.setIdentifierInternal(insertClause, model.getId(), user);
                     insertClause.addBatch();
                 }
         );
