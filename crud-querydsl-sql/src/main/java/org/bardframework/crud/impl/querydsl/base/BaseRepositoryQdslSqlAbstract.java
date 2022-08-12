@@ -53,7 +53,9 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
 
     protected abstract QBean<M> getQBean();
 
-    protected abstract <T extends StoreClause<T>> void toClause(T clause, M model, U user);
+    protected abstract <T extends StoreClause<T>> void onSave(T clause, M model, U user);
+
+    protected abstract <T extends StoreClause<T>> void onUpdate(T clause, M model, U user);
 
     protected abstract void setIdentifier(M entity, U user);
 
@@ -65,11 +67,20 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
         clause.where(this.getIdentifierPath().eq(identifier));
     }
 
-    protected <T extends StoreClause<T>> void fillClause(T clause, M model, U user) {
-        this.toClause(clause, model, user);
+    private <T extends StoreClause<T>> void onSaveInternal(T clause, M model, U user) {
+        this.onSave(clause, model, user);
         for (Class<?> clazz : this.getClass().getInterfaces()) {
-            if (WriteExtendedRepositoryQdslSql.class.isAssignableFrom(clazz)) {
-                ((WriteExtendedRepositoryQdslSql) this).process(clause, model, user);
+            if (SaveExtendedRepositoryQdslSql.class.isAssignableFrom(clazz)) {
+                ((SaveExtendedRepositoryQdslSql) this).onSave(clause, model, user);
+            }
+        }
+    }
+
+    private <T extends StoreClause<T>> void onUpdateInternal(T clause, M model, U user) {
+        this.onUpdate(clause, model, user);
+        for (Class<?> clazz : this.getClass().getInterfaces()) {
+            if (UpdateExtendedRepositoryQdslSql.class.isAssignableFrom(clazz)) {
+                ((UpdateExtendedRepositoryQdslSql) this).onUpdate(clause, model, user);
             }
         }
     }
@@ -93,8 +104,8 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
         }
         SQLInsertClause insertClause = this.getQueryFactory().insert(this.getEntity());
         models.forEach(model -> {
-                    this.fillClause(insertClause, model, user);
-                    this.setIdentifier(model, user);
+            this.onSaveInternal(insertClause, model, user);
+            this.setIdentifier(model, user);
                     this.setIdentifier(insertClause, model.getId(), user);
                     insertClause.addBatch();
                 }
@@ -125,7 +136,7 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
                 {
                     AssertionUtils.notNull(model.getId(), "model identifier is not provided, can't update");
                     this.setIdentifier(updateClause, model.getId(), user);
-                    this.fillClause(updateClause, model, user);
+                    this.onUpdateInternal(updateClause, model, user);
                     updateClause.addBatch();
                 }
         );
