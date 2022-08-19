@@ -8,7 +8,10 @@ import com.querydsl.core.types.dsl.SimpleExpression;
 import com.querydsl.core.types.dsl.StringPath;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.bardframework.form.model.filter.*;
+import org.bardframework.form.model.filter.Filter;
+import org.bardframework.form.model.filter.NumberRangeFilter;
+import org.bardframework.form.model.filter.RangeFilter;
+import org.bardframework.form.model.filter.StringFilter;
 
 import java.io.Serializable;
 import java.util.function.Function;
@@ -66,7 +69,7 @@ public final class QueryDslUtils {
         return builder;
     }
 
-    public static <T extends Comparable<? super T>> Predicate getPredicate(RangeFilter<T, ?> filter, ComparableExpression<T> path) {
+    public static <T extends Comparable<?> & Serializable> Predicate getPredicate(RangeFilter<T, ?> filter, ComparableExpression<T> path) {
         if (null == filter) {
             return null;
         }
@@ -80,34 +83,11 @@ public final class QueryDslUtils {
         return builder;
     }
 
-    public static <T extends Comparable<? super T>> Predicate getPredicate(Filter<T, ?> filter, SimpleExpression<T> path) {
-        if (null == filter) {
-            return null;
-        }
-        BooleanBuilder builder = new BooleanBuilder();
-        if (null != filter.getEquals()) {
-            builder.and(path.eq(filter.getEquals()));
-        }
-        if (null != filter.getNotEquals()) {
-            builder.and(path.ne(filter.getNotEquals()));
-        }
-        if (CollectionUtils.isNotEmpty(filter.getIn())) {
-            builder.and(path.in(filter.getIn()));
-        }
-        if (CollectionUtils.isNotEmpty(filter.getNotIn())) {
-            builder.and(path.notIn(filter.getNotIn()));
-        }
-        if (filter.getSpecified() != null) {
-            if (filter.getSpecified()) {
-                builder.and(path.isNotNull());
-            } else {
-                builder.and(path.isNull());
-            }
-        }
-        return builder;
+    public static <I extends Serializable> Predicate getPredicate(Filter<I, ?> filter, SimpleExpression<I> path) {
+        return QueryDslUtils.getPredicate(filter, path::eq, path::isNotNull, path::isNull);
     }
 
-    public static <I extends Serializable> Predicate getPredicate(IdFilter<I> filter, Function<I, Predicate> equals, Supplier<Predicate> isNotNull, Supplier<Predicate> isNull) {
+    public static <I extends Serializable> Predicate getPredicate(Filter<I, ?> filter, Function<I, Predicate> equals, Supplier<Predicate> isNotNull, Supplier<Predicate> isNull) {
         if (null == filter) {
             return null;
         }

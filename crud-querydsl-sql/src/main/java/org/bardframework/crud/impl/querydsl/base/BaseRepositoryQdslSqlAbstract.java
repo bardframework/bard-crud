@@ -1,8 +1,12 @@
 package org.bardframework.crud.impl.querydsl.base;
 
 import com.querydsl.core.dml.StoreClause;
-import com.querydsl.core.types.*;
+import com.querydsl.core.types.Expression;
+import com.querydsl.core.types.OrderSpecifier;
+import com.querydsl.core.types.Path;
+import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.ComparableExpressionBase;
+import com.querydsl.core.types.dsl.SimpleExpression;
 import com.querydsl.sql.RelationalPathBase;
 import com.querydsl.sql.SQLQuery;
 import com.querydsl.sql.SQLQueryFactory;
@@ -16,6 +20,7 @@ import org.bardframework.crud.api.base.BaseCriteria;
 import org.bardframework.crud.api.base.BaseModel;
 import org.bardframework.crud.api.base.BaseRepository;
 import org.bardframework.crud.api.base.PagedData;
+import org.bardframework.crud.impl.querydsl.utils.QueryDslUtils;
 import org.bardframework.form.model.filter.IdFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,19 +54,24 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
 
     protected abstract Predicate getPredicate(C criteria, U user);
 
-    protected abstract Predicate getPredicate(IdFilter<I> idFilter, U user);
-
     protected abstract RelationalPathBase<?> getEntity();
 
-    protected abstract Expression<M> getQBean();
+    protected abstract Expression<M> getSelectExpression();
 
-    protected abstract Expression<I> getIdPath();
+    protected abstract Expression<I> getIdSelectExpression();
 
     protected abstract I generateId(M entity, U user);
 
     protected abstract <T extends StoreClause<T>> void onSave(T clause, M model, U user);
 
     protected abstract <T extends StoreClause<T>> void onUpdate(T clause, M model, U user);
+
+    protected Predicate getPredicate(IdFilter<I> idFilter, U user) {
+        if (!(this.getIdSelectExpression() instanceof SimpleExpression)) {
+            throw new IllegalStateException("can't construct Predicate for IdFilter, getIdSelectExpression is not instance of SimpleExpression, override getPredicate(IdFilter, U) and implement it.");
+        }
+        return QueryDslUtils.getPredicate(idFilter, (SimpleExpression<I>) this.getIdSelectExpression());
+    }
 
     private <T extends StoreClause<T>> void onSaveInternal(T clause, M model, U user) {
         this.onSave(clause, model, user);
@@ -106,17 +116,23 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
                     insertClause.addBatch();
                 }
         );
-        /*
-            در حالتی که شناسه ها در دیتابیس تولید نمی شوند؛ این لیست خالی است.
-         */
-        List<I> generatedIds = insertClause.executeWithKeys(ExpressionUtils.path(idClazz, "id"));
-        if (CollectionUtils.isNotEmpty(generatedIds)) {
-            for (int i = 0; i < list.size(); i++) {
-                list.get(i).setId(generatedIds.get(i));
+        Long affectedCount;
+        if (this.getIdSelectExpression() instanceof Path) {
+            List<I> generatedIds = insertClause.executeWithKeys((Path<I>) this.getIdSelectExpression());
+            if (CollectionUtils.isNotEmpty(generatedIds)) {
+                for (int i = 0; i < list.size(); i++) {
+                    list.get(i).setId(generatedIds.get(i));
+                }
             }
+            /*
+                در حالتی که شناسه ها در دیتابیس تولید نمی شوند؛ این لیست خالی است.
+             */
+            affectedCount = CollectionUtils.isNotEmpty(generatedIds) ? (long) generatedIds.size() : null;
+        } else {
+            affectedCount = insertClause.execute();
         }
-        if (CollectionUtils.isNotEmpty(generatedIds) && list.size() != generatedIds.size()) {
-            LOGGER.warn("expect insert '{}' row, but '{}' row(s) inserted.", list.size(), generatedIds.size());
+        if (null != affectedCount && list.size() != affectedCount) {
+            LOGGER.warn("expect insert '{}' row, but '{}' row(s) inserted.", list.size(), affectedCount);
         }
         return list;
     }
@@ -224,7 +240,7 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
             query.offset(pageable.getOffset());
             query.limit(pageable.getPageSize());
         }
-        List<M> result = query.select(this.getQBean()).fetch();
+        List<M> result = query.select(this.getSelectExpression()).fetch();
         return new PagedData<>(result, total);
     }
 
@@ -277,7 +293,7 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
     @Override
     public List<I> getIds(C criteria, U user) {
         AssertionUtils.notNull(criteria, "Given criteria cannot be null.");
-        return this.getSqlQuery(criteria, user).select(this.getIdPath()).fetch();
+        return this.getSqlQuery(criteria, user).select(this.getIdSelectExpression()).fetch();
     }
 
     @Transactional(readOnly = true)
@@ -292,14 +308,14 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
         AssertionUtils.notNull(criteria, "Given criteria cannot be null");
         SQLQuery<?> sqlQuery = this.getSqlQuery(criteria, user);
         this.setOrders(sqlQuery, sort);
-        return sqlQuery.select(this.getQBean()).fetch();
+        return sqlQuery.select(this.getSelectExpression()).fetch();
     }
 
     @Transactional(readOnly = true)
     @Override
     public M getOne(C criteria, U user) {
         AssertionUtils.notNull(criteria, "Given criteria cannot be null");
-        return this.getSqlQuery(criteria, user).select(this.getQBean()).fetchOne();
+        return this.getSqlQuery(criteria, user).select(this.getSelectExpression()).fetchOne();
     }
 
     protected void setOrders(SQLQuery<?> query, @Nullable Sort sort) {
