@@ -8,10 +8,11 @@ import com.querydsl.core.types.dsl.SimpleExpression;
 import com.querydsl.core.types.dsl.StringPath;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.bardframework.form.model.filter.Filter;
-import org.bardframework.form.model.filter.NumberRangeFilter;
-import org.bardframework.form.model.filter.RangeFilter;
-import org.bardframework.form.model.filter.StringFilter;
+import org.bardframework.form.model.filter.*;
+
+import java.io.Serializable;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 /**
  * Created by vahid (va.zafari@gmail.com) on 10/30/17.
@@ -101,6 +102,41 @@ public final class QueryDslUtils {
                 builder.and(path.isNotNull());
             } else {
                 builder.and(path.isNull());
+            }
+        }
+        return builder;
+    }
+
+    public static <I extends Serializable> Predicate getPredicate(IdFilter<I> filter, Function<I, Predicate> equals, Supplier<Predicate> isNotNull, Supplier<Predicate> isNull) {
+        if (null == filter) {
+            return null;
+        }
+        BooleanBuilder builder = new BooleanBuilder();
+        if (null != filter.getEquals()) {
+            builder.and(equals.apply(filter.getEquals()));
+        }
+        if (null != filter.getNotEquals()) {
+            builder.and(equals.apply(filter.getNotEquals()).not());
+        }
+        if (CollectionUtils.isNotEmpty(filter.getIn())) {
+            BooleanBuilder inBuilder = new BooleanBuilder();
+            for (I id : filter.getIn()) {
+                inBuilder.or(equals.apply(id));
+            }
+            builder.and(inBuilder);
+        }
+        if (CollectionUtils.isNotEmpty(filter.getNotIn())) {
+            BooleanBuilder notInBuilder = new BooleanBuilder();
+            for (I id : filter.getNotIn()) {
+                notInBuilder.or(equals.apply(id));
+            }
+            builder.and(notInBuilder.not());
+        }
+        if (filter.getSpecified() != null) {
+            if (filter.getSpecified()) {
+                builder.and(isNotNull.get());
+            } else {
+                builder.and(isNull.get());
             }
         }
         return builder;

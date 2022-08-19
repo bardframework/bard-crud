@@ -8,6 +8,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -15,9 +16,9 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
- * Created by Sama-PC on 08/05/2017.
+ * Created on 08/05/2017.
  */
-public interface DataProviderRepository<M extends BaseModel<I>, C extends BaseCriteria<I>, R extends BaseRepository<M, C, I, U>, I extends Comparable<? super I>, U> {
+public interface DataProviderRepository<M extends BaseModel<I>, C extends BaseCriteria<I>, R extends BaseRepository<M, C, I, U>, I extends Serializable, U> {
 
     Logger LOGGER = LoggerFactory.getLogger(DataProviderRepository.class);
 

@@ -10,13 +10,15 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import java.io.Serializable;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.bardframework.crud.api.base.ReadRestController.FILTER_URL;
 
 /**
- * Created by Sama-PC on 14/05/2017.
+ * Created on 14/05/2017.
  */
-public interface ReadRestControllerTest<M extends BaseModel<I>, C extends BaseCriteria<I>, P extends DataProviderService<M, C, ?, ?, ?, I, U>, I extends Comparable<? super I>, U> extends WebTestHelper {
+public interface ReadRestControllerTest<M extends BaseModel<I>, C extends BaseCriteria<I>, P extends DataProviderService<M, C, ?, ?, ?, I, U>, I extends Serializable, U> extends WebTestHelper {
 
     P getDataProvider();
 

@@ -10,13 +10,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
 
 /**
  * Created by vahid on 1/17/17.
  */
-public abstract class BaseService<M extends BaseModel<I>, C extends BaseCriteria<I>, D, R extends BaseRepository<M, C, I, U>, I extends Comparable<? super I>, U> {
+public abstract class BaseService<M extends BaseModel<I>, C extends BaseCriteria<I>, D, R extends BaseRepository<M, C, I, U>, I extends Serializable, U> {
 
     protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
     protected final Class<M> modelClazz;

@@ -9,12 +9,14 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
+import java.io.Serializable;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Created by Sama-PC on 14/05/2017.
+ * Created on 14/05/2017.
  */
-public interface WriteRestControllerTest<M extends BaseModel<I>, D, P extends DataProviderService<M, ?, D, ?, ?, I, U>, I extends Comparable<? super I>, U> extends WebTestHelper {
+public interface WriteRestControllerTest<M extends BaseModel<I>, D, P extends DataProviderService<M, ?, D, ?, ?, I, U>, I extends Serializable, U> extends WebTestHelper {
 
     String BASE_URL();
 

@@ -24,12 +24,13 @@ import org.springframework.data.domain.Sort;
 import org.springframework.lang.Nullable;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.Serializable;
 import java.util.*;
 
 /**
  * Created by vahid on 1/17/17.
  */
-public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C extends BaseCriteria<I>, I extends Comparable<? super I>, U> implements BaseRepository<M, C, I, U> {
+public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C extends BaseCriteria<I>, I extends Serializable, U> implements BaseRepository<M, C, I, U> {
 
     private static final int DEFAULT_SIZE = 20;
     protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
@@ -192,7 +193,7 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
         return this.get(criteria, user);
     }
 
-    protected SQLQuery<?> getSqlQuery(C criteria, @Nullable Sort sort, U user) {
+    protected SQLQuery<?> getSqlQuery(C criteria, U user) {
         SQLQuery<?> query = this.getQueryFactory().query().from(this.getEntity());
         query.where(this.getPredicate(criteria.getIdFilter(), user));
         query.where(this.getPredicate(criteria, user));
@@ -201,7 +202,6 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
                 ((ReadExtendedRepositoryQdslSql<C, I, U>) this).process(criteria, query, user);
             }
         }
-        this.setOrders(query, sort);
         return query;
     }
 
@@ -210,7 +210,8 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
     public PagedData<M> get(C criteria, Pageable pageable, U user) {
         AssertionUtils.notNull(criteria, "Given criteria cannot be null.");
         AssertionUtils.notNull(pageable, "Given pageable cannot be null.");
-        SQLQuery<?> query = this.getSqlQuery(criteria, pageable.getSort(), user);
+        SQLQuery<?> query = this.getSqlQuery(criteria, user);
+        this.setOrders(query, pageable.getSort());
         long total = query.fetchCount();
         if (0 >= total) {
             return new PagedData<>();
@@ -231,7 +232,7 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
     @Override
     public long getCount(C criteria, U user) {
         AssertionUtils.notNull(criteria, "Given criteria cannot be null.");
-        return this.getSqlQuery(criteria, null, user).fetchCount();
+        return this.getSqlQuery(criteria, user).fetchCount();
     }
 
     @Transactional(readOnly = true)
@@ -276,7 +277,7 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
     @Override
     public List<I> getIds(C criteria, U user) {
         AssertionUtils.notNull(criteria, "Given criteria cannot be null.");
-        return this.getSqlQuery(criteria, null, user).select(this.getIdPath()).fetch();
+        return this.getSqlQuery(criteria, user).select(this.getIdPath()).fetch();
     }
 
     @Transactional(readOnly = true)
@@ -289,14 +290,16 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
     @Override
     public List<M> get(C criteria, Sort sort, U user) {
         AssertionUtils.notNull(criteria, "Given criteria cannot be null");
-        return this.getSqlQuery(criteria, sort, user).select(this.getQBean()).fetch();
+        SQLQuery<?> sqlQuery = this.getSqlQuery(criteria, user);
+        this.setOrders(sqlQuery, sort);
+        return sqlQuery.select(this.getQBean()).fetch();
     }
 
     @Transactional(readOnly = true)
     @Override
     public M getOne(C criteria, U user) {
         AssertionUtils.notNull(criteria, "Given criteria cannot be null");
-        return this.getSqlQuery(criteria, null, user).select(this.getQBean()).fetchOne();
+        return this.getSqlQuery(criteria, user).select(this.getQBean()).fetchOne();
     }
 
     protected void setOrders(SQLQuery<?> query, @Nullable Sort sort) {

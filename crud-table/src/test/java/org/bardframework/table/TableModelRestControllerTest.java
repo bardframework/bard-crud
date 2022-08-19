@@ -22,9 +22,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.bardframework.table.TableModelRestController.*;
 
 /**
- * Created by Sama-PC on 14/05/2017.
+ * Created on 14/05/2017.
  */
-public interface TableModelRestControllerTest<CL extends TableModelRestController<?, ?, ?, ?>, M extends BaseModel<I>, C extends BaseCriteria<I>, P extends DataProviderService<M, C, ?, ?, ?, I, U>, I extends Comparable<? super I>, U> extends WebTestHelper {
+public interface TableModelRestControllerTest<CL extends TableModelRestController<?, ?, ?, ?>, M extends BaseModel<I>, C extends BaseCriteria<I>, P extends DataProviderService<M, C, ?, ?, ?, I, U>, I extends Serializable, U> extends WebTestHelper {
 
     CL getController();
 

@@ -3,6 +3,7 @@ package org.bardframework.crud.api.base;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -10,7 +11,7 @@ import java.util.Map;
 /**
  * Created by Vahid Zafari on 1/17/17.
  */
-public interface BaseRepository<M extends BaseModel<I>, C extends BaseCriteria<I>, I extends Comparable<? super I>, U> {
+public interface BaseRepository<M extends BaseModel<I>, C extends BaseCriteria<I>, I extends Serializable, U> {
 
     M get(I id, U user);
 

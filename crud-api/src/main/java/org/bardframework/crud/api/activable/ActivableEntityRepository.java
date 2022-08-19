@@ -1,6 +1,8 @@
 package org.bardframework.crud.api.activable;
 
-public interface ActivableEntityRepository<I extends Comparable<? super I>, U> {
+import java.io.Serializable;
+
+public interface ActivableEntityRepository<I extends Serializable, U> {
 
     /**
      * @return true if operation done

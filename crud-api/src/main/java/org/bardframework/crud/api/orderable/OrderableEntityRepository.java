@@ -3,7 +3,9 @@ package org.bardframework.crud.api.orderable;
 import org.bardframework.crud.api.base.BaseCriteria;
 import org.bardframework.crud.api.base.BaseModel;
 
-public interface OrderableEntityRepository<M extends BaseModel<I>, C extends BaseCriteria<I>, I extends Comparable<? super I>, U> {
+import java.io.Serializable;
+
+public interface OrderableEntityRepository<M extends BaseModel<I>, C extends BaseCriteria<I>, I extends Serializable, U> {
 
     /**
      * @return first record filtered by criteria order by identifier

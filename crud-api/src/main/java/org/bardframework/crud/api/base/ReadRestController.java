@@ -8,12 +8,14 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
+import java.io.Serializable;
+
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 /**
  * Created by zafari on 4/12/2015.
  */
-public interface ReadRestController<M extends BaseModel<I>, C extends BaseCriteria<I>, S extends BaseService<M, C, ?, ?, I, U>, I extends Comparable<? super I>, U> {
+public interface ReadRestController<M extends BaseModel<I>, C extends BaseCriteria<I>, S extends BaseService<M, C, ?, ?, I, U>, I extends Serializable, U> {
 
     String GET_URL = "{id}";
     String FILTER_URL = "filter";
