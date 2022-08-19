@@ -52,6 +52,10 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
         this.idClazz = ReflectionUtils.getGenericArgType(this.getClass(), 2);
     }
 
+    protected abstract <T extends StoreClause<T>> void onSave(T clause, M model, U user);
+
+    protected abstract <T extends StoreClause<T>> void onUpdate(T clause, M model, U user);
+
     protected abstract Predicate getPredicate(C criteria, U user);
 
     protected abstract RelationalPathBase<?> getEntity();
@@ -61,10 +65,6 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
     protected abstract Expression<I> getIdSelectExpression();
 
     protected abstract I generateId(M entity, U user);
-
-    protected abstract <T extends StoreClause<T>> void onSave(T clause, M model, U user);
-
-    protected abstract <T extends StoreClause<T>> void onUpdate(T clause, M model, U user);
 
     protected Predicate getPredicate(IdFilter<I> idFilter, U user) {
         if (!(this.getIdSelectExpression() instanceof SimpleExpression)) {
