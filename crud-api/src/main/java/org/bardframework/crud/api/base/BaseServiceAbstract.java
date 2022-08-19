@@ -41,7 +41,7 @@ public abstract class BaseServiceAbstract<M extends BaseModel<I>, C extends Base
             return Collections.emptyList();
         }
         C criteria = this.getEmptyCriteria();
-        criteria.setId(new IdFilter<I>().setIn(ids));
+        criteria.setIdFilter(new IdFilter<I>().setIn(ids));
         return this.get(criteria, user);
     }
 
@@ -52,7 +52,7 @@ public abstract class BaseServiceAbstract<M extends BaseModel<I>, C extends Base
     public M get(I id, U user) {
         AssertionUtils.notNull(id, "Given id cannot be null.");
         C criteria = this.getEmptyCriteria();
-        criteria.setId(new IdFilter<I>().setEquals(id));
+        criteria.setIdFilter(new IdFilter<I>().setEquals(id));
         List<M> models = this.get(criteria, user);
         if (CollectionUtils.isEmpty(models)) {
             return null;
@@ -129,7 +129,7 @@ public abstract class BaseServiceAbstract<M extends BaseModel<I>, C extends Base
             return 0;
         }
         C criteria = this.getEmptyCriteria();
-        criteria.setId(new IdFilter<I>().setIn(ids));
+        criteria.setIdFilter(new IdFilter<I>().setIn(ids));
         return this.delete(criteria, user);
     }
 
@@ -145,7 +145,9 @@ public abstract class BaseServiceAbstract<M extends BaseModel<I>, C extends Base
             call directDelete(List) instead of delete(List).
             maybe some joined part has been deleted in preDelete (like status change)
          */
-        long deletedCount = this.getRepository().directDelete(models.stream().map(M::getId).collect(Collectors.toList()), user);
+        C deleteCriteria = this.getEmptyCriteria();
+        deleteCriteria.setIdFilter(new IdFilter<I>().setIn(models.stream().map(M::getId).collect(Collectors.toList())));
+        long deletedCount = this.getRepository().delete(deleteCriteria, user);
 
         this.postDelete(criteria, models, deletedCount, user);
         return deletedCount;

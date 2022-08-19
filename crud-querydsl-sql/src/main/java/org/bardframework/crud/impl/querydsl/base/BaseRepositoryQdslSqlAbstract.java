@@ -1,14 +1,15 @@
 package org.bardframework.crud.impl.querydsl.base;
 
 import com.querydsl.core.dml.StoreClause;
+import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Path;
-import com.querydsl.core.types.QBean;
-import com.querydsl.core.types.dsl.ComparableExpression;
+import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.ComparableExpressionBase;
 import com.querydsl.sql.RelationalPathBase;
 import com.querydsl.sql.SQLQuery;
 import com.querydsl.sql.SQLQueryFactory;
+import com.querydsl.sql.dml.SQLDeleteClause;
 import com.querydsl.sql.dml.SQLInsertClause;
 import com.querydsl.sql.dml.SQLUpdateClause;
 import org.apache.commons.collections4.CollectionUtils;
@@ -18,7 +19,6 @@ import org.bardframework.crud.api.base.BaseCriteria;
 import org.bardframework.crud.api.base.BaseModel;
 import org.bardframework.crud.api.base.BaseRepository;
 import org.bardframework.crud.api.base.PagedData;
-import org.bardframework.crud.impl.querydsl.utils.QueryDslUtils;
 import org.bardframework.form.model.filter.IdFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,25 +47,21 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
         this.criteriaClazz = ReflectionUtils.getGenericArgType(this.getClass(), 1);
     }
 
-    protected abstract void setCriteria(C criteria, SQLQuery<?> query, U user);
+    protected abstract Predicate getPredicate(C criteria, U user);
+
+    protected abstract Predicate getPredicate(IdFilter<I> idFilter, U user);
 
     protected abstract RelationalPathBase<?> getEntity();
 
-    protected abstract QBean<M> getQBean();
+    protected abstract Expression<M> getQBean();
+
+    protected abstract Expression<I> getIdPath();
+
+    protected abstract I generateId(M entity, U user);
 
     protected abstract <T extends StoreClause<T>> void onSave(T clause, M model, U user);
 
     protected abstract <T extends StoreClause<T>> void onUpdate(T clause, M model, U user);
-
-    protected abstract void setIdentifier(M entity, U user);
-
-    protected void setIdentifierInternal(SQLInsertClause clause, I identifier, U user) {
-        clause.set(this.getIdentifierPath(), identifier);
-    }
-
-    protected void setIdentifier(SQLUpdateClause clause, I identifier, U user) {
-        clause.where(this.getIdentifierPath().eq(identifier));
-    }
 
     private <T extends StoreClause<T>> void onSaveInternal(T clause, M model, U user) {
         this.onSave(clause, model, user);
@@ -104,9 +100,8 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
         }
         SQLInsertClause insertClause = this.getQueryFactory().insert(this.getEntity());
         models.forEach(model -> {
-                    this.setIdentifier(model, user);
-                    this.onSaveInternal(insertClause, model, user);
-                    this.setIdentifierInternal(insertClause, model.getId(), user);
+            model.setId(this.generateId(model, user));
+            this.onSaveInternal(insertClause, model, user);
                     insertClause.addBatch();
                 }
         );
@@ -135,7 +130,7 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
         models.forEach(model ->
                 {
                     AssertionUtils.notNull(model.getId(), "model identifier is not provided, can't update");
-                    this.setIdentifier(updateClause, model.getId(), user);
+                    updateClause.where(this.getPredicate(new IdFilter<I>().setEquals(model.getId()), user));
                     this.onUpdateInternal(updateClause, model, user);
                     updateClause.addBatch();
                 }
@@ -154,7 +149,7 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
         AssertionUtils.notNull(id, "id cannot be null.");
         AssertionUtils.notEmpty(patch, "patch cannot be empty.");
         final SQLUpdateClause updateClause = this.getQueryFactory().update(this.getEntity());
-        this.setIdentifier(updateClause, id, user);
+        updateClause.where(this.getPredicate(new IdFilter<I>().setEquals(id), user));
         for (Map.Entry<String, Object> entry : patch.entrySet()) {
             Path<Object> path = (Path<Object>) this.getPath(entry.getKey());
             if (null == entry.getValue()) {
@@ -171,31 +166,28 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
         return this.get(id, user);
     }
 
-    protected abstract <T extends ComparableExpression<I>> T getIdentifierPath();
-
     @Transactional(readOnly = true)
     @Override
-    public M get(I identifier, U user) {
-        AssertionUtils.notNull(identifier, "Given Identifier cannot be null.");
+    public M get(I id, U user) {
+        AssertionUtils.notNull(id, "Given id cannot be null.");
         C criteria = ReflectionUtils.newInstance(criteriaClazz);
-        criteria.setId(new IdFilter<I>().setEquals(identifier));
+        criteria.setIdFilter(new IdFilter<I>().setEquals(id));
         return this.getOne(criteria, user);
     }
 
     @Transactional(readOnly = true)
     @Override
     public List<M> get(Collection<I> ids, U user) {
-        AssertionUtils.notEmpty(ids, "Given Identifiers cannot be empty.");
+        AssertionUtils.notEmpty(ids, "Given ids cannot be empty.");
         C criteria = ReflectionUtils.newInstance(criteriaClazz);
-        criteria.setId(new IdFilter<I>().setIn(ids));
+        criteria.setIdFilter(new IdFilter<I>().setIn(ids));
         return this.get(criteria, user);
     }
 
-    protected SQLQuery<?> prepareQuery(C criteria, @Nullable Sort sort, U user) {
+    protected SQLQuery<?> getSqlQuery(C criteria, @Nullable Sort sort, U user) {
         SQLQuery<?> query = this.getQueryFactory().query().from(this.getEntity());
-        this.setJoins(query, user);
-        this.setCriteria(criteria, query, user);
-        QueryDslUtils.applyFilter(query, criteria.getId(), this.getIdentifierPath());
+        query.where(this.getPredicate(criteria.getIdFilter(), user));
+        query.where(this.getPredicate(criteria, user));
         for (Class<?> clazz : this.getClass().getInterfaces()) {
             if (ReadExtendedRepositoryQdslSql.class.isAssignableFrom(clazz)) {
                 ((ReadExtendedRepositoryQdslSql<C, I, U>) this).process(criteria, query, user);
@@ -210,7 +202,7 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
     public PagedData<M> get(C criteria, Pageable pageable, U user) {
         AssertionUtils.notNull(criteria, "Given criteria cannot be null.");
         AssertionUtils.notNull(pageable, "Given pageable cannot be null.");
-        SQLQuery<?> query = this.prepareQuery(criteria, pageable.getSort(), user);
+        SQLQuery<?> query = this.getSqlQuery(criteria, pageable.getSort(), user);
         long total = query.fetchCount();
         if (0 >= total) {
             return new PagedData<>();
@@ -231,7 +223,7 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
     @Override
     public long getCount(C criteria, U user) {
         AssertionUtils.notNull(criteria, "Given criteria cannot be null.");
-        return this.prepareQuery(criteria, null, user).fetchCount();
+        return this.getSqlQuery(criteria, null, user).fetchCount();
     }
 
     @Transactional(readOnly = true)
@@ -258,8 +250,7 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
     public long delete(Collection<I> ids, U user) {
         AssertionUtils.notEmpty(ids, "Given ids cannot be null.");
         C criteria = ReflectionUtils.newInstance(criteriaClazz);
-        criteria.setId(new IdFilter<I>().setIn(ids));
-
+        criteria.setIdFilter(new IdFilter<I>().setIn(ids));
         return this.delete(criteria, user);
     }
 
@@ -267,28 +258,17 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
     @Override
     public long delete(C criteria, U user) {
         AssertionUtils.notNull(criteria, "Criteria object should not be null.");
-        return this.getQueryFactory().delete(this.getEntity())
-                .where(this.getIdentifierPath().in(this.getIds(criteria, user)))
-                .execute();
-    }
-
-    /**
-     * Does not use criteria to delete (User access may not be controlled)
-     */
-    @Transactional
-    @Override
-    public long directDelete(Collection<I> ids, U user) {
-        AssertionUtils.notEmpty(ids, "ids should not be empty.");
-        return this.getQueryFactory().delete(this.getEntity())
-                .where(this.getIdentifierPath().in(ids))
-                .execute();
+        SQLDeleteClause deleteClause = this.getQueryFactory().delete(this.getEntity());
+        deleteClause.where(this.getPredicate(criteria.getIdFilter(), user));
+        deleteClause.where(this.getPredicate(criteria, user));
+        return deleteClause.execute();
     }
 
     @Transactional(readOnly = true)
     @Override
     public List<I> getIds(C criteria, U user) {
         AssertionUtils.notNull(criteria, "Given criteria cannot be null.");
-        return this.prepareQuery(criteria, null, user).select(this.getIdentifierPath()).fetch();
+        return this.getSqlQuery(criteria, null, user).select(this.getIdPath()).fetch();
     }
 
     @Transactional(readOnly = true)
@@ -301,17 +281,14 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
     @Override
     public List<M> get(C criteria, Sort sort, U user) {
         AssertionUtils.notNull(criteria, "Given criteria cannot be null");
-        return this.prepareQuery(criteria, sort, user).select(this.getQBean()).fetch();
+        return this.getSqlQuery(criteria, sort, user).select(this.getQBean()).fetch();
     }
 
     @Transactional(readOnly = true)
     @Override
     public M getOne(C criteria, U user) {
         AssertionUtils.notNull(criteria, "Given criteria cannot be null");
-        return this.prepareQuery(criteria, null, user).select(this.getQBean()).fetchOne();
-    }
-
-    protected void setJoins(SQLQuery<?> query, U user) {
+        return this.getSqlQuery(criteria, null, user).select(this.getQBean()).fetchOne();
     }
 
     protected void setOrders(SQLQuery<?> query, @Nullable Sort sort) {

@@ -40,14 +40,6 @@ public interface BaseRepository<M extends BaseModel<I>, C extends BaseCriteria<I
      */
     long delete(Collection<I> ids, U user);
 
-    /**
-     * direct delete, not used criteria
-     *
-     * @return count of deleted record
-     */
-    long directDelete(Collection<I> ids, U user);
-
-
     M save(M model, U user);
 
     List<M> save(Collection<M> models, U user);

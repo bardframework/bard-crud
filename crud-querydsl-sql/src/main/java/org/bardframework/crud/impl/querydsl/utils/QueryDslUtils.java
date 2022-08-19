@@ -1,12 +1,9 @@
 package org.bardframework.crud.impl.querydsl.utils;
 
-import com.querydsl.core.types.Expression;
-import com.querydsl.core.types.ExpressionUtils;
-import com.querydsl.core.types.Projections;
-import com.querydsl.core.types.QBean;
+import com.querydsl.core.BooleanBuilder;
+import com.querydsl.core.types.*;
 import com.querydsl.core.types.dsl.ComparableExpression;
 import com.querydsl.core.types.dsl.StringPath;
-import com.querydsl.sql.SQLQuery;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bardframework.form.model.filter.Filter;
@@ -31,60 +28,64 @@ public final class QueryDslUtils {
         return Projections.bean(type, expressions);
     }
 
-    public static void applyFilter(SQLQuery<?> query, StringFilter filter, StringPath path) {
+    public static Predicate getPredicate(StringFilter filter, StringPath path) {
         if (null == filter) {
-            return;
+            return null;
         }
-        QueryDslUtils.applyFilter(query, (Filter<String, ?>) filter, path);
+        BooleanBuilder builder = new BooleanBuilder(QueryDslUtils.getPredicate((Filter<String, ?>) filter, path));
         if (StringUtils.isNotBlank(filter.getContains())) {
-            query.where(path.likeIgnoreCase("%" + filter.getContains() + "%"));
+            builder.and(path.likeIgnoreCase("%" + filter.getContains() + "%"));
         }
         if (StringUtils.isNotBlank(filter.getDoesNotContain())) {
-            query.where(path.notLike("%" + filter.getDoesNotContain() + "%"));
+            builder.and(path.notLike("%" + filter.getDoesNotContain() + "%"));
         }
         if (StringUtils.isNotBlank(filter.getStartWith())) {
-            query.where(path.likeIgnoreCase(filter.getStartWith() + "%"));
+            builder.and(path.likeIgnoreCase(filter.getStartWith() + "%"));
         }
         if (StringUtils.isNotBlank(filter.getEndWith())) {
-            query.where(path.notLike("%" + filter.getDoesNotContain()));
+            builder.and(path.notLike("%" + filter.getDoesNotContain()));
         }
+        return builder;
     }
 
-    public static <T extends Comparable<? super T>> void applyFilter(SQLQuery<?> query, RangeFilter<T, ?> filter, ComparableExpression<T> path) {
+    public static <T extends Comparable<? super T>> Predicate getPredicate(RangeFilter<T, ?> filter, ComparableExpression<T> path) {
         if (null == filter) {
-            return;
+            return null;
         }
-        QueryDslUtils.applyFilter(query, (Filter<T, ?>) filter, path);
+        BooleanBuilder builder = new BooleanBuilder(QueryDslUtils.getPredicate((Filter<T, ?>) filter, path));
         if (filter.getFrom() != null) {
-            query.where(path.goe(filter.getFrom()));
+            builder.and(path.goe(filter.getFrom()));
         }
         if (filter.getTo() != null) {
-            query.where(path.loe(filter.getTo()));
+            builder.and(path.loe(filter.getTo()));
         }
+        return builder;
     }
 
-    public static <T extends Comparable<? super T>> void applyFilter(SQLQuery<?> query, Filter<T, ?> filter, ComparableExpression<T> path) {
+    public static <T extends Comparable<? super T>> Predicate getPredicate(Filter<T, ?> filter, ComparableExpression<T> path) {
         if (null == filter) {
-            return;
+            return null;
         }
+        BooleanBuilder builder = new BooleanBuilder();
         if (null != filter.getEquals()) {
-            query.where(path.eq(filter.getEquals()));
+            builder.and(path.eq(filter.getEquals()));
         }
         if (null != filter.getNotEquals()) {
-            query.where(path.ne(filter.getNotEquals()));
+            builder.and(path.ne(filter.getNotEquals()));
         }
         if (CollectionUtils.isNotEmpty(filter.getIn())) {
-            query.where(path.in(filter.getIn()));
+            builder.and(path.in(filter.getIn()));
         }
         if (CollectionUtils.isNotEmpty(filter.getNotIn())) {
-            query.where(path.notIn(filter.getNotIn()));
+            builder.and(path.notIn(filter.getNotIn()));
         }
         if (filter.getSpecified() != null) {
             if (filter.getSpecified()) {
-                query.where(path.isNotNull());
+                builder.and(path.isNotNull());
             } else {
-                query.where(path.isNull());
+                builder.and(path.isNull());
             }
         }
+        return builder;
     }
 }

@@ -7,18 +7,18 @@ import org.bardframework.form.model.filter.IdFilter;
  */
 public abstract class BaseCriteriaAbstract<I extends Comparable<? super I>> implements BaseCriteria<I> {
 
-    protected IdFilter<I> id;
+    protected IdFilter<I> idFilter;
 
     public BaseCriteriaAbstract() {
     }
 
     @Override
-    public IdFilter<I> getId() {
-        return id;
+    public IdFilter<I> getIdFilter() {
+        return idFilter;
     }
 
     @Override
-    public void setId(IdFilter<I> idFilter) {
-        this.id = idFilter;
+    public void setIdFilter(IdFilter<I> idFilter) {
+        this.idFilter = idFilter;
     }
 }
