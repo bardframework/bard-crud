@@ -14,7 +14,7 @@ import static org.assertj.core.api.Assertions.*;
 /**
  * Created by Sama-PC on 09/05/2017.
  */
-public interface BaseRepositoryTest<M extends BaseModel<I>, C extends BaseCriteriaAbstract<I>, R extends BaseRepository<M, C, I, U>, P extends DataProviderRepository<M, C, R, I, U>, I extends Comparable<? super I>, U> {
+public interface BaseRepositoryTest<M extends BaseModel<I>, C extends BaseCriteria<I>, R extends BaseRepository<M, C, I, U>, P extends DataProviderRepository<M, C, R, I, U>, I extends Comparable<? super I>, U> {
 
     Logger LOGGER = LoggerFactory.getLogger(BaseRepositoryTest.class);
 

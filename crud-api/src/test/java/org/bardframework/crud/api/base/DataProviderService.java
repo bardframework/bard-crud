@@ -9,7 +9,7 @@ import java.util.function.Function;
 /**
  * Created by Sama-PC on 08/05/2017.
  */
-public interface DataProviderService<M extends BaseModel<I>, C extends BaseCriteria<I>, D, S extends BaseServiceAbstract<M, C, D, R, I, U>, R extends BaseRepository<M, C, I, U>, I extends Comparable<? super I>, U> extends DataProviderRepository<M, C, R, I, U> {
+public interface DataProviderService<M extends BaseModel<I>, C extends BaseCriteria<I>, D, S extends BaseService<M, C, D, R, I, U>, R extends BaseRepository<M, C, I, U>, I extends Comparable<? super I>, U> extends DataProviderRepository<M, C, R, I, U> {
 
     S getService();
 

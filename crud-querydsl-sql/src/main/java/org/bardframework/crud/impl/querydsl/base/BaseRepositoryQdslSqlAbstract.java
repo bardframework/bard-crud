@@ -1,10 +1,7 @@
 package org.bardframework.crud.impl.querydsl.base;
 
 import com.querydsl.core.dml.StoreClause;
-import com.querydsl.core.types.Expression;
-import com.querydsl.core.types.OrderSpecifier;
-import com.querydsl.core.types.Path;
-import com.querydsl.core.types.Predicate;
+import com.querydsl.core.types.*;
 import com.querydsl.core.types.dsl.ComparableExpressionBase;
 import com.querydsl.sql.RelationalPathBase;
 import com.querydsl.sql.SQLQuery;
@@ -39,12 +36,14 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
 
     protected final Class<M> modelClazz;
     protected final Class<C> criteriaClazz;
+    protected final Class<I> idClazz;
     private final SQLQueryFactory queryFactory;
 
     public BaseRepositoryQdslSqlAbstract(SQLQueryFactory queryFactory) {
         this.queryFactory = queryFactory;
         this.modelClazz = ReflectionUtils.getGenericArgType(this.getClass(), 0);
         this.criteriaClazz = ReflectionUtils.getGenericArgType(this.getClass(), 1);
+        this.idClazz = ReflectionUtils.getGenericArgType(this.getClass(), 2);
     }
 
     protected abstract Predicate getPredicate(C criteria, U user);
@@ -98,18 +97,27 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
         if (CollectionUtils.isEmpty(models)) {
             return Collections.emptyList();
         }
+        List<M> list = new ArrayList<>(models);
         SQLInsertClause insertClause = this.getQueryFactory().insert(this.getEntity());
-        models.forEach(model -> {
-            model.setId(this.generateId(model, user));
-            this.onSaveInternal(insertClause, model, user);
+        list.forEach(model -> {
+                    model.setId(this.generateId(model, user));
+                    this.onSaveInternal(insertClause, model, user);
                     insertClause.addBatch();
                 }
         );
-        long affectedRowsCount = insertClause.execute();
-        if (models.size() != affectedRowsCount) {
-            LOGGER.warn("expect insert '{}' row, but '{}' row(s) inserted.", models.size(), affectedRowsCount);
+        /*
+            در حالتی که شناسه ها در دیتابیس تولید نمی شوند؛ این لیست خالی است.
+         */
+        List<I> generatedIds = insertClause.executeWithKeys(ExpressionUtils.path(idClazz, "id"));
+        if (CollectionUtils.isNotEmpty(generatedIds)) {
+            for (int i = 0; i < list.size(); i++) {
+                list.get(i).setId(generatedIds.get(i));
+            }
         }
-        return new ArrayList<>(models);
+        if (CollectionUtils.isNotEmpty(generatedIds) && list.size() != generatedIds.size()) {
+            LOGGER.warn("expect insert '{}' row, but '{}' row(s) inserted.", list.size(), generatedIds.size());
+        }
+        return list;
     }
 
     @Transactional

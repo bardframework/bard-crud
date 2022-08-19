@@ -11,7 +11,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 /**
  * Created by zafari on 4/12/2015.
  */
-public interface WriteRestController<M extends BaseModel<I>, D, S extends BaseService<M, ?, D, I, U>, I extends Comparable<? super I>, U> {
+public interface WriteRestController<M extends BaseModel<I>, D, S extends BaseService<M, ?, D, ?, I, U>, I extends Comparable<? super I>, U> {
 
     String EMPTY_URL = "";
     String ITEM_URL = "{id}";

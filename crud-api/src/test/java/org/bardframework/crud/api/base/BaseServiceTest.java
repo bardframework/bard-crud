@@ -15,10 +15,7 @@ import java.util.stream.Collectors;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
-/**
- * Created by Sama-PC on 10/05/2017.
- */
-public interface BaseServiceTest<M extends BaseModel<I>, C extends BaseCriteria<I>, D, S extends BaseServiceAbstract<M, C, D, ?, I, U>, P extends DataProviderService<M, C, D, ?, ?, I, U>, I extends Comparable<? super I>, U> {
+public interface BaseServiceTest<M extends BaseModel<I>, C extends BaseCriteria<I>, D, S extends BaseService<M, C, D, ?, I, U>, P extends DataProviderService<M, C, D, S, ?, I, U>, I extends Comparable<? super I>, U> {
 
     Logger LOGGER = LoggerFactory.getLogger(BaseServiceTest.class);
 
@@ -32,8 +29,6 @@ public interface BaseServiceTest<M extends BaseModel<I>, C extends BaseCriteria<
     default M getListElement(List<M> list, I id) {
         return list.stream().filter(e -> e.getId().equals(id)).findFirst().orElse(null);
     }
-
-    /*------------------------------- get ------------------------------*/
 
     @Test
     default void testGetById() {
