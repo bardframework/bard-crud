@@ -5,25 +5,30 @@
     <parent>
         <groupId>org.bardframework</groupId>
         <artifactId>bard-parent</artifactId>
-        <version>12</version>
+        <version>13</version>
         <relativePath/>
     </parent>
 
     <groupId>org.bardframework.crud</groupId>
     <artifactId>bard-crud</artifactId>
-    <version>1.5.17</version>
+    <version>1.5.27</version>
     <packaging>pom</packaging>
 
     <properties>
-        <!-- versions -->
-        <bardframework.commons.version>1.5.16</bardframework.commons.version>
-        <bardframework.form.version>1.5.19</bardframework.form.version>
-        <guava.version>31.1-jre</guava.version>
-        <jakarta-persistence.version>3.1.0</jakarta-persistence.version>
-        <poi.version>5.2.2</poi.version>
-        <querydsl.version>5.0.0</querydsl.version>
-        <spring-boot-dependencies.version>2.7.2</spring-boot-dependencies.version>
+        <bardframework.version>1.5.25</bardframework.version>
     </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.bardframework</groupId>
+                <artifactId>bard-bom</artifactId>
+                <version>${bardframework.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
     <modules>
         <module>crud-api</module>
@@ -43,26 +48,4 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-dependencies</artifactId>
-                <version>${spring-boot-dependencies.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.bardframework.crud</groupId>
-                <artifactId>crud-api</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.bardframework.commons</groupId>
-                <artifactId>common-jackson</artifactId>
-                <version>${bardframework.commons.version}</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
 </project>

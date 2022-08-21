@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.bardframework.crud</groupId>
         <artifactId>bard-crud</artifactId>
-        <version>1.5.17</version>
+        <version>1.5.27</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -16,7 +16,6 @@
         <dependency>
             <groupId>org.bardframework.form</groupId>
             <artifactId>bard-form-common</artifactId>
-            <version>${bardframework.form.version}</version>
         </dependency>
         <dependency>
             <groupId>jakarta.validation</groupId>
@@ -63,7 +62,6 @@
         <dependency>
             <groupId>org.bardframework.commons</groupId>
             <artifactId>common-web</artifactId>
-            <version>${bardframework.commons.version}</version>
             <scope>test</scope>
             <type>test-jar</type>
         </dependency>

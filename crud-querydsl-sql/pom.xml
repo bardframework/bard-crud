@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.bardframework.crud</groupId>
         <artifactId>bard-crud</artifactId>
-        <version>1.5.17</version>
+        <version>1.5.27</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -14,9 +14,12 @@
 
     <dependencies>
         <dependency>
+            <groupId>org.bardframework.crud</groupId>
+            <artifactId>crud-api</artifactId>
+        </dependency>
+        <dependency>
             <groupId>com.querydsl</groupId>
             <artifactId>querydsl-sql-codegen</artifactId>
-            <version>${querydsl.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>javax.validation</groupId>
@@ -27,10 +30,6 @@
         <dependency>
             <groupId>jakarta.validation</groupId>
             <artifactId>jakarta.validation-api</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.bardframework.crud</groupId>
-            <artifactId>crud-api</artifactId>
         </dependency>
         <dependency>
             <groupId>jakarta.persistence</groupId>

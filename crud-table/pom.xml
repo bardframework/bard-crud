@@ -5,7 +5,7 @@
     <parent>
         <groupId>org.bardframework.crud</groupId>
         <artifactId>bard-crud</artifactId>
-        <version>1.5.17</version>
+        <version>1.5.27</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -16,7 +16,6 @@
         <dependency>
             <groupId>org.bardframework.form</groupId>
             <artifactId>bard-table</artifactId>
-            <version>${bardframework.form.version}</version>
         </dependency>
         <dependency>
             <groupId>org.bardframework.crud</groupId>
@@ -25,7 +24,6 @@
         <dependency>
             <groupId>org.apache.poi</groupId>
             <artifactId>poi-ooxml</artifactId>
-            <version>${poi.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -45,21 +43,18 @@
         <dependency>
             <groupId>org.bardframework.form</groupId>
             <artifactId>bard-form</artifactId>
-            <version>${bardframework.form.version}</version>
             <scope>test</scope>
             <type>test-jar</type>
         </dependency>
         <dependency>
             <groupId>org.bardframework.commons</groupId>
             <artifactId>common-web</artifactId>
-            <version>${bardframework.commons.version}</version>
             <scope>test</scope>
             <type>test-jar</type>
         </dependency>
         <dependency>
             <groupId>org.bardframework.crud</groupId>
             <artifactId>crud-api</artifactId>
-            <version>${project.version}</version>
             <scope>test</scope>
             <type>test-jar</type>
         </dependency>
