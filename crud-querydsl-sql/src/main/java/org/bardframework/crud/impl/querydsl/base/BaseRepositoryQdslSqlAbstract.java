@@ -73,24 +73,6 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
         return QueryDslUtils.getPredicate(idFilter, (SimpleExpression<I>) this.getIdSelectExpression());
     }
 
-    private <T extends StoreClause<T>> void onSaveInternal(T clause, M model, U user) {
-        this.onSave(clause, model, user);
-        for (Class<?> clazz : this.getClass().getInterfaces()) {
-            if (SaveExtendedRepositoryQdslSql.class.isAssignableFrom(clazz)) {
-                ((SaveExtendedRepositoryQdslSql) this).onSave(clause, model, user);
-            }
-        }
-    }
-
-    private <T extends StoreClause<T>> void onUpdateInternal(T clause, M model, U user) {
-        this.onUpdate(clause, model, user);
-        for (Class<?> clazz : this.getClass().getInterfaces()) {
-            if (UpdateExtendedRepositoryQdslSql.class.isAssignableFrom(clazz)) {
-                ((UpdateExtendedRepositoryQdslSql) this).onUpdate(clause, model, user);
-            }
-        }
-    }
-
     @Transactional
     @Override
     public M save(M model, U user) {
@@ -209,24 +191,12 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
         return this.get(criteria, user);
     }
 
-    protected SQLQuery<?> getSqlQuery(C criteria, U user) {
-        SQLQuery<?> query = this.getQueryFactory().query().from(this.getEntity());
-        query.where(this.getPredicate(criteria.getIdFilter(), user));
-        query.where(this.getPredicate(criteria, user));
-        for (Class<?> clazz : this.getClass().getInterfaces()) {
-            if (ReadExtendedRepositoryQdslSql.class.isAssignableFrom(clazz)) {
-                ((ReadExtendedRepositoryQdslSql<C, I, U>) this).process(criteria, query, user);
-            }
-        }
-        return query;
-    }
-
     @Transactional(readOnly = true)
     @Override
     public PagedData<M> get(C criteria, Pageable pageable, U user) {
         AssertionUtils.notNull(criteria, "Given criteria cannot be null.");
         AssertionUtils.notNull(pageable, "Given pageable cannot be null.");
-        SQLQuery<?> query = this.getSqlQuery(criteria, user);
+        SQLQuery<?> query = this.prepareSelectQuery(criteria, user);
         this.setOrders(query, pageable.getSort());
         long total = query.fetchCount();
         if (0 >= total) {
@@ -248,7 +218,7 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
     @Override
     public long getCount(C criteria, U user) {
         AssertionUtils.notNull(criteria, "Given criteria cannot be null.");
-        return this.getSqlQuery(criteria, user).fetchCount();
+        return this.prepareSelectQuery(criteria, user).fetchCount();
     }
 
     @Transactional(readOnly = true)
@@ -293,7 +263,7 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
     @Override
     public List<I> getIds(C criteria, U user) {
         AssertionUtils.notNull(criteria, "Given criteria cannot be null.");
-        return this.getSqlQuery(criteria, user).select(this.getIdSelectExpression()).fetch();
+        return this.prepareSelectQuery(criteria, user).select(this.getIdSelectExpression()).fetch();
     }
 
     @Transactional(readOnly = true)
@@ -306,7 +276,7 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
     @Override
     public List<M> get(C criteria, Sort sort, U user) {
         AssertionUtils.notNull(criteria, "Given criteria cannot be null");
-        SQLQuery<?> sqlQuery = this.getSqlQuery(criteria, user);
+        SQLQuery<?> sqlQuery = this.prepareSelectQuery(criteria, user);
         this.setOrders(sqlQuery, sort);
         return sqlQuery.select(this.getSelectExpression()).fetch();
     }
@@ -315,7 +285,56 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
     @Override
     public M getOne(C criteria, U user) {
         AssertionUtils.notNull(criteria, "Given criteria cannot be null");
-        return this.getSqlQuery(criteria, user).select(this.getSelectExpression()).fetchOne();
+        return this.prepareSelectQuery(criteria, user).select(this.getSelectExpression()).fetchOne();
+    }
+
+    private <T extends StoreClause<T>> void onSaveInternal(T clause, M model, U user) {
+        this.onSave(clause, model, user);
+        for (Class<?> clazz : this.getClass().getInterfaces()) {
+            if (SaveExtendedRepositoryQdslSql.class.isAssignableFrom(clazz)) {
+                ((SaveExtendedRepositoryQdslSql) this).onSave(clause, model, user);
+            }
+        }
+    }
+
+    private <T extends StoreClause<T>> void onUpdateInternal(T clause, M model, U user) {
+        this.onUpdate(clause, model, user);
+        for (Class<?> clazz : this.getClass().getInterfaces()) {
+            if (UpdateExtendedRepositoryQdslSql.class.isAssignableFrom(clazz)) {
+                ((UpdateExtendedRepositoryQdslSql) this).onUpdate(clause, model, user);
+            }
+        }
+    }
+
+    private SQLQuery<?> prepareSelectQuery(C criteria, U user) {
+        SQLQuery<?> query = this.getQueryFactory().query().from(this.getEntity());
+        query.where(this.getPredicate(criteria.getIdFilter(), user));
+        query.where(this.getPredicate(criteria, user));
+        for (Class<?> clazz : this.getClass().getInterfaces()) {
+            if (ReadExtendedRepositoryQdslSql.class.isAssignableFrom(clazz)) {
+                ((ReadExtendedRepositoryQdslSql<C, I, U>) this).process(criteria, query, user);
+            }
+        }
+        this.setSelectJoins(query, criteria, user);
+        return query;
+    }
+
+    private OrderSpecifier<?> toOrderSpecifier(Sort.Order order) {
+        ComparableExpressionBase<?> column = (ComparableExpressionBase<?>) this.getPath(order.getProperty());
+        return order.isAscending() ? column.asc() : column.desc();
+    }
+
+    private Path<?> getPath(String columnName) {
+        List<Path<?>> columns = this.getEntity().getColumns();
+        for (Path<?> column : columns) {
+            if (column.getMetadata().getName().equals(columnName)) {
+                return column;
+            }
+        }
+        throw new IllegalStateException(String.format("column[%s] not found in entity[%s] ", columnName, this.getEntity().getTableName()));
+    }
+
+    protected void setSelectJoins(SQLQuery<?> query, C criteria, U user) {
     }
 
     protected void setOrders(SQLQuery<?> query, @Nullable Sort sort) {
@@ -328,21 +347,6 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
         query.orderBy(sort.stream().map(this::toOrderSpecifier).toArray(OrderSpecifier[]::new));
     }
 
-    protected OrderSpecifier<?> toOrderSpecifier(Sort.Order order) {
-        ComparableExpressionBase<?> column = (ComparableExpressionBase<?>) this.getPath(order.getProperty());
-        return order.isAscending() ? column.asc() : column.desc();
-    }
-
-    protected Path<?> getPath(String columnName) {
-        List<Path<?>> columns = this.getEntity().getColumns();
-        for (Path<?> column : columns) {
-            if (column.getMetadata().getName().equals(columnName)) {
-                return column;
-            }
-        }
-        throw new IllegalStateException(String.format("column[%s] not found in entity[%s] ", columnName, this.getEntity().getTableName()));
-    }
-
     protected SQLQueryFactory getQueryFactory() {
         return queryFactory;
     }
@@ -350,4 +354,6 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
     protected List<OrderSpecifier<?>> getDefaultOrders() {
         return List.of();
     }
+
+
 }
