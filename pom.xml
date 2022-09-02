@@ -11,11 +11,11 @@
 
     <groupId>org.bardframework.crud</groupId>
     <artifactId>bard-crud</artifactId>
-    <version>1.5.27</version>
+    <version>1.6.7</version>
     <packaging>pom</packaging>
 
     <properties>
-        <bardframework.version>1.5.25</bardframework.version>
+        <bardframework.version>1.6.5</bardframework.version>
     </properties>
 
     <dependencyManagement>
