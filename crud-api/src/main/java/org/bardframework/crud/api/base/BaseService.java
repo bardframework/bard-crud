@@ -32,7 +32,7 @@ public abstract class BaseService<M extends BaseModel<I>, C extends BaseCriteria
         this.dtoClazz = ReflectionUtils.getGenericArgType(this.getClass(), 2);
     }
 
-    protected C getEmptyCriteria() {
+    public C getEmptyCriteria() {
         return ReflectionUtils.newInstance(criteriaClazz);
     }
 
