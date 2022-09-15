@@ -31,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
 import java.util.*;
+import java.util.function.Consumer;
 
 /**
  * Created by vahid on 1/17/17.
@@ -148,6 +149,27 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
             throw new IllegalStateException("affected rows in update not valid");
         }
         return new ArrayList<>(models);
+    }
+
+    protected void update(I identifier, Consumer<SQLUpdateClause> onUpdate, U user) {
+        AssertionUtils.notNull(identifier, "Given identifier cannot be null.");
+        AssertionUtils.notNull(onUpdate, "onUpdate cannot be null.");
+        C criteria = ReflectionUtils.newInstance(criteriaClazz);
+        criteria.setIdFilter(new IdFilter<I>().setEquals(identifier));
+        long affectedRowsCount = this.update(criteria, onUpdate, user);
+        if (1 != affectedRowsCount) {
+            LOGGER.error("expect update '{}' row, but '1' row(s) updated.", affectedRowsCount);
+            throw new IllegalStateException("affected rows in update not valid");
+        }
+    }
+
+    protected long update(C criteria, Consumer<SQLUpdateClause> onUpdate, U user) {
+        AssertionUtils.notNull(criteria, "Given criteria cannot be null.");
+        AssertionUtils.notNull(onUpdate, "onUpdate cannot be null.");
+        SQLUpdateClause updateClause = this.getQueryFactory().update(this.getEntity());
+        updateClause.where(this.getPredicate(criteria, user));
+        onUpdate.accept(updateClause);
+        return updateClause.execute();
     }
 
     @Transactional
