@@ -93,31 +93,47 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
         }
         List<M> list = new ArrayList<>(models);
         SQLInsertClause insertClause = this.getQueryFactory().insert(this.getEntity());
+        this.setIds(list, user);
         list.forEach(model -> {
-                    model.setId(this.generateId(model, user));
                     this.onSaveInternal(insertClause, model, user);
                     insertClause.addBatch();
                 }
         );
-        Long affectedCount;
-        if (this.getIdSelectExpression() instanceof Path) {
-            List<I> generatedIds = insertClause.executeWithKeys((Path<I>) this.getIdSelectExpression());
-            if (CollectionUtils.isNotEmpty(generatedIds)) {
-                for (int i = 0; i < list.size(); i++) {
-                    list.get(i).setId(generatedIds.get(i));
-                }
-            }
-            /*
-                در حالتی که شناسه ها در دیتابیس تولید نمی شوند؛ این لیست خالی است.
-             */
-            affectedCount = CollectionUtils.isNotEmpty(generatedIds) ? (long) generatedIds.size() : null;
-        } else {
-            affectedCount = insertClause.execute();
-        }
+        Long affectedCount = this.insertAndSetIds(list, insertClause);
         if (null != affectedCount && list.size() != affectedCount) {
             LOGGER.warn("expect insert '{}' row, but '{}' row(s) inserted.", list.size(), affectedCount);
         }
         return list;
+    }
+
+    protected void setIds(List<M> list, U user) {
+        list.forEach(model -> model.setId(this.generateId(model, user)));
+    }
+
+    /**
+     * @return count of inserted records
+     */
+    protected Long insertAndSetIds(List<M> list, SQLInsertClause insertClause) {
+        if (!(this.getIdSelectExpression() instanceof Path)) {
+            return insertClause.execute();
+        }
+        List<I> generatedIds = this.insert(insertClause);
+        if (CollectionUtils.isNotEmpty(generatedIds)) {
+            for (int i = 0; i < list.size(); i++) {
+                list.get(i).setId(generatedIds.get(i));
+            }
+        }
+        /*
+            در حالتی که شناسه ها در دیتابیس تولید نمی شوند؛ این لیست خالی است.
+         */
+        return CollectionUtils.isNotEmpty(generatedIds) ? (long) generatedIds.size() : null;
+    }
+
+    /**
+     * @return list of ids of inserted records
+     */
+    protected List<I> insert(SQLInsertClause insertClause) {
+        return insertClause.executeWithKeys((Path<I>) this.getIdSelectExpression());
     }
 
     @Transactional
@@ -376,6 +392,4 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
     protected List<OrderSpecifier<?>> getDefaultOrders() {
         return List.of();
     }
-
-
 }

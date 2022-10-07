@@ -104,7 +104,7 @@ public interface DataProviderRepository<M extends BaseModel<I>, C extends BaseCr
     default M getModel(C criteria, M unsavedModel, U user) {
         long count = this.getRepository().getCount(criteria, user);
         if (0 == count) {
-            //TODO save model that pass give criteria restrictions
+            //TODO save model if pass given criteria restrictions
             return this.getRepository().save(unsavedModel, user);
         }
         return this.getRepository().get(criteria, PageRequest.of(RandomUtils.nextInt(0, (int) count), 1), user).getData().get(0);
