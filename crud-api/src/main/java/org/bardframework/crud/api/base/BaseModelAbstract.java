@@ -26,7 +26,7 @@ public abstract class BaseModelAbstract<I extends Serializable> implements BaseM
         return id;
     }
 
-    public final void setId(I id) {
+    public void setId(I id) {
         this.id = id;
     }
 

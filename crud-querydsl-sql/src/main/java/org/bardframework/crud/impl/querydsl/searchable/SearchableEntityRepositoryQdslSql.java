@@ -9,7 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.bardframework.commons.utils.ReflectionUtils;
 import org.bardframework.crud.api.base.BaseCriteria;
 import org.bardframework.crud.api.base.BaseModel;
-import org.bardframework.crud.api.searchable.SearchableCriteria;
+import org.bardframework.crud.api.searchable.SearchableEntityCriteria;
 import org.bardframework.crud.api.searchable.SearchableEntityRepository;
 import org.bardframework.crud.impl.querydsl.base.ReadExtendedRepositoryQdslSql;
 import org.springframework.data.domain.Pageable;
@@ -21,13 +21,13 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-public interface SearchableEntityRepositoryQdslSql<M extends BaseModel<I>, C extends BaseCriteria<I> & SearchableCriteria, I extends Serializable, U> extends SearchableEntityRepository<M, C, I, U>, ReadExtendedRepositoryQdslSql<C, I, U> {
+public interface SearchableEntityRepositoryQdslSql<M extends BaseModel<I>, C extends BaseCriteria<I> & SearchableEntityCriteria, I extends Serializable, U> extends SearchableEntityRepository<M, C, I, U>, ReadExtendedRepositoryQdslSql<C, I, U> {
 
     StringPath[] getSearchPaths();
 
     M getEmptyModel();
 
-    Path<?> getIdentifierPath();
+    Path<?> getIdSelectExpression();
 
     <T> SQLQuery<T> setPageAndSize(SQLQuery<T> query, Pageable pageable, U user);
 
@@ -37,7 +37,7 @@ public interface SearchableEntityRepositoryQdslSql<M extends BaseModel<I>, C ext
     @Override
     default List<M> search(C criteria, Pageable pageable, U user) {
         List<Path<?>> selectPaths = this.getSelectOnSearchPaths();
-        selectPaths.add(this.getIdentifierPath());
+        selectPaths.add(this.getIdSelectExpression());
         SQLQuery<Tuple> query = this.prepareQuery(criteria, user).select(selectPaths.toArray(new Path<?>[0]));
         this.setPageAndSize(query, pageable, user);
         List<M> models = new ArrayList<>();

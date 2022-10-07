@@ -11,7 +11,7 @@ import java.util.List;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
-public interface SearchableEntityRestController<M extends BaseModel<I>, C extends SearchableCriteria, S extends SearchableEntityService<M, C, ?, I, U>, I extends Serializable, U> {
+public interface SearchableEntityRestController<M extends BaseModel<I>, C extends SearchableEntityCriteria, S extends SearchableEntityService<M, C, ?, I, U>, I extends Serializable, U> {
 
     String SEARCH_URL = "search";
 

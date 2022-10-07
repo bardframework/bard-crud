@@ -1,6 +1,6 @@
 package org.bardframework.crud.api.searchable;
 
-public interface SearchableCriteria {
+public interface SearchableEntityCriteria {
 
     String getQuery();
 }
