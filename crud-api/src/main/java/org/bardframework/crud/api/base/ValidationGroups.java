@@ -1,6 +1,6 @@
 package org.bardframework.crud.api.base;
 
-import javax.validation.groups.Default;
+import jakarta.validation.groups.Default;
 
 /**
  * Created by vahid on 5/13/17.

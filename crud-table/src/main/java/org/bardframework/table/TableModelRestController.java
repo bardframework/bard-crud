@@ -1,5 +1,7 @@
 package org.bardframework.table;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.bardframework.commons.utils.ReflectionUtils;
 import org.bardframework.crud.api.base.BaseCriteria;
 import org.bardframework.crud.api.base.BaseModel;
@@ -14,8 +16,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
@@ -69,11 +69,16 @@ public interface TableModelRestController<M extends BaseModel<?>, C extends Base
         for (M model : pagedData.getData()) {
             List<Object> values = new ArrayList<>();
             for (HeaderTemplate headerTemplate : tableTemplate.getHeaderTemplates()) {
+                Object value;
                 try {
-                    Object value = ReflectionUtils.getPropertyValue(model, headerTemplate.getName());
-                    values.add(headerTemplate.format(value, locale, tableTemplate.getMessageSource()));
+                    value = ReflectionUtils.getPropertyValue(model, headerTemplate.getName());
                 } catch (Exception e) {
                     throw new IllegalStateException(String.format("can't read property [%s] of [%s] instance and convert it, table [%s]", headerTemplate.getName(), model.getClass(), tableTemplate.getName()), e);
+                }
+                try {
+                    values.add(headerTemplate.format(value, locale, tableTemplate.getMessageSource()));
+                } catch (Exception e) {
+                    throw new IllegalStateException(String.format("error formatting value [%s] with formatter [%s], table [%s]", value, headerTemplate.getClass(), tableTemplate.getName()), e);
                 }
             }
             tableData.addData(model.getId().toString(), values);
