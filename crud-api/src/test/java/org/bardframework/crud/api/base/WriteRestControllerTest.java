@@ -33,7 +33,7 @@ public interface WriteRestControllerTest<M extends BaseModel<I>, D, P extends Da
     }
 
     default String SAVE_URL() {
-        return BASE_URL() + "/";
+        return BASE_URL();
     }
 
     default String UPDATE_URL(I id) {
