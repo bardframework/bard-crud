@@ -10,7 +10,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -95,7 +94,7 @@ public interface DataProviderRepository<M extends BaseModel<I>, C extends BaseCr
     default List<M> getModels(int count, U user, I... excludeIds) {
         C criteria = this.getEmptyCriteria();
         if (excludeIds.length > 0) {
-            criteria.setIdFilter(new IdFilter<I>().setNotIn(Arrays.asList(excludeIds)));
+            criteria.setIdFilter(new IdFilter<I>().setNotIn(List.of(excludeIds)));
         }
         this.saveNew(count - this.getRepository().getCount(criteria, user), user);
         return this.getRepository().get(criteria, PageRequest.of(0, count), user).getData();

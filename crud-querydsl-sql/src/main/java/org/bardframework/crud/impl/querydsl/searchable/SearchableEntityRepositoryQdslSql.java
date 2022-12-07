@@ -57,7 +57,7 @@ public interface SearchableEntityRepositoryQdslSql<M extends BaseModel<I>, C ext
     }
 
     default List<Path<?>> getSelectOnSearchPaths() {
-        return new ArrayList<>(Arrays.asList(this.getSearchPaths()));
+        return new ArrayList<>(List.of(this.getSearchPaths()));
     }
 
     default String getStringPath(Path<?> path) {
