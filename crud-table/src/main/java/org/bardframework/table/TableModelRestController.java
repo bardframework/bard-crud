@@ -76,7 +76,7 @@ public interface TableModelRestController<M extends BaseModel<?>, C extends Base
                     throw new IllegalStateException(String.format("can't read property [%s] of [%s] instance and convert it, table [%s]", headerTemplate.getName(), model.getClass(), tableTemplate.getName()), e);
                 }
                 try {
-                    values.add(headerTemplate.format(value, locale, tableTemplate.getMessageSource()));
+                    values.add(headerTemplate.formatForExport(value, locale, tableTemplate.getMessageSource()));
                 } catch (Exception e) {
                     throw new IllegalStateException(String.format("error formatting value [%s] with formatter [%s], table [%s]", value, headerTemplate.getClass(), tableTemplate.getName()), e);
                 }

@@ -8,7 +8,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
 
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -58,7 +61,7 @@ public interface BaseRepositoryTest<M extends BaseModel<I>, C extends BaseCriter
     default void testGetByIdsDuplicate() {
         U user = this.getDataProvider().getUser();
         I id = this.getDataProvider().getId(user);
-        List<I> duplicateIds = Arrays.asList(id, id, id, id, id);
+        List<I> duplicateIds = List.of(id, id, id, id, id);
         LOGGER.debug("test get by duplicate ids '{}'.", duplicateIds);
         List<M> result = this.getRepository().get(duplicateIds, user);
         LOGGER.debug("get by duplicate ids '{}', result  is '{}'.", duplicateIds, result);
