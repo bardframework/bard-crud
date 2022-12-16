@@ -48,13 +48,13 @@ public interface TableModelRestController<M extends BaseModel<?>, C extends Base
     @PostMapping(path = TABLE_FILTER_URL, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     default TableData getTableData(@RequestBody @Validated C criteria, Pageable page, Locale locale) {
         PagedData<M> pagedData = this.getService().get(criteria, page, this.getUser());
-        return this.toTableData(pagedData, this.getTableTemplate(), locale, this.getUser());
+        return this.toTableData(pagedData, this.getTableTemplate(), locale, false, this.getUser());
     }
 
     @PostMapping(path = TABLE_EXPORT_URL, consumes = MediaType.APPLICATION_JSON_VALUE, produces = APPLICATION_OOXML_SHEET)
     default void exportTable(@RequestBody @Validated C criteria, Locale locale, HttpServletRequest httpRequest, HttpServletResponse httpResponse) throws Exception {
         PagedData<M> pagedData = this.getService().get(criteria, Pageable.ofSize(Integer.MAX_VALUE), this.getUser());
-        TableData tableData = this.toTableData(pagedData, this.getTableTemplate(), locale, this.getUser());
+        TableData tableData = this.toTableData(pagedData, this.getTableTemplate(), locale, true, this.getUser());
         try (OutputStream outputStream = httpResponse.getOutputStream()) {
             httpResponse.setContentType(APPLICATION_OOXML_SHEET);
             httpResponse.addHeader("Content-Disposition", "attachment;filename=\"" + this.getExportFileName(APPLICATION_OOXML_SHEET, locale, this.getUser()) + " \"");
@@ -62,7 +62,7 @@ public interface TableModelRestController<M extends BaseModel<?>, C extends Base
         }
     }
 
-    default TableData toTableData(PagedData<M> pagedData, TableTemplate tableTemplate, Locale locale, U user) {
+    default TableData toTableData(PagedData<M> pagedData, TableTemplate tableTemplate, Locale locale, boolean export, U user) {
         TableData tableData = new TableData();
         tableData.setTotal(pagedData.getTotal());
         tableData.setHeaders(tableTemplate.getHeaderTemplates().stream().map(TableHeader::getName).collect(Collectors.toList()));
@@ -76,7 +76,7 @@ public interface TableModelRestController<M extends BaseModel<?>, C extends Base
                     throw new IllegalStateException(String.format("can't read property [%s] of [%s] instance and convert it, table [%s]", headerTemplate.getName(), model.getClass(), tableTemplate.getName()), e);
                 }
                 try {
-                    values.add(headerTemplate.formatForExport(value, locale, tableTemplate.getMessageSource()));
+                    values.add(export ? headerTemplate.formatForExport(value, locale, tableTemplate.getMessageSource()) : headerTemplate.format(value, locale, tableTemplate.getMessageSource()));
                 } catch (Exception e) {
                     throw new IllegalStateException(String.format("error formatting value [%s] with formatter [%s], table [%s]", value, headerTemplate.getClass(), tableTemplate.getName()), e);
                 }
