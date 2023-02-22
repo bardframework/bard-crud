@@ -10,7 +10,7 @@ import java.io.Serializable;
  */
 
 public abstract class BaseCrudRestControllerAbstract<M extends BaseModel<I>, C extends BaseCriteria<I>, D, S extends BaseService<M, C, D, ?, I, U>, I extends Serializable, U> implements ReadRestController<M, C, S, I, U>, WriteRestController<M, D, S, I, U> {
-    protected final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
+    protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
     protected final S service;
 

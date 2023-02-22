@@ -15,7 +15,7 @@ import java.lang.reflect.Field;
 import java.util.*;
 
 public class TableModeCheckUtils {
-    private static final Logger LOGGER = LoggerFactory.getLogger(TableModeCheckUtils.class);
+    private static final Logger log = LoggerFactory.getLogger(TableModeCheckUtils.class);
 
     public static void checkDefinitionValidity(TableTemplate template, Map<String, String> args, Locale locale) {
         Assertions.assertThat(template.getModelClass()).withFailMessage("model class of [%s] table not set", template.getName()).isNotNull();
@@ -25,7 +25,7 @@ public class TableModeCheckUtils {
                 ReflectionUtils.getGetterMethod(template.getModelClass(), headerTemplate.getName());
                 //TODO check getter return type with header dataType
             } catch (NoSuchMethodException e) {
-                LOGGER.error("error get getter of [{}.{}]", template.getModelClass(), headerTemplate.getName(), e);
+                log.error("error get getter of [{}.{}]", template.getModelClass(), headerTemplate.getName(), e);
                 Assertions.fail(headerTemplate.getName() + " field not exist in " + template.getModelClass().getName());
             }
             String headerTitle = TableUtils.getHeaderStringValue(template, headerTemplate, "title", locale, Map.of(), headerTemplate.getTitle());
@@ -44,7 +44,7 @@ public class TableModeCheckUtils {
         try {
             ReflectionUtils.newInstance(formTemplate.getDtoClass());
         } catch (Exception e) {
-            LOGGER.error("error instantiating class: " + formTemplate.getDtoClass(), e);
+            log.error("error instantiating class: " + formTemplate.getDtoClass(), e);
             Assertions.fail("can't instantiate class [%s], maybe default constructor not exist", formTemplate.getDtoClass());
         }
         for (FieldTemplate<?> formField : formTemplate.getFieldTemplates(args)) {
@@ -105,7 +105,7 @@ public class TableModeCheckUtils {
             String message = messageSource.getMessage(key, new Object[0], locale);
             return StringUtils.isEmpty(message);
         } catch (NoSuchMessageException e) {
-            LOGGER.debug("message key [{}] not exist for locale [{}]", key, locale);
+            log.debug("message key [{}] not exist for locale [{}]", key, locale);
             return true;
         }
     }

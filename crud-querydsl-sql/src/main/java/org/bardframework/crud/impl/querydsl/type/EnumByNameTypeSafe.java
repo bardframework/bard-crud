@@ -10,7 +10,7 @@ import java.sql.SQLException;
 import java.util.List;
 
 public abstract class EnumByNameTypeSafe<T extends Enum<T>> extends EnumByNameType<T> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(EnumByNameTypeSafe.class);
+    private static final Logger log = LoggerFactory.getLogger(EnumByNameTypeSafe.class);
 
     private final List<T> enumsList;
 
@@ -30,7 +30,7 @@ public abstract class EnumByNameTypeSafe<T extends Enum<T>> extends EnumByNameTy
         try {
             return value != null ? Enum.valueOf(this.getReturnedClass(), value) : null;
         } catch (Exception e) {
-            LOGGER.error("error converting value[{}] to enum [{}], valid values are: {}", value, this.getReturnedClass(), enumsList, e);
+            log.error("error converting value[{}] to enum [{}], valid values are: {}", value, this.getReturnedClass(), enumsList, e);
             return this.getValueOnConvertError();
         }
     }

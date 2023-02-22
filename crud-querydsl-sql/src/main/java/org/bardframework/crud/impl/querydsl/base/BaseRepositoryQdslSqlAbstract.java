@@ -1,14 +1,7 @@
 package org.bardframework.crud.impl.querydsl.base;
 
 import com.querydsl.core.dml.StoreClause;
-import com.querydsl.core.types.Expression;
-import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.Path;
-import com.querydsl.core.types.Predicate;
-import com.querydsl.core.types.dsl.ComparableExpressionBase;
-import com.querydsl.core.types.dsl.SimpleExpression;
-import com.querydsl.sql.RelationalPathBase;
-import com.querydsl.sql.SQLQuery;
 import com.querydsl.sql.SQLQueryFactory;
 import com.querydsl.sql.dml.SQLDeleteClause;
 import com.querydsl.sql.dml.SQLInsertClause;
@@ -19,14 +12,7 @@ import org.bardframework.commons.utils.ReflectionUtils;
 import org.bardframework.crud.api.base.BaseCriteria;
 import org.bardframework.crud.api.base.BaseModel;
 import org.bardframework.crud.api.base.BaseRepository;
-import org.bardframework.crud.api.base.PagedData;
-import org.bardframework.crud.impl.querydsl.utils.QueryDslUtils;
 import org.bardframework.form.model.filter.IdFilter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.lang.Nullable;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
@@ -36,43 +22,17 @@ import java.util.function.Consumer;
 /**
  * Created by vahid on 1/17/17.
  */
-public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C extends BaseCriteria<I>, I extends Serializable, U> implements BaseRepository<M, C, I, U> {
-
-    private static final int DEFAULT_SIZE = 20;
-    protected final Logger LOGGER = LoggerFactory.getLogger(getClass());
-
-    protected final Class<M> modelClazz;
-    protected final Class<C> criteriaClazz;
-    protected final Class<I> idClazz;
-    private final SQLQueryFactory queryFactory;
+public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C extends BaseCriteria<I>, I extends Serializable, U> extends ReadRepositoryQdslSqlAbstract<M, C, I, U> implements BaseRepository<M, C, I, U> {
 
     public BaseRepositoryQdslSqlAbstract(SQLQueryFactory queryFactory) {
-        this.queryFactory = queryFactory;
-        this.modelClazz = ReflectionUtils.getGenericArgType(this.getClass(), 0);
-        this.criteriaClazz = ReflectionUtils.getGenericArgType(this.getClass(), 1);
-        this.idClazz = ReflectionUtils.getGenericArgType(this.getClass(), 2);
+        super(queryFactory);
     }
 
     protected abstract <T extends StoreClause<T>> void onSave(T clause, M model, U user);
 
     protected abstract <T extends StoreClause<T>> void onUpdate(T clause, M model, U user);
 
-    protected abstract Predicate getPredicate(C criteria, U user);
-
-    protected abstract RelationalPathBase<?> getEntity();
-
-    protected abstract Expression<M> getSelectExpression();
-
-    protected abstract Expression<I> getIdSelectExpression();
-
     protected abstract I generateId(M entity, U user);
-
-    protected Predicate getPredicate(IdFilter<I> idFilter, U user) {
-        if (!(this.getIdSelectExpression() instanceof SimpleExpression)) {
-            throw new IllegalStateException("can't construct Predicate for IdFilter, getIdSelectExpression is not instance of SimpleExpression, override getPredicate(IdFilter, U) and implement it.");
-        }
-        return QueryDslUtils.getPredicate(idFilter, (SimpleExpression<I>) this.getIdSelectExpression());
-    }
 
     @Transactional
     @Override
@@ -101,7 +61,7 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
         );
         Long affectedCount = this.insertAndSetIds(list, insertClause);
         if (null != affectedCount && list.size() != affectedCount) {
-            LOGGER.warn("expect insert '{}' row, but '{}' row(s) inserted.", list.size(), affectedCount);
+            log.warn("expect insert '{}' row, but '{}' row(s) inserted.", list.size(), affectedCount);
         }
         return list;
     }
@@ -161,7 +121,7 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
         );
         long affectedRowsCount = updateClause.execute();
         if (models.size() != affectedRowsCount) {
-            LOGGER.error("expect update '{}' row, but '{}' row(s) updated.", models.size(), affectedRowsCount);
+            log.error("expect update '{}' row, but '{}' row(s) updated.", models.size(), affectedRowsCount);
             throw new IllegalStateException("affected rows in update not valid");
         }
         return new ArrayList<>(models);
@@ -174,7 +134,7 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
         criteria.setIdFilter(new IdFilter<I>().setEquals(identifier));
         long affectedRowsCount = this.update(criteria, onUpdate, user);
         if (1 != affectedRowsCount) {
-            LOGGER.error("expect update '{}' row, but '1' row(s) updated.", affectedRowsCount);
+            log.error("expect update '{}' row, but '1' row(s) updated.", affectedRowsCount);
             throw new IllegalStateException("affected rows in update not valid");
         }
     }
@@ -211,66 +171,6 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
         return this.get(id, user);
     }
 
-    @Transactional(readOnly = true)
-    @Override
-    public M get(I id, U user) {
-        AssertionUtils.notNull(id, "Given id cannot be null.");
-        C criteria = ReflectionUtils.newInstance(criteriaClazz);
-        criteria.setIdFilter(new IdFilter<I>().setEquals(id));
-        return this.getOne(criteria, user);
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public List<M> get(Collection<I> ids, U user) {
-        AssertionUtils.notEmpty(ids, "Given ids cannot be empty.");
-        C criteria = ReflectionUtils.newInstance(criteriaClazz);
-        criteria.setIdFilter(new IdFilter<I>().setIn(ids));
-        return this.get(criteria, user);
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public PagedData<M> get(C criteria, Pageable pageable, U user) {
-        AssertionUtils.notNull(criteria, "Given criteria cannot be null.");
-        AssertionUtils.notNull(pageable, "Given pageable cannot be null.");
-        SQLQuery<?> query = this.prepareSelectQuery(criteria, user);
-        this.setOrders(query, pageable.getSort());
-        long total = query.fetchCount();
-        if (0 >= total) {
-            return new PagedData<>();
-        }
-        query = query.clone(this.getQueryFactory().getConnection());
-        if (pageable.getPageSize() == 0) {
-            query.offset((long) (Math.max(pageable.getPageNumber(), 0)) * DEFAULT_SIZE);
-            query.limit(DEFAULT_SIZE);
-        } else {
-            query.offset(pageable.getOffset());
-            query.limit(pageable.getPageSize());
-        }
-        List<M> result = query.select(this.getSelectExpression()).fetch();
-        return new PagedData<>(result, total);
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public long getCount(C criteria, U user) {
-        AssertionUtils.notNull(criteria, "Given criteria cannot be null.");
-        return this.prepareSelectQuery(criteria, user).fetchCount();
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public boolean isExist(C criteria, U user) {
-        return this.getCount(criteria, user) > 0;
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public boolean isNotExist(C criteria, U user) {
-        return this.getCount(criteria, user) == 0;
-    }
-
     @Transactional
     @Override
     public long delete(I id, U user) {
@@ -297,36 +197,7 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
         return deleteClause.execute();
     }
 
-    @Transactional(readOnly = true)
-    @Override
-    public List<I> getIds(C criteria, U user) {
-        AssertionUtils.notNull(criteria, "Given criteria cannot be null.");
-        return this.prepareSelectQuery(criteria, user).select(this.getIdSelectExpression()).fetch();
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public List<M> get(C criteria, U user) {
-        return this.get(criteria, (Sort) null, user);
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public List<M> get(C criteria, Sort sort, U user) {
-        AssertionUtils.notNull(criteria, "Given criteria cannot be null");
-        SQLQuery<?> sqlQuery = this.prepareSelectQuery(criteria, user);
-        this.setOrders(sqlQuery, sort);
-        return sqlQuery.select(this.getSelectExpression()).fetch();
-    }
-
-    @Transactional(readOnly = true)
-    @Override
-    public M getOne(C criteria, U user) {
-        AssertionUtils.notNull(criteria, "Given criteria cannot be null");
-        return this.prepareSelectQuery(criteria, user).select(this.getSelectExpression()).fetchOne();
-    }
-
-    private <T extends StoreClause<T>> void onSaveInternal(T clause, M model, U user) {
+    protected <T extends StoreClause<T>> void onSaveInternal(T clause, M model, U user) {
         this.onSave(clause, model, user);
         for (Class<?> clazz : this.getClass().getInterfaces()) {
             if (SaveExtendedRepositoryQdslSql.class.isAssignableFrom(clazz)) {
@@ -335,61 +206,12 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
         }
     }
 
-    private <T extends StoreClause<T>> void onUpdateInternal(T clause, M model, U user) {
+    protected <T extends StoreClause<T>> void onUpdateInternal(T clause, M model, U user) {
         this.onUpdate(clause, model, user);
         for (Class<?> clazz : this.getClass().getInterfaces()) {
             if (UpdateExtendedRepositoryQdslSql.class.isAssignableFrom(clazz)) {
                 ((UpdateExtendedRepositoryQdslSql) this).onUpdate(clause, model, user);
             }
         }
-    }
-
-    private SQLQuery<?> prepareSelectQuery(C criteria, U user) {
-        SQLQuery<?> query = this.getQueryFactory().query().from(this.getEntity());
-        query.where(this.getPredicate(criteria.getIdFilter(), user));
-        query.where(this.getPredicate(criteria, user));
-        for (Class<?> clazz : this.getClass().getInterfaces()) {
-            if (ReadExtendedRepositoryQdslSql.class.isAssignableFrom(clazz)) {
-                ((ReadExtendedRepositoryQdslSql<C, I, U>) this).process(criteria, query, user);
-            }
-        }
-        this.setSelectJoins(query, criteria, user);
-        return query;
-    }
-
-    private OrderSpecifier<?> toOrderSpecifier(Sort.Order order) {
-        ComparableExpressionBase<?> column = (ComparableExpressionBase<?>) this.getPath(order.getProperty());
-        return order.isAscending() ? column.asc() : column.desc();
-    }
-
-    private Path<?> getPath(String columnName) {
-        List<Path<?>> columns = this.getEntity().getColumns();
-        for (Path<?> column : columns) {
-            if (column.getMetadata().getName().equals(columnName)) {
-                return column;
-            }
-        }
-        throw new IllegalStateException(String.format("column[%s] not found in entity[%s] ", columnName, this.getEntity().getTableName()));
-    }
-
-    protected void setSelectJoins(SQLQuery<?> query, C criteria, U user) {
-    }
-
-    protected void setOrders(SQLQuery<?> query, @Nullable Sort sort) {
-        if (null == sort || sort.isEmpty()) {
-            if (CollectionUtils.isNotEmpty(this.getDefaultOrders())) {
-                query.orderBy(this.getDefaultOrders().toArray(new OrderSpecifier[0]));
-            }
-            return;
-        }
-        query.orderBy(sort.stream().map(this::toOrderSpecifier).toArray(OrderSpecifier[]::new));
-    }
-
-    protected SQLQueryFactory getQueryFactory() {
-        return queryFactory;
-    }
-
-    protected List<OrderSpecifier<?>> getDefaultOrders() {
-        return List.of();
     }
 }

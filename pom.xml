@@ -5,17 +5,17 @@
     <parent>
         <groupId>org.bardframework</groupId>
         <artifactId>bard-parent</artifactId>
-        <version>15</version>
+        <version>16</version>
         <relativePath/>
     </parent>
 
     <groupId>org.bardframework.crud</groupId>
     <artifactId>bard-crud</artifactId>
-    <version>1.9.2</version>
+    <version>1.11.2</version>
     <packaging>pom</packaging>
 
     <properties>
-        <bardframework.version>1.9.10</bardframework.version>
+        <bardframework.version>1.11.10</bardframework.version>
     </properties>
 
     <dependencyManagement>
@@ -37,6 +37,11 @@
     </modules>
 
     <dependencies>
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>org.assertj</groupId>
             <artifactId>assertj-core</artifactId>

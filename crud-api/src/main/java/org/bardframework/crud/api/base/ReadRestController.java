@@ -15,7 +15,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 /**
  * Created by zafari on 4/12/2015.
  */
-public interface ReadRestController<M extends BaseModel<I>, C extends BaseCriteria<I>, S extends BaseService<M, C, ?, ?, I, U>, I extends Serializable, U> {
+public interface ReadRestController<M extends BaseModel<I>, C extends BaseCriteria<I>, S extends ReadService<M, C, ?, I, U>, I extends Serializable, U> {
 
     String GET_URL = "{id}";
     String FILTER_URL = "filter";

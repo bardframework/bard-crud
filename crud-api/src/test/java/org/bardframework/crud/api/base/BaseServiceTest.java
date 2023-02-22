@@ -18,7 +18,7 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 public interface BaseServiceTest<M extends BaseModel<I>, C extends BaseCriteria<I>, D, S extends BaseService<M, C, D, ?, I, U>, P extends DataProviderService<M, C, D, S, ?, I, U>, I extends Serializable, U> {
 
-    Logger LOGGER = LoggerFactory.getLogger(BaseServiceTest.class);
+    Logger log = LoggerFactory.getLogger(BaseServiceTest.class);
 
     S getService();
 
@@ -151,9 +151,9 @@ public interface BaseServiceTest<M extends BaseModel<I>, C extends BaseCriteria<
     default void testSave() {
         U user = this.getDataProvider().getUser();
         D dto = this.getDataProvider().getDto();
-        LOGGER.debug("saving '{}'", dto);
+        log.debug("saving '{}'", dto);
         M result = this.getService().save(dto, user);
-        LOGGER.debug("save '{}', result is '{}'.", dto, result);
+        log.debug("save '{}', result is '{}'.", dto, result);
         assertThat(result).isNotNull();
         assertThat(result.getId()).isNotNull();
         M model = this.getService().get(result.getId(), user);
@@ -180,9 +180,9 @@ public interface BaseServiceTest<M extends BaseModel<I>, C extends BaseCriteria<
         U user = this.getDataProvider().getUser();
         I id = this.getDataProvider().getId(user);
         D dto = this.getDataProvider().getDto();
-        LOGGER.debug("updating '{}'", dto);
+        log.debug("updating '{}'", dto);
         M result = this.getService().update(id, dto, user);
-        LOGGER.debug("update '{}', result is '{}'.", dto, result);
+        log.debug("update '{}', result is '{}'.", dto, result);
         assertThat(result).isNotNull();
         assertThat(id).isEqualTo(result.getId());
         M model = this.getService().get(id, user);
@@ -266,7 +266,7 @@ public interface BaseServiceTest<M extends BaseModel<I>, C extends BaseCriteria<
         C criteria = this.getDataProvider().getFilterCriteria();
         long count = this.getService().getCount(criteria, user);
 
-        PagedData<M> pagedData = this.getService().get(criteria, PageRequest.of(0, (int) count), user);
+        PagedData<M> pagedData = this.getService().get(criteria, PageRequest.of(1, (int) count), user);
 
         assertThat(pagedData).isNotNull();
         assertThat(pagedData.getTotal()).isGreaterThanOrEqualTo(savedList.size());
@@ -281,6 +281,6 @@ public interface BaseServiceTest<M extends BaseModel<I>, C extends BaseCriteria<
     @Test
     default void testFilterNull() {
         U user = this.getDataProvider().getUser();
-        assertThatExceptionOfType(Exception.class).isThrownBy(() -> this.getService().get(null, PageRequest.of(0, Integer.MAX_VALUE), user));
+        assertThatExceptionOfType(Exception.class).isThrownBy(() -> this.getService().get(null, PageRequest.of(1, Integer.MAX_VALUE), user));
     }
 }

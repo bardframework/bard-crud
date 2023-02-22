@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class GenericRequestBodyResolverConfiguration {
-    private static final Logger LOGGER = LoggerFactory.getLogger(GenericRequestBodyResolverConfiguration.class);
+    private static final Logger log = LoggerFactory.getLogger(GenericRequestBodyResolverConfiguration.class);
 
     private final RequestMappingHandlerAdapter mappingHandler;
 
@@ -34,7 +34,7 @@ public class GenericRequestBodyResolverConfiguration {
     public void addCustomResolver() {
         List<HandlerMethodArgumentResolver> argumentResolvers = mappingHandler.getArgumentResolvers();
         if (CollectionUtils.isEmpty(argumentResolvers)) {
-            LOGGER.warn("Argument handlers in [{}] is empty, can't add [{}].", mappingHandler.getClass().getSimpleName(), GenericRequestBodyMethodProcessor.class.getSimpleName());
+            log.warn("Argument handlers in [{}] is empty, can't add [{}].", mappingHandler.getClass().getSimpleName(), GenericRequestBodyMethodProcessor.class.getSimpleName());
             return;
         }
         Integer index = null;
@@ -48,7 +48,7 @@ public class GenericRequestBodyResolverConfiguration {
             }
         }
         if (null == index) {
-            LOGGER.warn("[{}] not exist in [{}] argument handlers, can't add [{}].", RequestResponseBodyMethodProcessor.class.getSimpleName(), mappingHandler.getClass().getSimpleName(), GenericRequestBodyMethodProcessor.class.getSimpleName());
+            log.warn("[{}] not exist in [{}] argument handlers, can't add [{}].", RequestResponseBodyMethodProcessor.class.getSimpleName(), mappingHandler.getClass().getSimpleName(), GenericRequestBodyMethodProcessor.class.getSimpleName());
             return;
         }
         List<HandlerMethodArgumentResolver> newResolvers = new ArrayList<>(argumentResolvers);

@@ -1,14 +1,14 @@
 package org.bardframework.table;
 
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.experimental.UtilityClass;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
 import org.bardframework.table.header.HeaderTemplate;
 import org.bardframework.table.header.TableHeader;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.io.OutputStream;
 import java.util.HashMap;
@@ -16,15 +16,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+@Slf4j
+@UtilityClass
 public class ExcelUtils {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(ExcelUtils.class);
-
-    private ExcelUtils() {
-        /*
-            prevent instantiation
-         */
-    }
 
     public static void generateExcel(TableTemplate tableTemplate, TableData tableData, OutputStream outputStream, Locale locale, boolean rtl, HttpServletRequest httpRequest) throws Exception {
         try (Workbook workbook = new SXSSFWorkbook()) {

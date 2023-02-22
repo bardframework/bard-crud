@@ -19,7 +19,7 @@ import java.util.stream.Collectors;
  */
 public interface DataProviderRepository<M extends BaseModel<I>, C extends BaseCriteria<I>, R extends BaseRepository<M, C, I, U>, I extends Serializable, U> {
 
-    Logger LOGGER = LoggerFactory.getLogger(DataProviderRepository.class);
+    Logger log = LoggerFactory.getLogger(DataProviderRepository.class);
 
     U getUser();
 
@@ -78,7 +78,7 @@ public interface DataProviderRepository<M extends BaseModel<I>, C extends BaseCr
     }
 
     default Pageable getPageable() {
-        return PageRequest.of(0, 5);
+        return PageRequest.of(1, 5);
     }
 
     //...Filter
@@ -97,7 +97,7 @@ public interface DataProviderRepository<M extends BaseModel<I>, C extends BaseCr
             criteria.setIdFilter(new IdFilter<I>().setNotIn(List.of(excludeIds)));
         }
         this.saveNew(count - this.getRepository().getCount(criteria, user), user);
-        return this.getRepository().get(criteria, PageRequest.of(0, count), user).getData();
+        return this.getRepository().get(criteria, PageRequest.of(1, count), user).getData();
     }
 
     default M getModel(C criteria, M unsavedModel, U user) {
@@ -106,7 +106,7 @@ public interface DataProviderRepository<M extends BaseModel<I>, C extends BaseCr
             //TODO save model if pass given criteria restrictions
             return this.getRepository().save(unsavedModel, user);
         }
-        return this.getRepository().get(criteria, PageRequest.of(RandomUtils.nextInt(0, (int) count), 1), user).getData().get(0);
+        return this.getRepository().get(criteria, PageRequest.of(RandomUtils.nextInt(1, (int) count), 1), user).getData().get(0);
     }
 
     /**

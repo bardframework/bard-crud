@@ -10,7 +10,7 @@ import java.io.Serializable;
  */
 public abstract class BaseModelAbstract<I extends Serializable> implements BaseModel<I> {
 
-    protected final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
+    protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
     protected I id;
 

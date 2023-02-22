@@ -6,6 +6,8 @@ import com.querydsl.core.types.dsl.ComparableExpression;
 import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.core.types.dsl.SimpleExpression;
 import com.querydsl.core.types.dsl.StringPath;
+import lombok.experimental.UtilityClass;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.bardframework.form.model.filter.Filter;
@@ -20,12 +22,9 @@ import java.util.function.Supplier;
 /**
  * Created by vahid (va.zafari@gmail.com) on 10/30/17.
  */
+@Slf4j
+@UtilityClass
 public final class QueryDslUtils {
-    private QueryDslUtils() {
-        /*
-            prevent instantiation
-        */
-    }
 
     public static <T> Expression<T> bean(String alias, Class<T> type, Expression<?>... expressions) {
         return ExpressionUtils.as(Projections.bean(type, expressions).skipNulls(), alias);
