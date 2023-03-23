@@ -102,7 +102,6 @@ public class ExcelUtils {
                 } else {
                     cell.setCellStyle(dataStyle);
                 }
-                index++;
             }
         }
         for (int i = 0; i < headerRow.getPhysicalNumberOfCells(); i++) {
