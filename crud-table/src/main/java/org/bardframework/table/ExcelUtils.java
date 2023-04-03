@@ -136,7 +136,7 @@ public class ExcelUtils {
         return tableData;
     }
 
-    protected Object format(HeaderTemplate headerTemplate, Object value, Locale locale, boolean export, MessageSource messageSource) {
+    private Object format(HeaderTemplate headerTemplate, Object value, Locale locale, boolean export, MessageSource messageSource) {
         return export ? headerTemplate.formatForExport(value, locale, messageSource) : headerTemplate.format(value, locale, messageSource);
     }
 }
