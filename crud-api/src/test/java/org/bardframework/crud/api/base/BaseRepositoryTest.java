@@ -21,19 +21,21 @@ import static org.assertj.core.api.Assertions.*;
  */
 public interface BaseRepositoryTest<M extends BaseModel<I>, C extends BaseCriteria<I>, R extends BaseRepository<M, C, I, U>, P extends DataProviderRepository<M, C, R, I, U>, I extends Serializable, U> {
 
-    Logger log = LoggerFactory.getLogger(BaseRepositoryTest.class);
-
     R getRepository();
 
     P getDataProvider();
+
+    private Logger log() {
+        return LoggerFactory.getLogger(this.getClass());
+    }
 
     @Test
     default void testGetByIdValid() {
         U user = this.getDataProvider().getUser();
         I id = this.getDataProvider().getId(user);
-        log.debug("test get by id '{}'.", id);
+        log().debug("test get by id '{}'.", id);
         M result = this.getRepository().get(id, user);
-        log.debug("get by id '{}', result is '{}'.", id, result);
+        log().debug("get by id '{}', result is '{}'.", id, result);
         assertThat(result).isNotNull();
         assertThat(id).isEqualTo(result.getId());
     }
@@ -42,19 +44,19 @@ public interface BaseRepositoryTest<M extends BaseModel<I>, C extends BaseCriter
     default void testGetByIdInvalid() {
         U user = this.getDataProvider().getUser();
         I invalidId = this.getDataProvider().getInvalidId();
-        log.debug("test get by invalid id '{}'.", invalidId);
+        log().debug("test get by invalid id '{}'.", invalidId);
         M result = this.getRepository().get(invalidId, user);
-        log.debug("get by invalid id '{}', result is '{}'.", invalidId, result);
+        log().debug("get by invalid id '{}', result is '{}'.", invalidId, result);
         assertThat(result).isNull();
     }
 
     @Test
     default void testGetByIdNull() {
-        log.debug("test get by null id'.");
+        log().debug("test get by null id'.");
         U user = this.getDataProvider().getUser();
         assertThatExceptionOfType(Exception.class).isThrownBy(() -> {
             M result = this.getRepository().get((I) null, user);
-            log.error("get by null id, expect exception but result is '{}'.", result);
+            log().error("get by null id, expect exception but result is '{}'.", result);
         });
     }
 
@@ -63,9 +65,9 @@ public interface BaseRepositoryTest<M extends BaseModel<I>, C extends BaseCriter
         U user = this.getDataProvider().getUser();
         I id = this.getDataProvider().getId(user);
         List<I> duplicateIds = List.of(id, id, id, id, id);
-        log.debug("test get by duplicate ids '{}'.", duplicateIds);
+        log().debug("test get by duplicate ids '{}'.", duplicateIds);
         List<M> result = this.getRepository().get(duplicateIds, user);
-        log.debug("get by duplicate ids '{}', result  is '{}'.", duplicateIds, result);
+        log().debug("get by duplicate ids '{}', result  is '{}'.", duplicateIds, result);
         assertThat(result).hasSize(1).map(BaseModel::getId).containsOnly(id);
     }
 
@@ -74,7 +76,7 @@ public interface BaseRepositoryTest<M extends BaseModel<I>, C extends BaseCriter
         U user = this.getDataProvider().getUser();
         assertThatExceptionOfType(Exception.class).isThrownBy(() -> {
             List<M> result = this.getRepository().get((List<I>) null, user);
-            log.error("get by null ids, expect exception but result is'{}'.", result);
+            log().error("get by null ids, expect exception but result is'{}'.", result);
         });
     }
 
@@ -92,9 +94,9 @@ public interface BaseRepositoryTest<M extends BaseModel<I>, C extends BaseCriter
         */
         this.getDataProvider().getModel(user);
         C criteria = this.getDataProvider().getEmptyCriteria();
-        log.debug("get by criteria '{}'.", criteria);
-        M result = this.getRepository().get(criteria, PageRequest.of(1, 1), user).getData().get(0);
-        log.debug("get db by criteria '{}', result is '{}'.", criteria, result);
+        log().debug("get by criteria '{}'.", criteria);
+        M result = this.getRepository().getOne(criteria, user);
+        log().debug("get db by criteria '{}', result is '{}'.", criteria, result);
         Assertions.assertThat(result).isNotNull();
     }
 
@@ -103,7 +105,7 @@ public interface BaseRepositoryTest<M extends BaseModel<I>, C extends BaseCriter
         U user = this.getDataProvider().getUser();
         assertThatExceptionOfType(Exception.class).isThrownBy(() -> {
             List<M> result = this.getRepository().get((C) null, user);
-            log.error("get by null criteria, expect exception but result is '{}'.", result);
+            log().error("get by null criteria, expect exception but result is '{}'.", result);
         });
     }
 
@@ -116,14 +118,14 @@ public interface BaseRepositoryTest<M extends BaseModel<I>, C extends BaseCriter
         M model = this.getDataProvider().getModel(user);
         List<I> ids = Collections.singletonList(model.getId());
         C criteria = this.getDataProvider().getEmptyCriteria();
-        criteria.setIdFilter((new IdFilter<I>()).setNotIn(ids));
+        criteria.setIdFilter(new IdFilter<I>().setNotIn(ids));
         /*
-            برای محدود کردن تعداد نتایج فیلتر روی پایگاه داده در جداولی که تعداد رکورد زیادی در آن ها وجود دارد
+            برای محدود کردن تعداد نتایج فیلتر روی پایگاه داده در جداولی که تعداد رکورد زیادی در آن‌ها وجود دارد
          */
         criteria.getIdFilter().setEquals(model.getId());
-        log.debug("get by criteria '{}'.", criteria);
+        log().debug("get by criteria '{}'.", criteria);
         List<M> foundEntities = this.getRepository().get(criteria, user);
-        log.debug("get by criteria '{}', result is '{}'.", criteria, foundEntities);
+        log().debug("get by criteria '{}', result is '{}'.", criteria, foundEntities);
         Assertions.assertThat(foundEntities).map(BaseModel::getId).doesNotContainAnyElementsOf(ids);
     }
 
@@ -149,9 +151,9 @@ public interface BaseRepositoryTest<M extends BaseModel<I>, C extends BaseCriter
     default void testSave() {
         U user = this.getDataProvider().getUser();
         M model = this.getDataProvider().getUnsavedModel();
-        log.debug("saving '{}'", model);
+        log().debug("saving '{}'", model);
         M result = this.getRepository().save(model, user);
-        log.debug("save '{}', result is '{}'.", model, result);
+        log().debug("save '{}', result is '{}'.", model, result);
         this.getDataProvider().assertEqualSave(model, result);
     }
 
@@ -159,10 +161,10 @@ public interface BaseRepositoryTest<M extends BaseModel<I>, C extends BaseCriter
     default void testSaveInvalid() {
         U user = this.getDataProvider().getUser();
         M model = this.getDataProvider().getUnsavedInvalidModel();
-        log.debug("saving '{}'", model);
+        log().debug("saving '{}'", model);
         assertThatExceptionOfType(Exception.class).isThrownBy(() -> {
             M result = this.getRepository().save(model, user);
-            log.debug("save invalid model '{}', expect exception but result is '{}'.", model, result);
+            log().debug("save invalid model '{}', expect exception but result is '{}'.", model, result);
         });
     }
 
@@ -171,7 +173,7 @@ public interface BaseRepositoryTest<M extends BaseModel<I>, C extends BaseCriter
         U user = this.getDataProvider().getUser();
         assertThatExceptionOfType(Exception.class).isThrownBy(() -> {
             M result = this.getRepository().save((M) null, user);
-            log.debug("save null model, expect exception but result is '{}'.", result);
+            log().debug("save null model, expect exception but result is '{}'.", result);
         });
     }
 
@@ -262,7 +264,7 @@ public interface BaseRepositoryTest<M extends BaseModel<I>, C extends BaseCriter
     @Test
     default void testFilterNull() {
         U user = this.getDataProvider().getUser();
-        assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> this.getRepository().get(null, PageRequest.of(1, 1), user));
+        assertThatExceptionOfType(IllegalArgumentException.class).isThrownBy(() -> this.getRepository().get(null, PageRequest.of(1, Integer.MAX_VALUE), user));
     }
 
     @Test
@@ -271,7 +273,7 @@ public interface BaseRepositoryTest<M extends BaseModel<I>, C extends BaseCriter
         /* Make sure that at least one record exists. */
         M model = this.getDataProvider().getModel(user);
         C criteria = this.getDataProvider().getEmptyCriteria();
-        criteria.setIdFilter((new IdFilter<I>()).setEquals(model.getId()));
+        criteria.setIdFilter(new IdFilter<I>().setEquals(model.getId()));
         Assertions.assertThat(this.getRepository().getIds(criteria, user)).size().isGreaterThanOrEqualTo(1);
     }
 
@@ -296,9 +298,9 @@ public interface BaseRepositoryTest<M extends BaseModel<I>, C extends BaseCriter
         M model = this.getDataProvider().getModel(user);
         List<I> ids = Collections.singletonList(model.getId());
         C criteria = this.getDataProvider().getEmptyCriteria();
-        criteria.setIdFilter((new IdFilter<I>()).setNotIn(ids));
+        criteria.setIdFilter(new IdFilter<I>().setNotIn(ids));
         /*
-            برای محدود کردن تعداد نتایج فیلتر روی پایگاه داده در جداولی که تعداد رکورد زیادی در آن ها وجود دارد
+            برای محدود کردن تعداد نتایج فیلتر روی پایگاه داده در جداولی که تعداد رکورد زیادی در آن‌ها وجود دارد
          */
         criteria.getIdFilter().setEquals(model.getId());
         List<I> list = this.getRepository().getIds(criteria, user);

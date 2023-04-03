@@ -2,8 +2,6 @@ package org.bardframework.crud.api.base;
 
 import org.apache.commons.lang3.RandomUtils;
 import org.bardframework.form.model.filter.IdFilter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,8 +16,6 @@ import java.util.stream.Collectors;
  * Created on 08/05/2017.
  */
 public interface DataProviderRepository<M extends BaseModel<I>, C extends BaseCriteria<I>, R extends BaseRepository<M, C, I, U>, I extends Serializable, U> {
-
-    Logger log = LoggerFactory.getLogger(DataProviderRepository.class);
 
     U getUser();
 

@@ -94,7 +94,6 @@ public abstract class ReadRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
             return new PagedData<>();
         }
         query = query.clone(this.getQueryFactory().getConnection());
-        query = query.clone(this.getQueryFactory().getConnection());
         query.offset((long) (pageable.getPageNumber() - 1) * pageable.getPageSize());
         query.limit(pageable.getPageSize());
         List<M> result = query.select(this.getSelectExpression()).fetch();

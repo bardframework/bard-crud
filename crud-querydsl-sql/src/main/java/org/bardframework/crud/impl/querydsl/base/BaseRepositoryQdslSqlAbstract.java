@@ -84,7 +84,7 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
             }
         }
         /*
-            در حالتی که شناسه ها در دیتابیس تولید نمی شوند؛ این لیست خالی است.
+            در حالتی که شناسه‌ها در دیتابیس تولید نمی‌شوند؛ این لیست خالی است.
          */
         return CollectionUtils.isNotEmpty(generatedIds) ? (long) generatedIds.size() : null;
     }

@@ -7,14 +7,16 @@ import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
+import org.bardframework.commons.utils.ReflectionUtils;
+import org.bardframework.crud.api.base.BaseModel;
+import org.bardframework.crud.api.base.PagedData;
 import org.bardframework.table.header.HeaderTemplate;
 import org.bardframework.table.header.TableHeader;
+import org.springframework.context.MessageSource;
 
 import java.io.OutputStream;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Slf4j
 @UtilityClass
@@ -110,4 +112,31 @@ public class ExcelUtils {
         sheet.createFreezePane(0, 1);
     }
 
+    public static <M extends BaseModel<?>> TableData toTableData(PagedData<M> pagedData, TableTemplate tableTemplate, Locale locale, boolean export, Object user) {
+        TableData tableData = new TableData();
+        tableData.setTotal(pagedData.getTotal());
+        tableData.setHeaders(tableTemplate.getHeaderTemplates().stream().map(TableHeader::getName).collect(Collectors.toList()));
+        for (M model : pagedData.getData()) {
+            List<Object> values = new ArrayList<>();
+            for (HeaderTemplate headerTemplate : tableTemplate.getHeaderTemplates()) {
+                Object value;
+                try {
+                    value = ReflectionUtils.getPropertyValue(model, headerTemplate.getName());
+                } catch (Exception e) {
+                    throw new IllegalStateException(String.format("can't read property [%s] of [%s] instance and convert it, table [%s]", headerTemplate.getName(), model.getClass(), tableTemplate.getName()), e);
+                }
+                try {
+                    values.add(ExcelUtils.format(headerTemplate, value, locale, export, tableTemplate.getMessageSource()));
+                } catch (Exception e) {
+                    throw new IllegalStateException(String.format("error formatting value [%s] with formatter [%s], table [%s]", value, headerTemplate.getClass(), tableTemplate.getName()), e);
+                }
+            }
+            tableData.addData(model.getId().toString(), values);
+        }
+        return tableData;
+    }
+
+    protected Object format(HeaderTemplate headerTemplate, Object value, Locale locale, boolean export, MessageSource messageSource) {
+        return export ? headerTemplate.formatForExport(value, locale, messageSource) : headerTemplate.format(value, locale, messageSource);
+    }
 }
