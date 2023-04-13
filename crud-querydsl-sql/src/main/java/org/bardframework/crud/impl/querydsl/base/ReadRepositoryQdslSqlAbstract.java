@@ -28,6 +28,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  * Created by vahid on 1/17/17.
@@ -40,12 +44,14 @@ public abstract class ReadRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
     protected final Class<M> modelClazz;
     protected final Class<C> criteriaClazz;
     protected final Class<I> idClazz;
+    protected final Map<String, Path<?>> columns;
 
     public ReadRepositoryQdslSqlAbstract(SQLQueryFactory queryFactory) {
         this.queryFactory = queryFactory;
         this.modelClazz = ReflectionUtils.getGenericArgType(this.getClass(), 0);
         this.criteriaClazz = ReflectionUtils.getGenericArgType(this.getClass(), 1);
         this.idClazz = ReflectionUtils.getGenericArgType(this.getClass(), 2);
+        this.columns = this.getEntity().getColumns().stream().collect(Collectors.toMap(path -> path.getMetadata().getName(), Function.identity()));
     }
 
     protected abstract Predicate getPredicate(C criteria, U user);
@@ -162,18 +168,20 @@ public abstract class ReadRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
     }
 
     protected OrderSpecifier<?> toOrderSpecifier(Sort.Order order) {
-        ComparableExpressionBase<?> column = (ComparableExpressionBase<?>) this.getPath(order.getProperty());
-        return order.isAscending() ? column.asc() : column.desc();
+        Path<?> path = this.getPath(order.getProperty());
+        if (null == path) {
+            log.warn("column not found for property [{}] to set order.", order.getProperty());
+            return null;
+        }
+        if (path instanceof ComparableExpressionBase<?> column) {
+            return order.isAscending() ? column.asc() : column.desc();
+        }
+        log.warn("column[{}] of property [{}] is not comparable, can't set order.", path.getClass().getSimpleName(), order.getProperty());
+        return null;
     }
 
     protected Path<?> getPath(String columnName) {
-        List<Path<?>> columns = this.getEntity().getColumns();
-        for (Path<?> column : columns) {
-            if (column.getMetadata().getName().equals(columnName)) {
-                return column;
-            }
-        }
-        throw new IllegalStateException(String.format("column[%s] not found in entity[%s] ", columnName, this.getEntity().getTableName()));
+        return columns.get(columnName);
     }
 
     protected void setSelectJoins(SQLQuery<?> query, C criteria, U user) {
@@ -186,7 +194,7 @@ public abstract class ReadRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
             }
             return;
         }
-        query.orderBy(sort.stream().map(this::toOrderSpecifier).toArray(OrderSpecifier[]::new));
+        query.orderBy(sort.stream().map(this::toOrderSpecifier).filter(Objects::nonNull).toArray(OrderSpecifier[]::new));
     }
 
     protected SQLQueryFactory getQueryFactory() {
