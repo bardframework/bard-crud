@@ -4,7 +4,7 @@ import org.assertj.core.api.Assertions;
 import org.bardframework.commons.web.WebTestHelper;
 import org.bardframework.crud.api.base.BaseCriteria;
 import org.bardframework.crud.api.base.BaseModel;
-import org.bardframework.crud.api.base.DataProviderService;
+import org.bardframework.crud.api.base.ServiceDataProvider;
 import org.bardframework.crud.api.utils.TestUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Pageable;
@@ -14,7 +14,6 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import java.io.Serializable;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -25,9 +24,9 @@ import static org.bardframework.table.TableModelRestController.*;
 /**
  * Created on 14/05/2017.
  */
-public interface TableModelRestControllerTest<CL extends TableModelRestController<?, ?, ?, ?>, M extends BaseModel<I>, C extends BaseCriteria<I>, P extends DataProviderService<M, C, ?, ?, ?, I, U>, I extends Serializable, U> extends WebTestHelper {
+public interface TableModelRestControllerTest<L extends TableModelRestController<?, ?, ?, ?>, M extends BaseModel<I>, C extends BaseCriteria<I>, P extends ServiceDataProvider<M, C, ?, ?, ?, I, U>, I, U> extends WebTestHelper {
 
-    CL getController();
+    L getController();
 
     P getDataProvider();
 

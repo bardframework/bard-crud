@@ -7,7 +7,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -16,7 +15,7 @@ import java.util.stream.Collectors;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
-public interface BaseServiceTest<M extends BaseModel<I>, C extends BaseCriteria<I>, D, S extends BaseService<M, C, D, ?, I, U>, P extends DataProviderService<M, C, D, S, ?, I, U>, I extends Serializable, U> {
+public interface BaseServiceTest<M extends BaseModel<I>, C extends BaseCriteria<I>, D, S extends BaseService<M, C, D, ?, I, U>, P extends ServiceDataProvider<M, C, D, S, ?, I, U>, I, U> {
 
     Logger log = LoggerFactory.getLogger(BaseServiceTest.class);
 

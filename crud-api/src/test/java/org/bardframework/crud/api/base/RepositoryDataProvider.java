@@ -6,7 +6,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
@@ -15,7 +14,7 @@ import java.util.stream.Collectors;
 /**
  * Created on 08/05/2017.
  */
-public interface DataProviderRepository<M extends BaseModel<I>, C extends BaseCriteria<I>, R extends BaseRepository<M, C, I, U>, I extends Serializable, U> {
+public interface RepositoryDataProvider<M extends BaseModel<I>, C extends BaseCriteria<I>, R extends BaseRepository<M, C, I, U>, I, U> {
 
     U getUser();
 

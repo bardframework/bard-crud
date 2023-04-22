@@ -25,7 +25,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.lang.Nullable;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -36,7 +35,7 @@ import java.util.stream.Collectors;
 /**
  * Created by vahid on 1/17/17.
  */
-public abstract class ReadRepositoryQdslSqlAbstract<M extends BaseModel<I>, C extends BaseCriteria<I>, I extends Serializable, U> implements ReadRepository<M, C, I, U> {
+public abstract class ReadRepositoryQdslSqlAbstract<M extends BaseModel<I>, C extends BaseCriteria<I>, I, U> implements ReadRepository<M, C, I, U> {
 
     protected final Logger log = LoggerFactory.getLogger(getClass());
 

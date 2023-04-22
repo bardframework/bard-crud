@@ -15,14 +15,13 @@ import org.bardframework.crud.api.base.BaseRepository;
 import org.bardframework.form.model.filter.IdFilter;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.Serializable;
 import java.util.*;
 import java.util.function.Consumer;
 
 /**
  * Created by vahid on 1/17/17.
  */
-public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C extends BaseCriteria<I>, I extends Serializable, U> extends ReadRepositoryQdslSqlAbstract<M, C, I, U> implements BaseRepository<M, C, I, U> {
+public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C extends BaseCriteria<I>, I, U> extends ReadRepositoryQdslSqlAbstract<M, C, I, U> implements BaseRepository<M, C, I, U> {
 
     public BaseRepositoryQdslSqlAbstract(SQLQueryFactory queryFactory) {
         super(queryFactory);

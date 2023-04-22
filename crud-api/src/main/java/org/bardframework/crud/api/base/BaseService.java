@@ -1,20 +1,18 @@
 package org.bardframework.crud.api.base;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.SerializationUtils;
 import org.bardframework.commons.utils.AssertionUtils;
 import org.bardframework.commons.utils.ReflectionUtils;
 import org.bardframework.form.model.filter.IdFilter;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.Serializable;
 import java.util.*;
 import java.util.stream.Collectors;
 
 /**
  * Created by vahid on 1/17/17.
  */
-public abstract class BaseService<M extends BaseModel<I>, C extends BaseCriteria<I>, D, R extends BaseRepository<M, C, I, U>, I extends Serializable, U> extends ReadService<M, C, R, I, U> {
+public abstract class BaseService<M extends BaseModel<I>, C extends BaseCriteria<I>, D, R extends BaseRepository<M, C, I, U>, I, U> extends ReadService<M, C, R, I, U> {
 
     protected final Class<D> dtoClazz;
 
@@ -155,15 +153,15 @@ public abstract class BaseService<M extends BaseModel<I>, C extends BaseCriteria
     public M patch(I id, Map<String, Object> patch, U user) {
         AssertionUtils.notNull(id, "id cannot be null.");
         AssertionUtils.notEmpty(patch, "patch cannot be empty.");
-        M model = this.getRepository().get(id, user);
-        if (null == model) {
+        M entity = this.getRepository().get(id, user);
+        if (null == entity) {
             return null;
         }
-        M pre = SerializationUtils.clone(model);
+        M pre = this.clone(entity);
         this.prePatch(pre, patch, user);
         M patched = this.getRepository().patch(id, patch, user);
         this.postPatch(pre, patched, patch, user);
-        return this.get(model.getId(), user);
+        return this.get(entity.getId(), user);
     }
 
     protected void prePatch(M previousModel, Map<String, Object> patch, U user) {
@@ -180,7 +178,7 @@ public abstract class BaseService<M extends BaseModel<I>, C extends BaseCriteria
         if (null == entity) {
             return null;
         }
-        M pre = SerializationUtils.clone(entity);
+        M pre = this.clone(entity);
         this.preUpdate(pre, dto, user);
         this.onUpdate(dto, entity, user);
         M updated = this.getRepository().update(entity, user);
@@ -188,11 +186,15 @@ public abstract class BaseService<M extends BaseModel<I>, C extends BaseCriteria
         return this.get(entity.getId(), user);
     }
 
-    protected abstract void onUpdate(D dto, M previousModel, U user);
+    protected abstract void onUpdate(D dto, M entity, U user);
 
     protected void preUpdate(M previousModel, D dto, U user) {
     }
 
     protected void postUpdate(M previousModel, M updatedModel, D dto, U user) {
+    }
+
+    protected M clone(M model) {
+        return model;
     }
 }

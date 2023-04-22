@@ -10,15 +10,13 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import java.io.Serializable;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.bardframework.crud.api.base.ReadRestController.FILTER_URL;
 
 /**
  * Created on 14/05/2017.
  */
-public interface ReadRestControllerTest<M extends BaseModel<I>, C extends BaseCriteria<I>, P extends DataProviderService<M, C, ?, ?, ?, I, U>, I extends Serializable, U> extends WebTestHelper {
+public interface ReadRestControllerTest<M extends BaseModel<I>, C extends BaseCriteria<I>, P extends ServiceDataProvider<M, C, ?, ?, ?, I, U>, I, U> extends WebTestHelper {
 
     P getDataProvider();
 
@@ -45,7 +43,8 @@ public interface ReadRestControllerTest<M extends BaseModel<I>, C extends BaseCr
         this.getDataProvider().getModel(user);
         C criteria = this.getDataProvider().getFilterCriteria();
         Pageable pageable = this.getDataProvider().getPageable();
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post(TestUtils.setPage(this.FILTER_URL(), pageable)).content(this.getObjectMapper().writeValueAsBytes(criteria)).contentType(MediaType.APPLICATION_JSON);
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get(TestUtils.setPage(this.FILTER_URL(), pageable))
+                .accept(MediaType.APPLICATION_JSON);
         PagedData<M> response = this.execute(request, HttpStatus.OK, this.getDataModelTypeReference());
         assertThat(response.getTotal()).isGreaterThan(0);
     }
@@ -54,7 +53,7 @@ public interface ReadRestControllerTest<M extends BaseModel<I>, C extends BaseCr
     default void testGET() throws Exception {
         U user = this.getDataProvider().getUser();
         I id = this.getDataProvider().getId(user);
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get(this.GET_URL(id));
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get(this.GET_URL(id)).accept(MediaType.APPLICATION_JSON);
         M result = this.execute(request, HttpStatus.OK, getModelTypeReference());
         assertThat(result.getId()).isEqualTo(id);
     }
@@ -62,7 +61,7 @@ public interface ReadRestControllerTest<M extends BaseModel<I>, C extends BaseCr
     @Test
     default void testGETInvalidId() throws Exception {
         I invalidId = this.getDataProvider().getInvalidId();
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get(this.GET_URL(invalidId));
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get(this.GET_URL(invalidId)).accept(MediaType.APPLICATION_JSON);
         this.execute(request, HttpStatus.NOT_FOUND, getModelTypeReference());
     }
 }

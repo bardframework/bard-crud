@@ -1,9 +1,6 @@
 package org.bardframework.crud.api.base;
 
-
-import java.io.Serializable;
-
-public interface BaseModel<I extends Serializable> extends Serializable {
+public interface BaseModel<I> {
 
     I getId();
 

@@ -82,11 +82,11 @@ public final class QueryDslUtils {
         return builder;
     }
 
-    public static <I extends Serializable> Predicate getPredicate(Filter<I, ?> filter, SimpleExpression<I> path) {
+    public static <I> Predicate getPredicate(Filter<I, ?> filter, SimpleExpression<I> path) {
         return QueryDslUtils.getPredicate(filter, path::eq, path::isNotNull, path::isNull);
     }
 
-    public static <I extends Serializable> Predicate getPredicate(Filter<I, ?> filter, Function<I, Predicate> equals, Supplier<Predicate> isNotNull, Supplier<Predicate> isNull) {
+    public static <I> Predicate getPredicate(Filter<I, ?> filter, Function<I, Predicate> equals, Supplier<Predicate> isNotNull, Supplier<Predicate> isNull) {
         if (null == filter) {
             return null;
         }

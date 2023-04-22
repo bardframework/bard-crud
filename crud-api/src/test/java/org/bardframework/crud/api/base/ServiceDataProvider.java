@@ -2,7 +2,6 @@ package org.bardframework.crud.api.base;
 
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Function;
@@ -10,7 +9,7 @@ import java.util.function.Function;
 /**
  * Created on 08/05/2017.
  */
-public interface DataProviderService<M extends BaseModel<I>, C extends BaseCriteria<I>, D, S extends BaseService<M, C, D, R, I, U>, R extends BaseRepository<M, C, I, U>, I extends Serializable, U> extends DataProviderRepository<M, C, R, I, U> {
+public interface ServiceDataProvider<M extends BaseModel<I>, C extends BaseCriteria<I>, D, S extends BaseService<M, C, D, R, I, U>, R extends BaseRepository<M, C, I, U>, I, U> extends RepositoryDataProvider<M, C, R, I, U> {
 
     S getService();
 

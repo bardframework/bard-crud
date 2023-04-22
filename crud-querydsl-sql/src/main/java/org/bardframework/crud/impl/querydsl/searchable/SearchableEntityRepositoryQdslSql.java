@@ -15,13 +15,11 @@ import org.bardframework.crud.impl.querydsl.base.ReadExtendedRepositoryQdslSql;
 import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
-public interface SearchableEntityRepositoryQdslSql<M extends BaseModel<I>, C extends BaseCriteria<I> & SearchableEntityCriteria, I extends Serializable, U> extends SearchableEntityRepository<M, C, I, U>, ReadExtendedRepositoryQdslSql<C, I, U> {
+public interface SearchableEntityRepositoryQdslSql<M extends BaseModel<I>, C extends BaseCriteria<I> & SearchableEntityCriteria, I, U> extends SearchableEntityRepository<M, C, I, U>, ReadExtendedRepositoryQdslSql<C, I, U> {
 
     StringPath[] getSearchPaths();
 

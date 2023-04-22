@@ -15,13 +15,12 @@ import org.bardframework.crud.impl.querydsl.base.ReadExtendedRepositoryQdslSql;
 import org.bardframework.crud.impl.querydsl.utils.QueryDslUtils;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.io.Serializable;
 import java.util.List;
 
 /**
  * Created by vahid (va.zafari@gmail.com) on 11/12/17.
  */
-public interface TreeEntityRepositoryQdslSql<M extends BaseModel<I> & TreeEntityModel<M>, C extends BaseCriteria<I> & TreeEntityCriteria<I>, I extends Serializable, U> extends TreeEntityRepository<M, I, U>, ReadExtendedRepositoryQdslSql<C, I, U> {
+public interface TreeEntityRepositoryQdslSql<M extends BaseModel<I> & TreeEntityModel<M>, C extends BaseCriteria<I> & TreeEntityCriteria<I>, I, U> extends TreeEntityRepository<M, I, U>, ReadExtendedRepositoryQdslSql<C, I, U> {
 
     SimpleExpression<I> getParentIdSelectExpression();
 

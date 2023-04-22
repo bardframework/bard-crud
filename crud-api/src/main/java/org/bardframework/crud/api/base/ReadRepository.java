@@ -3,14 +3,13 @@ package org.bardframework.crud.api.base;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
-import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
 
 /**
  * Created by Vahid Zafari on 1/17/17.
  */
-public interface ReadRepository<M extends BaseModel<I>, C extends BaseCriteria<I>, I extends Serializable, U> {
+public interface ReadRepository<M extends BaseModel<I>, C extends BaseCriteria<I>, I, U> {
 
     M get(I id, U user);
 

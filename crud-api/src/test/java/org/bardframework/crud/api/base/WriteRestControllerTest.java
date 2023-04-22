@@ -9,14 +9,12 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import java.io.Serializable;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Created on 14/05/2017.
  */
-public interface WriteRestControllerTest<M extends BaseModel<I>, D, P extends DataProviderService<M, ?, D, ?, ?, I, U>, I extends Serializable, U> extends WebTestHelper {
+public interface WriteRestControllerTest<M extends BaseModel<I>, D, P extends ServiceDataProvider<M, ?, D, ?, ?, I, U>, I, U> extends WebTestHelper {
 
     String BASE_URL();
 
@@ -48,7 +46,10 @@ public interface WriteRestControllerTest<M extends BaseModel<I>, D, P extends Da
     @Test
     default void testSAVE() throws Exception {
         D dto = this.getDataProvider().getDto();
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post(SAVE_URL()).content(this.getObjectMapper().writeValueAsBytes(dto)).contentType(MediaType.APPLICATION_JSON);
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post(SAVE_URL())
+                .content(this.getObjectMapper().writeValueAsBytes(dto))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON);
         M result = execute(request, HttpStatus.OK, getModelTypeReference());
         assertThat(result.getId()).isNotNull();
         this.getDataProvider().assertEqualSave(result, dto);
@@ -70,7 +71,10 @@ public interface WriteRestControllerTest<M extends BaseModel<I>, D, P extends Da
         U user = this.getDataProvider().getUser();
         I id = this.getDataProvider().getId(user);
         D dto = this.getDataProvider().getDto();
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.put(this.UPDATE_URL(id)).contentType(MediaType.APPLICATION_JSON).content(this.getObjectMapper().writeValueAsBytes(dto));
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.put(this.UPDATE_URL(id))
+                .content(this.getObjectMapper().writeValueAsBytes(dto))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON);
         M response = this.execute(request, HttpStatus.OK, getModelTypeReference());
         this.getDataProvider().assertEqualUpdate(response, dto);
     }
@@ -81,9 +85,9 @@ public interface WriteRestControllerTest<M extends BaseModel<I>, D, P extends Da
         I id = this.getDataProvider().getId(user);
         D invalidDto = this.getDataProvider().getInvalidDto();
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.put(this.UPDATE_URL(id))
+                .content(this.getObjectMapper().writeValueAsBytes(invalidDto))
                 .contentType(MediaType.APPLICATION_JSON)
-                .accept(MediaType.APPLICATION_JSON)
-                .content(this.getObjectMapper().writeValueAsBytes(invalidDto));
+                .accept(MediaType.APPLICATION_JSON);
         MvcResult response = this.execute(request);
         assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.NOT_ACCEPTABLE.value());
     }

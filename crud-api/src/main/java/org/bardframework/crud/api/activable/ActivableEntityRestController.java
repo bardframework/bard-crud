@@ -4,11 +4,9 @@ import org.bardframework.crud.api.base.BaseModel;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 
-import java.io.Serializable;
-
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
-public interface ActivableEntityRestController<M extends BaseModel<I>, S extends ActivableEntityService<M, ?, I, U>, I extends Serializable, U> {
+public interface ActivableEntityRestController<M extends BaseModel<I>, S extends ActivableEntityService<M, ?, I, U>, I, U> {
 
     String ACTIVATE_URL = "{id}/enable";
     String DEACTIVATE_URL = "{id}/disable";

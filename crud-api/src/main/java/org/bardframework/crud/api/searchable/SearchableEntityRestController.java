@@ -6,12 +6,11 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
-import java.io.Serializable;
 import java.util.List;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
-public interface SearchableEntityRestController<M extends BaseModel<I>, C extends SearchableEntityCriteria, S extends SearchableEntityService<M, C, ?, I, U>, I extends Serializable, U> {
+public interface SearchableEntityRestController<M extends BaseModel<I>, C extends SearchableEntityCriteria, S extends SearchableEntityService<M, C, ?, I, U>, I, U> {
 
     String SEARCH_URL = "search";
 

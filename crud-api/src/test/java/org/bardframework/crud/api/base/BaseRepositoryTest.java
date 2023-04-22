@@ -8,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.PageRequest;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -19,7 +18,7 @@ import static org.assertj.core.api.Assertions.*;
 /**
  * Created on 09/05/2017.
  */
-public interface BaseRepositoryTest<M extends BaseModel<I>, C extends BaseCriteria<I>, R extends BaseRepository<M, C, I, U>, P extends DataProviderRepository<M, C, R, I, U>, I extends Serializable, U> {
+public interface BaseRepositoryTest<M extends BaseModel<I>, C extends BaseCriteria<I>, R extends BaseRepository<M, C, I, U>, P extends RepositoryDataProvider<M, C, R, I, U>, I, U> {
 
     R getRepository();
 
@@ -92,8 +91,9 @@ public interface BaseRepositoryTest<M extends BaseModel<I>, C extends BaseCriter
         /*
             to be sure at least one entity exist.
         */
-        this.getDataProvider().getModel(user);
+        M model = this.getDataProvider().getModel(user);
         C criteria = this.getDataProvider().getEmptyCriteria();
+        criteria.setIdFilter(new IdFilter<I>().setEquals(model.getId()));
         log().debug("get by criteria '{}'.", criteria);
         M result = this.getRepository().getOne(criteria, user);
         log().debug("get db by criteria '{}', result is '{}'.", criteria, result);
