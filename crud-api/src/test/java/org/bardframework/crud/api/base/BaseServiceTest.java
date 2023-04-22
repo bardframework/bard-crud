@@ -17,8 +17,6 @@ import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
 
 public interface BaseServiceTest<M extends BaseModel<I>, C extends BaseCriteria<I>, D, S extends BaseService<M, C, D, ?, I, U>, P extends ServiceDataProvider<M, C, D, S, ?, I, U>, I, U> {
 
-    Logger log = LoggerFactory.getLogger(BaseServiceTest.class);
-
     S getService();
 
     P getDataProvider();
@@ -150,9 +148,9 @@ public interface BaseServiceTest<M extends BaseModel<I>, C extends BaseCriteria<
     default void testSave() {
         U user = this.getDataProvider().getUser();
         D dto = this.getDataProvider().getDto();
-        log.debug("saving '{}'", dto);
+        LoggerFactory.getLogger(this.getClass()).debug("saving '{}'", dto);
         M result = this.getService().save(dto, user);
-        log.debug("save '{}', result is '{}'.", dto, result);
+        LoggerFactory.getLogger(this.getClass()).debug("save '{}', result is '{}'.", dto, result);
         assertThat(result).isNotNull();
         assertThat(result.getId()).isNotNull();
         M model = this.getService().get(result.getId(), user);
@@ -179,9 +177,9 @@ public interface BaseServiceTest<M extends BaseModel<I>, C extends BaseCriteria<
         U user = this.getDataProvider().getUser();
         I id = this.getDataProvider().getId(user);
         D dto = this.getDataProvider().getDto();
-        log.debug("updating '{}'", dto);
+        LoggerFactory.getLogger(this.getClass()).debug("updating '{}'", dto);
         M result = this.getService().update(id, dto, user);
-        log.debug("update '{}', result is '{}'.", dto, result);
+        LoggerFactory.getLogger(this.getClass()).debug("update '{}', result is '{}'.", dto, result);
         assertThat(result).isNotNull();
         assertThat(id).isEqualTo(result.getId());
         M model = this.getService().get(id, user);

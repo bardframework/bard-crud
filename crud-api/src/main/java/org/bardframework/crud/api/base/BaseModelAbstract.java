@@ -1,14 +1,9 @@
 package org.bardframework.crud.api.base;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 /**
  *
  */
 public abstract class BaseModelAbstract<I> implements BaseModel<I> {
-
-    protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
     protected I id;
 

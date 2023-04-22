@@ -2,10 +2,9 @@ package org.springframework.web.servlet.mvc.method.annotation;
 
 import com.fasterxml.jackson.databind.type.SimpleType;
 import jakarta.annotation.PostConstruct;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpInputMessage;
@@ -21,8 +20,8 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
+@Slf4j
 public class GenericRequestBodyResolverConfiguration {
-    private static final Logger log = LoggerFactory.getLogger(GenericRequestBodyResolverConfiguration.class);
 
     private final RequestMappingHandlerAdapter mappingHandler;
 

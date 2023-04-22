@@ -1,16 +1,15 @@
 package org.bardframework.crud.impl.querydsl.type;
 
 import com.querydsl.sql.types.EnumByNameType;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.EnumUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
+@Slf4j
 public abstract class EnumByNameTypeSafe<T extends Enum<T>> extends EnumByNameType<T> {
-    private static final Logger log = LoggerFactory.getLogger(EnumByNameTypeSafe.class);
 
     private final List<T> enumsList;
 

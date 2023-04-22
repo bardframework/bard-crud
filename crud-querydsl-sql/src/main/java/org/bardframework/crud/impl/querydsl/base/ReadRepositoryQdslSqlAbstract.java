@@ -9,6 +9,7 @@ import com.querydsl.core.types.dsl.SimpleExpression;
 import com.querydsl.sql.RelationalPathBase;
 import com.querydsl.sql.SQLQuery;
 import com.querydsl.sql.SQLQueryFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.bardframework.commons.utils.AssertionUtils;
 import org.bardframework.commons.utils.ReflectionUtils;
@@ -18,8 +19,6 @@ import org.bardframework.crud.api.base.PagedData;
 import org.bardframework.crud.api.base.ReadRepository;
 import org.bardframework.crud.impl.querydsl.utils.QueryDslUtils;
 import org.bardframework.form.model.filter.IdFilter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.lang.Nullable;
@@ -35,9 +34,8 @@ import java.util.stream.Collectors;
 /**
  * Created by vahid on 1/17/17.
  */
+@Slf4j
 public abstract class ReadRepositoryQdslSqlAbstract<M extends BaseModel<I>, C extends BaseCriteria<I>, I, U> implements ReadRepository<M, C, I, U> {
-
-    protected final Logger log = LoggerFactory.getLogger(getClass());
 
     protected final SQLQueryFactory queryFactory;
     protected final Class<M> modelClazz;

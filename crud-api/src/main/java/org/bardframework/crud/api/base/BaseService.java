@@ -1,5 +1,6 @@
 package org.bardframework.crud.api.base;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.bardframework.commons.utils.AssertionUtils;
 import org.bardframework.commons.utils.ReflectionUtils;
@@ -12,6 +13,7 @@ import java.util.stream.Collectors;
 /**
  * Created by vahid on 1/17/17.
  */
+@Slf4j
 public abstract class BaseService<M extends BaseModel<I>, C extends BaseCriteria<I>, D, R extends BaseRepository<M, C, I, U>, I, U> extends ReadService<M, C, R, I, U> {
 
     protected final Class<D> dtoClazz;

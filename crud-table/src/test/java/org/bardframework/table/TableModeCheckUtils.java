@@ -1,21 +1,20 @@
 package org.bardframework.table;
 
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.assertj.core.api.Assertions;
 import org.bardframework.commons.utils.ReflectionUtils;
 import org.bardframework.form.FormTemplate;
 import org.bardframework.form.field.FieldTemplate;
 import org.bardframework.table.header.HeaderTemplate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.context.MessageSource;
 import org.springframework.context.NoSuchMessageException;
 
 import java.lang.reflect.Field;
 import java.util.*;
 
+@Slf4j
 public class TableModeCheckUtils {
-    private static final Logger log = LoggerFactory.getLogger(TableModeCheckUtils.class);
 
     public static void checkDefinitionValidity(TableTemplate template, Map<String, String> args, Locale locale) {
         Assertions.assertThat(template.getModelClass()).withFailMessage("model class of [%s] table not set", template.getName()).isNotNull();
