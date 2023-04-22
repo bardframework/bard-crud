@@ -1,14 +1,16 @@
 package org.bardframework.crud.api.base;
 
-import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JavaType;
 import org.bardframework.commons.web.WebTestHelper;
-import org.bardframework.crud.api.utils.TestUtils;
+import org.bardframework.crud.api.common.TestUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.bardframework.crud.api.base.ReadRestController.FILTER_URL;
@@ -20,10 +22,6 @@ public interface ReadRestControllerTest<M extends BaseModel<I>, C extends BaseCr
 
     P getDataProvider();
 
-    TypeReference<M> getModelTypeReference();
-
-    TypeReference<? extends PagedData<M>> getDataModelTypeReference();
-
     String BASE_URL();
 
     default String GET_URL(I id) {
@@ -34,18 +32,32 @@ public interface ReadRestControllerTest<M extends BaseModel<I>, C extends BaseCr
         return BASE_URL() + "/" + FILTER_URL;
     }
 
+    Class<M> getModelClass();
+
+    default JavaType getModelJavaType() {
+        return this.getObjectMapper().getTypeFactory().constructType(this.getModelClass());
+    }
+
+    default JavaType getPagedDataJavaType() {
+        return this.getObjectMapper().getTypeFactory().constructParametricType(PagedData.class, this.getModelClass());
+    }
+
+    default String makeUrl(String url, C criteria, Pageable pageable) throws ReflectiveOperationException {
+        return String.format("%s?page=%d&size=%d&%s", url, pageable.getPageNumber(), pageable.getPageSize(), TestUtils.toQueryParam(criteria));
+    }
+
     @Test
     default void testFilter() throws Exception {
         U user = this.getDataProvider().getUser();
         /*
           to be sure at least one model exist.
          */
-        this.getDataProvider().getModel(user);
-        C criteria = this.getDataProvider().getFilterCriteria();
+        M model = this.getDataProvider().getModel(user);
+        C criteria = this.getDataProvider().getFilterCriteria(List.of(model));
         Pageable pageable = this.getDataProvider().getPageable();
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get(TestUtils.setPage(this.FILTER_URL(), pageable))
-                .accept(MediaType.APPLICATION_JSON);
-        PagedData<M> response = this.execute(request, HttpStatus.OK, this.getDataModelTypeReference());
+        String url = this.makeUrl(this.FILTER_URL(), criteria, pageable);
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get(url).accept(MediaType.APPLICATION_JSON);
+        PagedData<M> response = this.execute(request, HttpStatus.OK, this.getPagedDataJavaType());
         assertThat(response.getTotal()).isGreaterThan(0);
     }
 
@@ -54,7 +66,7 @@ public interface ReadRestControllerTest<M extends BaseModel<I>, C extends BaseCr
         U user = this.getDataProvider().getUser();
         I id = this.getDataProvider().getId(user);
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get(this.GET_URL(id)).accept(MediaType.APPLICATION_JSON);
-        M result = this.execute(request, HttpStatus.OK, getModelTypeReference());
+        M result = this.execute(request, HttpStatus.OK, this.getModelJavaType());
         assertThat(result.getId()).isEqualTo(id);
     }
 
@@ -62,6 +74,6 @@ public interface ReadRestControllerTest<M extends BaseModel<I>, C extends BaseCr
     default void testGETInvalidId() throws Exception {
         I invalidId = this.getDataProvider().getInvalidId();
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get(this.GET_URL(invalidId)).accept(MediaType.APPLICATION_JSON);
-        this.execute(request, HttpStatus.NOT_FOUND, getModelTypeReference());
+        this.execute(request, HttpStatus.NOT_FOUND, this.getModelJavaType());
     }
 }

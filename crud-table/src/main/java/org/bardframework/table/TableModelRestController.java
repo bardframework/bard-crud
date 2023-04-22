@@ -7,11 +7,10 @@ import org.bardframework.crud.api.base.BaseModel;
 import org.bardframework.crud.api.base.BaseService;
 import org.bardframework.crud.api.base.PagedData;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.querydsl.QPageRequest;
 import org.springframework.http.MediaType;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.ModelAttribute;
 
 import java.io.OutputStream;
 import java.util.Locale;
@@ -39,17 +38,17 @@ public interface TableModelRestController<M extends BaseModel<?>, C extends Base
         return TableUtils.toTable(this.getTableTemplate(), Map.of(), locale, httpRequest);
     }
 
-    @PostMapping(path = TABLE_FILTER_URL, consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
-    default TableData getTableData(@RequestBody @Validated C criteria, Pageable page, Locale locale) {
+    @GetMapping(path = TABLE_FILTER_URL, produces = MediaType.APPLICATION_JSON_VALUE)
+    default TableData getTableData(@ModelAttribute C criteria, Pageable page, Locale locale) {
         U user = this.getUser();
         PagedData<M> pagedData = this.getService().get(criteria, page, user);
         return ExcelUtils.toTableData(pagedData, this.getTableTemplate(), locale, false, user);
     }
 
-    @PostMapping(path = TABLE_EXPORT_URL, consumes = MediaType.APPLICATION_JSON_VALUE, produces = APPLICATION_OOXML_SHEET)
-    default void exportTable(@RequestBody @Validated C criteria, Locale locale, HttpServletRequest httpRequest, HttpServletResponse httpResponse) throws Exception {
+    @GetMapping(path = TABLE_EXPORT_URL, produces = APPLICATION_OOXML_SHEET)
+    default void exportTable(@ModelAttribute C criteria, Locale locale, HttpServletRequest httpRequest, HttpServletResponse httpResponse) throws Exception {
         U user = this.getUser();
-        PagedData<M> pagedData = this.getService().get(criteria, Pageable.ofSize(Integer.MAX_VALUE), user);
+        PagedData<M> pagedData = this.getService().get(criteria, QPageRequest.of(1, Integer.MAX_VALUE), user);
         TableData tableData = ExcelUtils.toTableData(pagedData, this.getTableTemplate(), locale, true, user);
         String fileName = this.getExportFileName(APPLICATION_OOXML_SHEET, locale, user);
         try (OutputStream outputStream = httpResponse.getOutputStream()) {

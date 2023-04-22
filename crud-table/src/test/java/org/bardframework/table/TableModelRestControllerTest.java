@@ -5,7 +5,7 @@ import org.bardframework.commons.web.WebTestHelper;
 import org.bardframework.crud.api.base.BaseCriteria;
 import org.bardframework.crud.api.base.BaseModel;
 import org.bardframework.crud.api.base.ServiceDataProvider;
-import org.bardframework.crud.api.utils.TestUtils;
+import org.bardframework.crud.api.common.TestUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -46,6 +46,9 @@ public interface TableModelRestControllerTest<L extends TableModelRestController
         return BASE_URL() + "/" + TABLE_EXPORT_URL;
     }
 
+    default String makeUrl(String url, C criteria, Pageable pageable) throws ReflectiveOperationException {
+        return String.format("%s?page=%d&size=%d&%s", url, pageable.getPageNumber(), pageable.getPageSize(), TestUtils.toQueryParam(criteria));
+    }
 
     @Test
     default void testTableGet() throws Exception {
@@ -61,10 +64,12 @@ public interface TableModelRestControllerTest<L extends TableModelRestController
         /*
           to be sure at least one model exist.
          */
-        this.getDataProvider().getModel(user);
-        C criteria = this.getDataProvider().getFilterCriteria();
+        M model = this.getDataProvider().getModel(user);
+        C criteria = this.getDataProvider().getFilterCriteria(List.of(model));
         Pageable pageable = this.getDataProvider().getPageable();
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post(TestUtils.setPage(this.TABLE_FILTER_URL(), pageable)).content(this.getObjectMapper().writeValueAsBytes(criteria)).contentType(MediaType.APPLICATION_JSON);
+        String url = this.makeUrl(this.TABLE_FILTER_URL(), criteria, pageable);
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get(url)
+                .contentType(MediaType.APPLICATION_JSON);
         TableData tableData = this.execute(request, HttpStatus.OK, TableData.class);
         assertThat(tableData.getHeaders()).isNotNull().isNotEmpty();
         assertThat(tableData.getData()).isNotNull().isNotEmpty();
@@ -77,12 +82,11 @@ public interface TableModelRestControllerTest<L extends TableModelRestController
         /*
           to be sure at least one model exist.
          */
-        this.getDataProvider().getModel(user);
-        C criteria = this.getDataProvider().getFilterCriteria();
+        M model = this.getDataProvider().getModel(user);
+        C criteria = this.getDataProvider().getFilterCriteria(List.of(model));
         Pageable pageable = this.getDataProvider().getPageable();
-        MockHttpServletRequestBuilder request = MockMvcRequestBuilders
-                .post(TestUtils.setPage(this.TABLE_EXPORT_URL(), pageable))
-                .content(this.getObjectMapper().writeValueAsBytes(criteria))
+        String url = this.makeUrl(this.TABLE_EXPORT_URL(), criteria, pageable);
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders.get(url)
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(APPLICATION_OOXML_SHEET);
         MvcResult result = this.execute(request);

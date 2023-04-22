@@ -68,8 +68,10 @@ public interface RepositoryDataProvider<M extends BaseModel<I>, C extends BaseCr
     //...Model
 
     //Filter...
-    default C getFilterCriteria() {
-        return this.getEmptyCriteria();
+    default C getFilterCriteria(List<M> models) {
+        C criteria = this.getEmptyCriteria();
+        criteria.setIdFilter(new IdFilter<I>().setIn(models.stream().map(BaseModel::getId).toList()));
+        return criteria;
     }
 
     default Pageable getPageable() {

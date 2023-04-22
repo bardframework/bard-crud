@@ -262,7 +262,7 @@ public interface BaseServiceTest<M extends BaseModel<I>, C extends BaseCriteria<
         /*
             Create a criteria that returns all the result in one page.
         */
-        C criteria = this.getDataProvider().getFilterCriteria();
+        C criteria = this.getDataProvider().getFilterCriteria(savedList);
         long count = this.getService().getCount(criteria, user);
 
         PagedData<M> pagedData = this.getService().get(criteria, PageRequest.of(1, (int) count), user);

@@ -1,6 +1,6 @@
 package org.bardframework.crud.api.base;
 
-import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JavaType;
 import org.bardframework.commons.web.WebTestHelper;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;
@@ -20,7 +20,7 @@ public interface WriteRestControllerTest<M extends BaseModel<I>, D, P extends Se
 
     P getDataProvider();
 
-    TypeReference<M> getModelTypeReference();
+    Class<M> getModelClass();
 
     default String GET_URL(I id) {
         return BASE_URL() + "/" + id;
@@ -38,9 +38,12 @@ public interface WriteRestControllerTest<M extends BaseModel<I>, D, P extends Se
         return BASE_URL() + "/" + id;
     }
 
-    default TypeReference<Long> getDeleteTypeReference() {
-        return new TypeReference<Long>() {
-        };
+    default JavaType getModelJavaType() {
+        return this.getObjectMapper().getTypeFactory().constructType(this.getModelClass());
+    }
+
+    default JavaType getLongJavaType() {
+        return this.getObjectMapper().getTypeFactory().constructType(Long.class);
     }
 
     @Test
@@ -50,7 +53,7 @@ public interface WriteRestControllerTest<M extends BaseModel<I>, D, P extends Se
                 .content(this.getObjectMapper().writeValueAsBytes(dto))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON);
-        M result = execute(request, HttpStatus.OK, getModelTypeReference());
+        M result = execute(request, HttpStatus.OK, getModelJavaType());
         assertThat(result.getId()).isNotNull();
         this.getDataProvider().assertEqualSave(result, dto);
     }
@@ -75,7 +78,7 @@ public interface WriteRestControllerTest<M extends BaseModel<I>, D, P extends Se
                 .content(this.getObjectMapper().writeValueAsBytes(dto))
                 .contentType(MediaType.APPLICATION_JSON)
                 .accept(MediaType.APPLICATION_JSON);
-        M response = this.execute(request, HttpStatus.OK, getModelTypeReference());
+        M response = this.execute(request, HttpStatus.OK, getModelJavaType());
         this.getDataProvider().assertEqualUpdate(response, dto);
     }
 
@@ -97,7 +100,7 @@ public interface WriteRestControllerTest<M extends BaseModel<I>, D, P extends Se
         U user = this.getDataProvider().getUser();
         M savedModel = this.getDataProvider().saveNew(1, user).get(0);
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.delete(this.DELETE_URL(savedModel.getId()));
-        this.execute(request, HttpStatus.OK, this.getDeleteTypeReference());
+        this.execute(request, HttpStatus.OK, this.getLongJavaType());
         MvcResult response = this.execute(MockMvcRequestBuilders.get(this.GET_URL(savedModel.getId())));
         assertThat(response.getResponse().getStatus()).isEqualTo(HttpStatus.NOT_FOUND.value());
     }
@@ -106,6 +109,6 @@ public interface WriteRestControllerTest<M extends BaseModel<I>, D, P extends Se
     default void testDELETEUnsuccessful() throws Exception {
         I invalidId = this.getDataProvider().getInvalidId();
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.delete(this.DELETE_URL(invalidId));
-        execute(request, HttpStatus.NOT_FOUND, this.getDeleteTypeReference());
+        this.execute(request, HttpStatus.NOT_FOUND, this.getLongJavaType());
     }
 }
