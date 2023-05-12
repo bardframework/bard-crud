@@ -122,8 +122,7 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
         );
         long affectedRowsCount = updateClause.execute();
         if (models.size() != affectedRowsCount) {
-            log.error("expect update '{}' row, but '{}' row(s) updated.", models.size(), affectedRowsCount);
-            throw new IllegalStateException("affected rows in update not valid");
+            log.warn("expect update '{}' row, but '{}' row(s) updated.", models.size(), affectedRowsCount);
         }
         return new ArrayList<>(models);
     }
