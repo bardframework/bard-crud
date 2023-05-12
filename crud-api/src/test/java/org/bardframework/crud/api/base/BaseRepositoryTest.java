@@ -240,8 +240,10 @@ public interface BaseRepositoryTest<M extends BaseModel<I>, C extends BaseCriter
     @Test
     default void testUpdateUnsavedModel() {
         U user = this.getDataProvider().getUser();
-        M model = this.getDataProvider().getUnsavedModel();
-        assertThatExceptionOfType(Exception.class).isThrownBy(() -> this.getRepository().update(model, user));
+        M model = this.getDataProvider().getModel(user);
+        model.setId(this.getDataProvider().getInvalidId());
+        this.getRepository().update(model, user);
+        assertThat(this.getRepository().get(model.getId(), user)).isNull();
     }
 
     /*---------------------- Filter ------------------------*/

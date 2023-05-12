@@ -112,14 +112,12 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
             return Collections.emptyList();
         }
         SQLUpdateClause updateClause = this.getQueryFactory().update(this.getEntity());
-        models.forEach(model ->
-                {
-                    AssertionUtils.notNull(model.getId(), "model identifier is not provided, can't update");
-                    updateClause.where(this.getPredicate(new IdFilter<I>().setEquals(model.getId()), user));
-                    this.onUpdateInternal(updateClause, model, user);
-                    updateClause.addBatch();
-                }
-        );
+        for (M model : models) {
+            AssertionUtils.notNull(model.getId(), "identifier is not provided, can't update");
+            updateClause.where(this.getPredicate(new IdFilter<I>().setEquals(model.getId()), user));
+            this.onUpdateInternal(updateClause, model, user);
+            updateClause.addBatch();
+        }
         long affectedRowsCount = updateClause.execute();
         if (models.size() != affectedRowsCount) {
             log.warn("expect update '{}' row, but '{}' row(s) updated.", models.size(), affectedRowsCount);
