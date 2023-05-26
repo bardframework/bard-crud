@@ -83,10 +83,10 @@ public final class QueryDslUtils {
     }
 
     public static <I> Predicate getPredicate(Filter<I, ?> filter, SimpleExpression<I> path) {
-        return QueryDslUtils.getPredicate(filter, path::eq, path::isNotNull, path::isNull);
+        return QueryDslUtils.getPredicate(filter, path::eq, path::ne, path::isNotNull, path::isNull);
     }
 
-    public static <I> Predicate getPredicate(Filter<I, ?> filter, Function<I, Predicate> equals, Supplier<Predicate> isNotNull, Supplier<Predicate> isNull) {
+    public static <I> Predicate getPredicate(Filter<I, ?> filter, Function<I, Predicate> equals, Function<I, Predicate> notEquals, Supplier<Predicate> isNotNull, Supplier<Predicate> isNull) {
         if (null == filter) {
             return null;
         }
@@ -95,7 +95,7 @@ public final class QueryDslUtils {
             builder.and(equals.apply(filter.getEquals()));
         }
         if (null != filter.getNotEquals()) {
-            builder.and(equals.apply(filter.getNotEquals()).not());
+            builder.and(notEquals.apply(filter.getNotEquals()));
         }
         if (CollectionUtils.isNotEmpty(filter.getIn())) {
             BooleanBuilder inBuilder = new BooleanBuilder();
@@ -107,9 +107,9 @@ public final class QueryDslUtils {
         if (CollectionUtils.isNotEmpty(filter.getNotIn())) {
             BooleanBuilder notInBuilder = new BooleanBuilder();
             for (I id : filter.getNotIn()) {
-                notInBuilder.or(equals.apply(id));
+                notInBuilder.or(notEquals.apply(id));
             }
-            builder.and(notInBuilder.not());
+            builder.and(notInBuilder);
         }
         if (filter.getSpecified() != null) {
             if (filter.getSpecified()) {

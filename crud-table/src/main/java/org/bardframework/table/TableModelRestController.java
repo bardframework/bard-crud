@@ -35,7 +35,7 @@ public interface TableModelRestController<M extends BaseModel<?>, C extends Base
 
     @GetMapping(path = TABLE_GET_URL, produces = MediaType.APPLICATION_JSON_VALUE)
     default TableModel getTableModel(Locale locale, HttpServletRequest httpRequest) throws Exception {
-        return TableUtils.toTable(this.getTableTemplate(), Map.of(), locale, httpRequest);
+        return TableUtils.toTable(this.getTableTemplate(), Map.of(), locale);
     }
 
     @GetMapping(path = TABLE_FILTER_URL, produces = MediaType.APPLICATION_JSON_VALUE)
@@ -54,7 +54,7 @@ public interface TableModelRestController<M extends BaseModel<?>, C extends Base
         try (OutputStream outputStream = httpResponse.getOutputStream()) {
             httpResponse.setContentType(APPLICATION_OOXML_SHEET);
             httpResponse.addHeader("Content-Disposition", "attachment;filename=\"%s\"".formatted(fileName));
-            ExcelUtils.generateExcel(this.getTableTemplate(), tableData, outputStream, locale, this.isRtl(locale, user), httpRequest);
+            ExcelUtils.generateExcel(this.getTableTemplate(), tableData, outputStream, locale, this.isRtl(locale, user));
         }
     }
 }

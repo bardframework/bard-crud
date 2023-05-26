@@ -177,7 +177,7 @@ public interface BaseRepositoryTest<M extends BaseModel<I>, C extends BaseCriter
         U user = this.getDataProvider().getUser();
         List<M> list = this.getDataProvider().getUnsavedModels(RandomUtils.nextInt(1, 10), user);
         Collection<M> result = this.getRepository().save(list, user);
-        assertThat(result.size()).isEqualTo(list.size());
+        assertThat(result).hasSameSizeAs(list);
         for (M savedEntity : result) {
             M entity = list.get(list.indexOf(savedEntity));
             this.getDataProvider().assertEqualSave(entity, savedEntity);
@@ -192,7 +192,7 @@ public interface BaseRepositoryTest<M extends BaseModel<I>, C extends BaseCriter
         /*
           i.e no model has been saved to the database.
           */
-        assertThat(saved).hasSize(0);
+        assertThat(saved).isEmpty();
     }
 
     @Test
@@ -271,7 +271,7 @@ public interface BaseRepositoryTest<M extends BaseModel<I>, C extends BaseCriter
         M model = this.getDataProvider().getModel(user);
         C criteria = this.getDataProvider().getEmptyCriteria();
         criteria.setIdFilter(new IdFilter<I>().setEquals(model.getId()));
-        Assertions.assertThat(this.getRepository().getIds(criteria, user)).size().isGreaterThanOrEqualTo(1);
+        Assertions.assertThat(this.getRepository().getIds(criteria, user)).size().isPositive();
     }
 
     @Test
@@ -309,7 +309,7 @@ public interface BaseRepositoryTest<M extends BaseModel<I>, C extends BaseCriter
         U user = this.getDataProvider().getUser();
         /* Make sure that at least one record exists. */
         this.getDataProvider().getModel(user);
-        assertThat(this.getRepository().getCount(this.getDataProvider().getEmptyCriteria(), user)).isGreaterThanOrEqualTo(1);
+        assertThat(this.getRepository().getCount(this.getDataProvider().getEmptyCriteria(), user)).isPositive();
     }
 
     @Test
