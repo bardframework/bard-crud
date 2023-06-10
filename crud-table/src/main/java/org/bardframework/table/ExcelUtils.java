@@ -6,12 +6,10 @@ import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.streaming.SXSSFSheet;
 import org.apache.poi.xssf.streaming.SXSSFWorkbook;
-import org.bardframework.commons.utils.ReflectionUtils;
 import org.bardframework.crud.api.base.BaseModel;
 import org.bardframework.crud.api.base.PagedData;
 import org.bardframework.table.header.HeaderTemplate;
 import org.bardframework.table.header.TableHeader;
-import org.springframework.context.MessageSource;
 
 import java.io.OutputStream;
 import java.util.*;
@@ -70,7 +68,7 @@ public class ExcelUtils {
          ساخت استایل های مورد نیاز همه ی هدرها
          */
         Map<String, CellStyle> styles = new HashMap<>();
-        for (HeaderTemplate<?, ?> headerModel : tableTemplate.getHeaderTemplates()) {
+        for (HeaderTemplate<?, ?, ?> headerModel : tableTemplate.getHeaderTemplates()) {
             if (null != headerModel.getExcelFormat()) {
                 CellStyle cellStyle = workbook.createCellStyle();
                 cellStyle.cloneStyleFrom(dataStyle);
@@ -88,7 +86,7 @@ public class ExcelUtils {
             for (int index = 0; index < tableTemplate.getHeaderTemplates().size(); index++) {
                 Cell cell = row.createCell(index);
                 Object cellValue = rowData.get(index);
-                HeaderTemplate<?, ?> headerTemplate = tableTemplate.getHeaderTemplates().get(index);
+                HeaderTemplate<?, ?, ?> headerTemplate = tableTemplate.getHeaderTemplates().get(index);
                 if (null == cellValue) {
                     cell.setBlank();
                 } else {
@@ -118,24 +116,14 @@ public class ExcelUtils {
         for (M model : pagedData.getData()) {
             List<Object> values = new ArrayList<>();
             for (HeaderTemplate headerTemplate : tableTemplate.getHeaderTemplates()) {
-                Object value;
                 try {
-                    value = ReflectionUtils.getPropertyValue(model, headerTemplate.getName());
+                    values.add(headerTemplate.getValue(model, tableTemplate.getMessageSource(), locale, export));
                 } catch (Exception e) {
-                    throw new IllegalStateException(String.format("can't read property [%s] of [%s] instance and convert it, table [%s]", headerTemplate.getName(), model.getClass(), tableTemplate.getName()), e);
-                }
-                try {
-                    values.add(ExcelUtils.format(headerTemplate, value, locale, export, tableTemplate.getMessageSource()));
-                } catch (Exception e) {
-                    throw new IllegalStateException(String.format("error formatting value [%s] with formatter [%s], table [%s]", value, headerTemplate.getClass(), tableTemplate.getName()), e);
+                    throw new IllegalStateException(String.format("error getting value of [%s] from [%s] in header type [%s], table [%s]", headerTemplate.getName(), model, headerTemplate.getClass(), tableTemplate.getName()), e);
                 }
             }
             tableData.addData(model.getId().toString(), values);
         }
         return tableData;
-    }
-
-    private Object format(HeaderTemplate headerTemplate, Object value, Locale locale, boolean export, MessageSource messageSource) {
-        return export ? headerTemplate.formatForExport(value, locale, messageSource) : headerTemplate.format(value, locale, messageSource);
     }
 }
