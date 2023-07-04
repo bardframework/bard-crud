@@ -62,7 +62,7 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
         );
         Long affectedCount = this.insertAndSetIds(list, insertClause);
         if (null != affectedCount && list.size() != affectedCount) {
-            log.warn("expect insert '{}' row, but '{}' row(s) inserted.", list.size(), affectedCount);
+            log.debug("expect insert '{}' row, but '{}' row(s) inserted.", list.size(), affectedCount);
         }
         return list;
     }
@@ -120,7 +120,7 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
         }
         long affectedRowsCount = updateClause.execute();
         if (models.size() != affectedRowsCount) {
-            log.warn("expect update '{}' row, but '{}' row(s) updated.", models.size(), affectedRowsCount);
+            log.debug("expect update '{}' row, but '{}' row(s) updated.", models.size(), affectedRowsCount);
         }
         return new ArrayList<>(models);
     }
