@@ -39,6 +39,7 @@ public final class QueryDslUtils {
             return null;
         }
         BooleanBuilder builder = new BooleanBuilder(QueryDslUtils.getPredicate((Filter<String, ?>) filter, path));
+        builder.and(QueryDslUtils.getPredicate((RangeFilter<String, ?>) filter, path));
         if (StringUtils.isNotBlank(filter.getContains())) {
             builder.and(path.likeIgnoreCase("%" + filter.getContains() + "%"));
         }

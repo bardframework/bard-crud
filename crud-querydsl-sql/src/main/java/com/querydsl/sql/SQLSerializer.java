@@ -913,6 +913,10 @@ public class SQLSerializer extends SerializerBase<SQLSerializer> {
                 withAliases.add((Path<?>) ((Operation<?>) args.get(0)).getArg(0));
             }
         }
+        if (operator == Ops.BETWEEN && args.get(0) instanceof Path<?> path && null == constantPaths.get(constantPaths.size() - 1) && null == constantPaths.get(constantPaths.size() - 2)) {
+            constantPaths.set(constantPaths.size() - 1, path);
+            constantPaths.set(constantPaths.size() - 2, path);
+        }
     }
 
     @Override
