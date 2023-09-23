@@ -23,6 +23,12 @@ public interface ReadRepository<M extends BaseModel<I>, C extends BaseCriteria<I
 
     PagedData<M> get(C criteria, Pageable pageable, U user);
 
+    List<I> getIds(C criteria, Pageable pageable, U user);
+
+    M getFirst(C criteria, U user);
+
+    M getFirst(C criteria, Sort sort, U user);
+
     List<I> getIds(C criteria, U user);
 
     long getCount(C criteria, U user);

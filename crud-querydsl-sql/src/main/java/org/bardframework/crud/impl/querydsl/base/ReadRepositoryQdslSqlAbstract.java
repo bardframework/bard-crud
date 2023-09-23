@@ -9,8 +9,6 @@ import com.querydsl.core.types.dsl.SimpleExpression;
 import com.querydsl.sql.RelationalPathBase;
 import com.querydsl.sql.SQLQuery;
 import com.querydsl.sql.SQLQueryFactory;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections4.CollectionUtils;
 import org.bardframework.commons.utils.AssertionUtils;
 import org.bardframework.commons.utils.ReflectionUtils;
 import org.bardframework.crud.api.base.BaseCriteria;
@@ -19,6 +17,8 @@ import org.bardframework.crud.api.base.PagedData;
 import org.bardframework.crud.api.base.ReadRepository;
 import org.bardframework.crud.impl.querydsl.utils.QueryDslUtils;
 import org.bardframework.form.model.filter.IdFilter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.lang.Nullable;
@@ -34,7 +34,6 @@ import java.util.stream.Collectors;
 /**
  * Created by vahid on 1/17/17.
  */
-@Slf4j
 public abstract class ReadRepositoryQdslSqlAbstract<M extends BaseModel<I>, C extends BaseCriteria<I>, I, U> implements ReadRepository<M, C, I, U> {
 
     protected final SQLQueryFactory queryFactory;
@@ -42,6 +41,8 @@ public abstract class ReadRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
     protected final Class<C> criteriaClazz;
     protected final Class<I> idClazz;
     protected final Map<String, Path<?>> columns;
+
+    protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
     public ReadRepositoryQdslSqlAbstract(SQLQueryFactory queryFactory) {
         this.queryFactory = queryFactory;
@@ -65,7 +66,6 @@ public abstract class ReadRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
         }
         return QueryDslUtils.getPredicate(idFilter, (SimpleExpression<I>) this.getIdSelectExpression());
     }
-
 
     @Transactional(readOnly = true)
     @Override
@@ -101,6 +101,33 @@ public abstract class ReadRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
         query.limit(pageable.getPageSize());
         List<M> result = query.select(this.getSelectExpression()).fetch();
         return new PagedData<>(result, total);
+    }
+
+    @Transactional(readOnly = true)
+    public List<I> getIds(C criteria, Pageable pageable, U user) {
+        SQLQuery<?> query = this.prepareSelectQuery(criteria, user);
+        this.setOrders(query, pageable.getSort());
+        query.offset((long) (pageable.getPageNumber() - 1) * (long) pageable.getPageSize());
+        query.limit(pageable.getPageSize());
+        return query.select(this.getIdSelectExpression()).fetch();
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public M getFirst(C criteria, U user) {
+        AssertionUtils.notNull(criteria, "Given criteria cannot be null");
+        return this.prepareSelectQuery(criteria, user)
+                .select(this.getSelectExpression())
+                .fetchFirst();
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public M getFirst(C criteria, Sort sort, U user) {
+        AssertionUtils.notNull(criteria, "Given criteria cannot be null");
+        SQLQuery<M> sqlQuery = this.prepareSelectQuery(criteria, user).select(this.getSelectExpression());
+        this.setOrders(sqlQuery, sort);
+        return sqlQuery.fetchFirst();
     }
 
     @Transactional(readOnly = true)
@@ -186,9 +213,6 @@ public abstract class ReadRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
 
     protected void setOrders(SQLQuery<?> query, @Nullable Sort sort) {
         if (null == sort || sort.isEmpty()) {
-            if (CollectionUtils.isNotEmpty(this.getDefaultOrders())) {
-                query.orderBy(this.getDefaultOrders().toArray(new OrderSpecifier[0]));
-            }
             return;
         }
         query.orderBy(sort.stream().map(this::toOrderSpecifier).filter(Objects::nonNull).toArray(OrderSpecifier[]::new));
@@ -196,9 +220,5 @@ public abstract class ReadRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
 
     protected SQLQueryFactory getQueryFactory() {
         return queryFactory;
-    }
-
-    protected List<OrderSpecifier<?>> getDefaultOrders() {
-        return List.of();
     }
 }

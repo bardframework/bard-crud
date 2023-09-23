@@ -6,7 +6,6 @@ import com.querydsl.sql.SQLQueryFactory;
 import com.querydsl.sql.dml.SQLDeleteClause;
 import com.querydsl.sql.dml.SQLInsertClause;
 import com.querydsl.sql.dml.SQLUpdateClause;
-import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.bardframework.commons.utils.AssertionUtils;
 import org.bardframework.commons.utils.ReflectionUtils;
@@ -22,7 +21,6 @@ import java.util.function.Consumer;
 /**
  * Created by vahid on 1/17/17.
  */
-@Slf4j
 public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C extends BaseCriteria<I>, I, U> extends ReadRepositoryQdslSqlAbstract<M, C, I, U> implements BaseRepository<M, C, I, U> {
 
     public BaseRepositoryQdslSqlAbstract(SQLQueryFactory queryFactory) {
