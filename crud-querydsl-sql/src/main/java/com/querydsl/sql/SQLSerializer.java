@@ -16,6 +16,8 @@ import com.querydsl.sql.types.Null;
 
 import java.sql.Types;
 import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * {@code SqlSerializer} serializes SQL clauses into SQL
@@ -178,7 +180,9 @@ public class SQLSerializer extends SerializerBase<SQLSerializer> {
 
     @Override
     public void visitConstant(Object constant) {
-        boolean insertUpdate = this.toString().toLowerCase().startsWith("insert") || this.toString().toLowerCase().startsWith("update");
+        boolean insert = this.toString().toLowerCase().startsWith("insert");
+        boolean update = this.toString().toLowerCase().startsWith("update");
+        boolean insertUpdate = insert || update;
         if (!insertUpdate && useLiterals) {
             if (constant instanceof Collection) {
                 append("(");
@@ -221,10 +225,20 @@ public class SQLSerializer extends SerializerBase<SQLSerializer> {
                 String typeName = configuration.getTypeNameForCast(constant.getClass());
                 Expression type = Expressions.constant(typeName);
                 super.visitOperation(constant.getClass(), SQLOps.CAST, Arrays.<Expression<?>>asList(Q, type));
+                constants.add(constant);
             } else {
-                serializeConstant(constants.size() + 1, null);
+                if (update && constant instanceof Collection collection) {
+                    append("(");
+                    append(IntStream.range(0, collection.size()).mapToObj(operand -> "?").collect(Collectors.joining(",")));
+                    append(")");
+                    for (Object value : collection) {
+                        constants.add(value);
+                    }
+                } else {
+                    serializeConstant(constants.size() + 1, null);
+                    constants.add(constant);
+                }
             }
-            constants.add(constant);
             if (constantPaths.size() < constants.size()) {
                 constantPaths.add(null);
             }
