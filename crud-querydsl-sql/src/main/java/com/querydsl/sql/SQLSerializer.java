@@ -227,7 +227,7 @@ public class SQLSerializer extends SerializerBase<SQLSerializer> {
                 super.visitOperation(constant.getClass(), SQLOps.CAST, Arrays.<Expression<?>>asList(Q, type));
                 constants.add(constant);
             } else {
-                if (update && constant instanceof Collection collection) {
+                if (update && constant instanceof Collection collection && this.isSimpleValue(collection)) {
                     append("(");
                     append(IntStream.range(0, collection.size()).mapToObj(operand -> "?").collect(Collectors.joining(",")));
                     append(")");
@@ -243,6 +243,11 @@ public class SQLSerializer extends SerializerBase<SQLSerializer> {
                 constantPaths.add(null);
             }
         }
+    }
+
+    protected boolean isSimpleValue(Collection<?> collection) {
+        Object value = collection.iterator().next();
+        return value instanceof String || value instanceof Number || value instanceof Enum<?>;
     }
 
     public void serialize(QueryMetadata metadata, boolean forCountRow) {
