@@ -152,17 +152,17 @@ public abstract class BaseService<M extends BaseModel<I>, C extends BaseCriteria
     }
 
     @Transactional
-    public M patch(I id, Map<String, Object> patch, U user) {
+    public M patch(I id, Map<String, Object> patches, U user) {
         AssertionUtils.notNull(id, "id cannot be null.");
-        AssertionUtils.notEmpty(patch, "patch cannot be empty.");
+        AssertionUtils.notEmpty(patches, "patches cannot be empty.");
         M entity = this.getRepository().get(id, user);
         if (null == entity) {
             return null;
         }
         M pre = this.clone(entity);
-        this.prePatch(pre, patch, user);
-        M patched = this.getRepository().patch(id, patch, user);
-        this.postPatch(pre, patched, patch, user);
+        this.prePatch(pre, patches, user);
+        M patched = this.getRepository().patch(id, patches, user);
+        this.postPatch(pre, patched, patches, user);
         return this.get(entity.getId(), user);
     }
 

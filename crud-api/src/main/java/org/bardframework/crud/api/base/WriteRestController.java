@@ -31,9 +31,9 @@ public interface WriteRestController<M extends BaseModel<I>, D, S extends BaseSe
         }
     }
 
-    @PatchMapping(value = ITEM_URL, consumes = "application/json-patch+json")
-    default ResponseEntity<M> PATCH(@PathVariable I id, @RequestBody Map<String, Object> patch) {
-        M result = this.getService().patch(id, patch, this.getUser());
+    @PatchMapping(value = ITEM_URL, consumes = "application/json-merge-patch")
+    default ResponseEntity<M> PATCH(@PathVariable I id, @RequestBody Map<String, Object> patches) {
+        M result = this.getService().patch(id, patches, this.getUser());
         if (null != result) {
             return ResponseEntity.ok().body(result);
         } else {
