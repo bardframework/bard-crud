@@ -26,6 +26,11 @@ import java.util.function.Supplier;
 @UtilityClass
 public final class QueryDslUtils {
 
+    private final static String EMPTY_CRITERIA_ERROR_MESSAGE = """
+            The filter is empty;
+            Filter on which no restrictions has been applied can be very dangerous in scenarios such as data deletion and cause unwanted deletion of data;
+            Instead of using an empty filter (a filter that all its restrictions such as 'equals', 'notEquals', etc are empty), use the null criteria.""";
+
     public static <T> Expression<T> bean(String alias, Class<T> type, Expression<?>... expressions) {
         return ExpressionUtils.as(Projections.bean(type, expressions).skipNulls(), alias);
     }
@@ -37,6 +42,10 @@ public final class QueryDslUtils {
     public static Predicate getPredicate(StringFilter filter, StringPath path) {
         if (null == filter) {
             return null;
+        }
+        if (filter.isEmpty()) {
+            log.error(EMPTY_CRITERIA_ERROR_MESSAGE + ". filter: " + filter);
+            throw new IllegalArgumentException(EMPTY_CRITERIA_ERROR_MESSAGE);
         }
         BooleanBuilder builder = new BooleanBuilder(QueryDslUtils.getPredicate((Filter<String, ?>) filter, path));
         builder.and(QueryDslUtils.getPredicate((RangeFilter<String, ?>) filter, path));
@@ -59,6 +68,10 @@ public final class QueryDslUtils {
         if (null == filter) {
             return null;
         }
+        if (filter.isEmpty()) {
+            log.error(EMPTY_CRITERIA_ERROR_MESSAGE + ". filter: " + filter);
+            throw new IllegalArgumentException(EMPTY_CRITERIA_ERROR_MESSAGE);
+        }
         BooleanBuilder builder = new BooleanBuilder(QueryDslUtils.getPredicate((Filter<T, F>) filter, path));
         if (filter.getFrom() != null) {
             builder.and(path.goe(filter.getFrom()));
@@ -72,6 +85,10 @@ public final class QueryDslUtils {
     public static <T extends Comparable<?> & Serializable> Predicate getPredicate(RangeFilter<T, ?> filter, ComparableExpression<T> path) {
         if (null == filter) {
             return null;
+        }
+        if (filter.isEmpty()) {
+            log.error(EMPTY_CRITERIA_ERROR_MESSAGE + ". filter: " + filter);
+            throw new IllegalArgumentException(EMPTY_CRITERIA_ERROR_MESSAGE);
         }
         BooleanBuilder builder = new BooleanBuilder(QueryDslUtils.getPredicate((Filter<T, ?>) filter, path));
         if (filter.getFrom() != null) {
@@ -90,6 +107,10 @@ public final class QueryDslUtils {
     public static <I> Predicate getPredicate(Filter<I, ?> filter, Function<I, Predicate> equals, Function<I, Predicate> notEquals, Supplier<Predicate> isNotNull, Supplier<Predicate> isNull) {
         if (null == filter) {
             return null;
+        }
+        if (filter.isEmpty()) {
+            log.error(EMPTY_CRITERIA_ERROR_MESSAGE + ". filter: " + filter);
+            throw new IllegalArgumentException(EMPTY_CRITERIA_ERROR_MESSAGE);
         }
         BooleanBuilder builder = new BooleanBuilder();
         if (null != filter.getEquals()) {
