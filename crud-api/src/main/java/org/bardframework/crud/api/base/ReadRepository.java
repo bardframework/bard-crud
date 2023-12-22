@@ -17,7 +17,7 @@ public interface ReadRepository<M extends BaseModel<I>, C extends BaseCriteria<I
 
     List<M> get(C criteria, U user);
 
-    List<M> get(C criteria, Sort sort, U user);
+    List<M> getList(C criteria, Pageable pageable, U user);
 
     M getOne(C criteria, U user);
 

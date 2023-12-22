@@ -91,11 +91,11 @@ public abstract class ReadRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
         AssertionUtils.notNull(criteria, "Given criteria cannot be null.");
         AssertionUtils.notNull(pageable, "Given pageable cannot be null.");
         SQLQuery<?> query = this.prepareSelectQuery(criteria, user);
-        this.setOrders(query, pageable.getSort());
         long total = query.fetchCount();
         if (0 >= total) {
             return new PagedData<>();
         }
+        this.setOrders(query, pageable.getSort());
         query = query.clone(this.getQueryFactory().getConnection());
         query.offset((long) (pageable.getPageNumber() - 1) * pageable.getPageSize());
         query.limit(pageable.getPageSize());
@@ -159,16 +159,23 @@ public abstract class ReadRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
     @Transactional(readOnly = true)
     @Override
     public List<M> get(C criteria, U user) {
-        return this.get(criteria, (Sort) null, user);
+        return this.getList(criteria, null, user);
     }
 
     @Transactional(readOnly = true)
     @Override
-    public List<M> get(C criteria, Sort sort, U user) {
-        AssertionUtils.notNull(criteria, "Given criteria cannot be null");
-        SQLQuery<?> sqlQuery = this.prepareSelectQuery(criteria, user);
-        this.setOrders(sqlQuery, sort);
-        return sqlQuery.select(this.getSelectExpression()).fetch();
+    public List<M> getList(C criteria, Pageable pageable, U user) {
+        AssertionUtils.notNull(criteria, "Given criteria cannot be null.");
+        AssertionUtils.notNull(pageable, "Given pageable cannot be null.");
+        SQLQuery<?> query = this.prepareSelectQuery(criteria, user);
+        if (null != pageable) {
+            this.setOrders(query, pageable.getSort());
+            if (pageable.isPaged()) {
+                query.offset((long) (pageable.getPageNumber() - 1) * pageable.getPageSize());
+                query.limit(pageable.getPageSize());
+            }
+        }
+        return query.select(this.getSelectExpression()).fetch();
     }
 
     @Transactional(readOnly = true)

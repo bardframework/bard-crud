@@ -62,7 +62,7 @@ public interface TableModelRestControllerTest<L extends TableModelRestController
     default void testTableDataGet() throws Exception {
         U user = this.getDataProvider().getUser();
         /*
-          to be sure at least one model exist.
+          to be sure, at least one model exist.
          */
         M model = this.getDataProvider().getModel(user);
         C criteria = this.getDataProvider().getFilterCriteria(List.of(model));
