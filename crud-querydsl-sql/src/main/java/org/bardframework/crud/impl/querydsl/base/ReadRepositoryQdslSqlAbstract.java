@@ -166,7 +166,6 @@ public abstract class ReadRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
     @Override
     public List<M> getList(C criteria, Pageable pageable, U user) {
         AssertionUtils.notNull(criteria, "Given criteria cannot be null.");
-        AssertionUtils.notNull(pageable, "Given pageable cannot be null.");
         SQLQuery<?> query = this.prepareSelectQuery(criteria, user);
         if (null != pageable) {
             this.setOrders(query, pageable.getSort());
