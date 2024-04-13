@@ -129,7 +129,7 @@ public final class QueryDslUtils {
         if (CollectionUtils.isNotEmpty(filter.getNotIn())) {
             BooleanBuilder notInBuilder = new BooleanBuilder();
             for (I id : filter.getNotIn()) {
-                notInBuilder.or(notEquals.apply(id));
+                notInBuilder.and(notEquals.apply(id));
             }
             builder.and(notInBuilder);
         }
