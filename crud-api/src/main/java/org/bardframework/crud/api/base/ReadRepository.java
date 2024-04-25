@@ -19,6 +19,8 @@ public interface ReadRepository<M extends BaseModel<I>, C extends BaseCriteria<I
 
     List<M> getList(C criteria, Pageable pageable, U user);
 
+    List<M> getList(C criteria, Pageable pageable, List<String> fields, U user);
+
     M getOne(C criteria, U user);
 
     PagedData<M> get(C criteria, Pageable pageable, U user);

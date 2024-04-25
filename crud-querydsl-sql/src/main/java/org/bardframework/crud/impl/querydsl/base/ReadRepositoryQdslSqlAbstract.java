@@ -9,12 +9,14 @@ import com.querydsl.core.types.dsl.SimpleExpression;
 import com.querydsl.sql.RelationalPathBase;
 import com.querydsl.sql.SQLQuery;
 import com.querydsl.sql.SQLQueryFactory;
+import org.apache.commons.collections4.CollectionUtils;
 import org.bardframework.commons.utils.AssertionUtils;
 import org.bardframework.commons.utils.ReflectionUtils;
 import org.bardframework.crud.api.base.BaseCriteria;
 import org.bardframework.crud.api.base.BaseModel;
 import org.bardframework.crud.api.base.PagedData;
 import org.bardframework.crud.api.base.ReadRepository;
+import org.bardframework.crud.exception.InvalidFieldException;
 import org.bardframework.crud.impl.querydsl.utils.QueryDslUtils;
 import org.bardframework.form.model.filter.IdFilter;
 import org.slf4j.Logger;
@@ -182,6 +184,35 @@ public abstract class ReadRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
     public M getOne(C criteria, U user) {
         AssertionUtils.notNull(criteria, "Given criteria cannot be null");
         return this.prepareSelectQuery(criteria, user).select(this.getSelectExpression()).fetchOne();
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public List<M> getList(C criteria, Pageable pageable, List<String> fields, U user) {
+        AssertionUtils.notNull(criteria, "Given criteria cannot be null.");
+        SQLQuery<?> query = this.prepareSelectQuery(criteria, user);
+        if (null != pageable) {
+            this.setOrders(query, pageable.getSort());
+            if (pageable.isPaged()) {
+                query.offset((long) (pageable.getPageNumber() - 1) * pageable.getPageSize());
+                query.limit(pageable.getPageSize());
+            }
+        }
+        Expression<M> selectExpression;
+        if (CollectionUtils.isNotEmpty(fields)) {
+            Expression<?>[] expressions = new Expression[fields.size()];
+            for (int i = 0; i < fields.size(); i++) {
+                Path<?> path = this.getPath(fields.get(i));
+                if (null == path) {
+                    throw new InvalidFieldException(fields.get(i));
+                }
+                expressions[i] = path;
+            }
+            selectExpression = QueryDslUtils.bean(modelClazz, expressions);
+        } else {
+            selectExpression = this.getSelectExpression();
+        }
+        return query.select(selectExpression).fetch();
     }
 
     protected SQLQuery<?> prepareSelectQuery(C criteria, U user) {
