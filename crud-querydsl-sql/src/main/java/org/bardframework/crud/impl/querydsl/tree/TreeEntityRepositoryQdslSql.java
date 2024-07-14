@@ -1,5 +1,6 @@
 package org.bardframework.crud.impl.querydsl.tree;
 
+import com.querydsl.core.FetchableQuery;
 import com.querydsl.core.types.Expression;
 import com.querydsl.core.types.dsl.SimpleExpression;
 import com.querydsl.sql.RelationalPathBase;
@@ -33,7 +34,7 @@ public interface TreeEntityRepositoryQdslSql<M extends BaseModel<I> & TreeEntity
     SQLQueryFactory getQueryFactory();
 
     @Override
-    default <T> SQLQuery<T> process(C criteria, SQLQuery<T> query, U user) {
+    default void process(C criteria, FetchableQuery<?, ?> query, U user) {
         query.where(QueryDslUtils.getPredicate(criteria.getParentIdFilter(), this.getParentIdSelectExpression()));
         if (null != criteria.getLeaf()) {
             SQLQuery<I> parentIdsQuery = SQLExpressions.select(this.getParentIdSelectExpression()).from(this.getEntity()).where(this.getParentIdSelectExpression().isNotNull());
@@ -43,7 +44,6 @@ public interface TreeEntityRepositoryQdslSql<M extends BaseModel<I> & TreeEntity
                 query.where(this.getIdSelectExpression().in(parentIdsQuery));
             }
         }
-        return query;
     }
 
     @Transactional(readOnly = true)

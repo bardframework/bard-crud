@@ -6,6 +6,7 @@ import com.querydsl.core.types.Path;
 import com.querydsl.core.types.Predicate;
 import com.querydsl.core.types.dsl.ComparableExpressionBase;
 import com.querydsl.core.types.dsl.SimpleExpression;
+import com.querydsl.sql.ProjectableSQLQuery;
 import com.querydsl.sql.RelationalPathBase;
 import com.querydsl.sql.SQLQuery;
 import com.querydsl.sql.SQLQueryFactory;
@@ -245,7 +246,7 @@ public abstract class ReadRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
         return columns.get(columnName);
     }
 
-    protected void setSelectJoins(SQLQuery<?> query, C criteria, U user) {
+    protected void setSelectJoins(ProjectableSQLQuery<?, ?> query, C criteria, U user) {
     }
 
     protected void setOrders(SQLQuery<?> query, @Nullable Sort sort) {

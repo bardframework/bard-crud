@@ -1,9 +1,9 @@
 package org.bardframework.crud.impl.querydsl.activable;
 
+import com.querydsl.core.FetchableQuery;
 import com.querydsl.core.types.dsl.BooleanPath;
 import com.querydsl.core.types.dsl.SimpleExpression;
 import com.querydsl.sql.RelationalPathBase;
-import com.querydsl.sql.SQLQuery;
 import com.querydsl.sql.SQLQueryFactory;
 import org.bardframework.crud.api.activable.ActivableEntityCriteria;
 import org.bardframework.crud.api.activable.ActivableEntityRepository;
@@ -28,10 +28,9 @@ public interface ActivableEntityRepositoryQdslSql<C extends BaseCriteria<I> & Ac
     BooleanPath getEnablePath();
 
     @Override
-    default <T> SQLQuery<T> process(C criteria, SQLQuery<T> query, U user) {
+    default void process(C criteria, FetchableQuery<?, ?> query, U user) {
         if (null != criteria.getEnable()) {
             query.where(this.getEnablePath().eq(criteria.getEnable()));
         }
-        return query;
     }
 }

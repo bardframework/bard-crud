@@ -246,6 +246,9 @@ public class SQLSerializer extends SerializerBase<SQLSerializer> {
     }
 
     protected boolean isSimpleValue(Collection<?> collection) {
+        if (null == collection || collection.isEmpty()) {
+            return false;
+        }
         Object value = collection.iterator().next();
         return value instanceof String || value instanceof Number || value instanceof Enum<?>;
     }

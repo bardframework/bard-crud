@@ -1,5 +1,6 @@
 package org.bardframework.crud.impl.querydsl.searchable;
 
+import com.querydsl.core.FetchableQuery;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.Path;
 import com.querydsl.core.types.dsl.BooleanExpression;
@@ -67,15 +68,14 @@ public interface SearchableEntityRepositoryQdslSql<M extends BaseModel<I>, C ext
     }
 
     @Override
-    default <T> SQLQuery<T> process(C criteria, SQLQuery<T> query, U user) {
+    default void process(C criteria, FetchableQuery<?, ?> query, U user) {
         if (StringUtils.isBlank(criteria.getQuery())) {
-            return query;
+            return;
         }
         BooleanExpression searchExpression = this.getSearchPaths()[0].like("%" + criteria.getQuery() + "%", ' ');
         for (int i = 1; i < this.getSearchPaths().length; i++) {
             searchExpression = searchExpression.or(this.getSearchPaths()[i].like("%" + criteria.getQuery() + "%", ' '));
         }
         query.where(searchExpression);
-        return query;
     }
 }

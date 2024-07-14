@@ -1,6 +1,6 @@
 package org.bardframework.crud.impl.querydsl.base;
 
-import com.querydsl.sql.SQLQuery;
+import com.querydsl.core.FetchableQuery;
 import org.bardframework.crud.api.base.BaseCriteria;
 
 /**
@@ -8,6 +8,6 @@ import org.bardframework.crud.api.base.BaseCriteria;
  */
 public interface ReadExtendedRepositoryQdslSql<C extends BaseCriteria<I>, I, U> {
 
-    <T> SQLQuery<T> process(C criteria, SQLQuery<T> query, U user);
+    void process(C criteria, FetchableQuery<?, ?> query, U user);
 
 }
