@@ -1,5 +1,6 @@
 package org.bardframework.crud.api.base;
 
+import lombok.Getter;
 import org.apache.commons.collections4.CollectionUtils;
 import org.bardframework.commons.utils.AssertionUtils;
 import org.bardframework.commons.utils.ReflectionUtils;
@@ -13,6 +14,7 @@ import java.util.List;
 /**
  * Created by vahid on 1/17/17.
  */
+@Getter
 public abstract class ReadService<M extends BaseModel<I>, C extends BaseCriteria<I>, R extends ReadRepository<M, C, I, U>, I, U> {
 
     protected final Class<M> modelClazz;
@@ -117,7 +119,4 @@ public abstract class ReadService<M extends BaseModel<I>, C extends BaseCriteria
         return this.getRepository().isNotExist(criteria, user);
     }
 
-    public R getRepository() {
-        return repository;
-    }
 }

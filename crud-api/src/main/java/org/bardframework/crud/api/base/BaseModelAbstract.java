@@ -1,8 +1,11 @@
 package org.bardframework.crud.api.base;
 
+import lombok.Setter;
+
 /**
  *
  */
+@Setter
 public abstract class BaseModelAbstract<I> implements BaseModel<I> {
 
     protected I id;
@@ -17,10 +20,6 @@ public abstract class BaseModelAbstract<I> implements BaseModel<I> {
     @Override
     public I getId() {
         return id;
-    }
-
-    public void setId(I id) {
-        this.id = id;
     }
 
     @Override
