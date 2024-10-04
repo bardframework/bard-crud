@@ -30,12 +30,12 @@ public class TableModeCheckUtils {
             String headerTitle = TableUtils.getHeaderStringValue(template, headerTemplate, "title", locale, Map.of(), headerTemplate.getTitle());
             Assertions.assertThat(headerTitle).withFailMessage("header title [%s.%s] in locale [%s] is not set", template.getName(), headerTemplate.getName(), locale.getLanguage()).isNotEmpty();
         }
-        TableModeCheckUtils.checkFormModelValidity(args, template, template.getFilterFormTemplate());
-        TableModeCheckUtils.checkFormModelValidity(args, template, template.getSaveFormTemplate());
-        TableModeCheckUtils.checkFormModelValidity(args, template, template.getUpdateFormTemplate());
+        TableModeCheckUtils.checkFormModelValidity(Map.of(), args, template, template.getFilterFormTemplate());
+        TableModeCheckUtils.checkFormModelValidity(Map.of(), args, template, template.getSaveFormTemplate());
+        TableModeCheckUtils.checkFormModelValidity(Map.of(), args, template, template.getUpdateFormTemplate());
     }
 
-    private static void checkFormModelValidity(Map<String, String> args, TableTemplate tableTemplate, FormTemplate formTemplate) {
+    private static void checkFormModelValidity(Map<String, String> values, Map<String, String> args, TableTemplate tableTemplate, FormTemplate formTemplate) {
         if (null == formTemplate) {
             return;
         }
@@ -46,7 +46,7 @@ public class TableModeCheckUtils {
             log.error("error instantiating class: " + formTemplate.getDtoClass(), e);
             Assertions.fail("can't instantiate class [%s], maybe default constructor not exist", formTemplate.getDtoClass());
         }
-        for (FieldTemplate<?> formField : formTemplate.getFieldTemplates(args)) {
+        for (FieldTemplate<?> formField : formTemplate.getFieldTemplates(values, args)) {
             TableModeCheckUtils.checkSetter(formTemplate.getDtoClass(), formField.getName());
         }
     }
@@ -69,9 +69,9 @@ public class TableModeCheckUtils {
         }
         template.getHeaderTemplates().forEach(header -> notExistence.addAll(TableModeCheckUtils.checkI18nExistence(header, template.getMessageSource(), locale)));
 
-        notExistence.addAll(TableModeCheckUtils.checkI18nExistence(template.getFilterFormTemplate(), args, locale));
-        notExistence.addAll(TableModeCheckUtils.checkI18nExistence(template.getSaveFormTemplate(), args, locale));
-        notExistence.addAll(TableModeCheckUtils.checkI18nExistence(template.getUpdateFormTemplate(), args, locale));
+        notExistence.addAll(TableModeCheckUtils.checkI18nExistence(template.getFilterFormTemplate(), Map.of(), args, locale));
+        notExistence.addAll(TableModeCheckUtils.checkI18nExistence(template.getSaveFormTemplate(), Map.of(), args, locale));
+        notExistence.addAll(TableModeCheckUtils.checkI18nExistence(template.getUpdateFormTemplate(), Map.of(), args, locale));
         return notExistence;
     }
 
@@ -79,12 +79,12 @@ public class TableModeCheckUtils {
         return new ArrayList<>();
     }
 
-    private static List<String> checkI18nExistence(FormTemplate template, Map<String, String> args, Locale locale) {
+    private static List<String> checkI18nExistence(FormTemplate template, Map<String, String> values, Map<String, String> args, Locale locale) {
         if (null == template) {
             return Collections.emptyList();
         }
         List<String> notExistence = new ArrayList<>();
-        template.getFieldTemplates(args).forEach(field -> notExistence.addAll(TableModeCheckUtils.checkI18nExistence(field, template.getMessageSource(), locale)));
+        template.getFieldTemplates(values, args).forEach(field -> notExistence.addAll(TableModeCheckUtils.checkI18nExistence(field, template.getMessageSource(), locale)));
         return notExistence;
     }
 
