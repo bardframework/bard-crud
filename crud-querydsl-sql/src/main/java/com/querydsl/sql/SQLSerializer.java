@@ -870,7 +870,7 @@ public class SQLSerializer extends SerializerBase<SQLSerializer> {
 
         } else if (operator == Ops.ALIAS) {
             if (stage == Stage.SELECT || stage == Stage.FROM) {
-                if (args.get(1) instanceof Path<?> path && !((Path<?>) args.get(1)).getMetadata().isRoot()) {
+                if (args.get(1) instanceof Path<?> path && !path.getMetadata().isRoot()) {
                     args = Arrays.asList(args.get(0),
                             ExpressionUtils.path(path.getType(), path.getMetadata().getName()));
                 }
