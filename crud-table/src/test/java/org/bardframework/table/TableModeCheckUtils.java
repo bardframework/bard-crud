@@ -1,5 +1,7 @@
 package org.bardframework.table;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.assertj.core.api.Assertions;
@@ -16,7 +18,7 @@ import java.util.*;
 @Slf4j
 public class TableModeCheckUtils {
 
-    public static void checkDefinitionValidity(TableTemplate template, Map<String, String> args, Locale locale) {
+    public static void checkDefinitionValidity(TableTemplate template, Map<String, Object> args, Locale locale) {
         Assertions.assertThat(template.getModelClass()).withFailMessage("model class of [%s] table not set", template.getName()).isNotNull();
         for (HeaderTemplate<?, ?, ?> headerTemplate : template.getHeaderTemplates()) {
             Assertions.assertThat(headerTemplate.getName()).withFailMessage("some headers name of table [%s] is empty.", template.getName()).isNotEmpty();
@@ -30,12 +32,12 @@ public class TableModeCheckUtils {
             String headerTitle = TableUtils.getHeaderStringValue(template, headerTemplate, "title", locale, Map.of(), headerTemplate.getTitle());
             Assertions.assertThat(headerTitle).withFailMessage("header title [%s.%s] in locale [%s] is not set", template.getName(), headerTemplate.getName(), locale.getLanguage()).isNotEmpty();
         }
-        TableModeCheckUtils.checkFormModelValidity(Map.of(), args, template, template.getFilterFormTemplate());
-        TableModeCheckUtils.checkFormModelValidity(Map.of(), args, template, template.getSaveFormTemplate());
-        TableModeCheckUtils.checkFormModelValidity(Map.of(), args, template, template.getUpdateFormTemplate());
+        TableModeCheckUtils.checkFormModelValidity(Map.of(), args, template, template.getFilterFormTemplate(), null, null);
+        TableModeCheckUtils.checkFormModelValidity(Map.of(), args, template, template.getSaveFormTemplate(), null, null);
+        TableModeCheckUtils.checkFormModelValidity(Map.of(), args, template, template.getUpdateFormTemplate(), null, null);
     }
 
-    private static void checkFormModelValidity(Map<String, String> values, Map<String, String> args, TableTemplate tableTemplate, FormTemplate formTemplate) {
+    private static void checkFormModelValidity(Map<String, Object> values, Map<String, Object> args, TableTemplate tableTemplate, FormTemplate formTemplate, HttpServletRequest httpRequest, HttpServletResponse httpResponse) {
         if (null == formTemplate) {
             return;
         }
@@ -46,7 +48,7 @@ public class TableModeCheckUtils {
             log.error("error instantiating class: " + formTemplate.getDtoClass(), e);
             Assertions.fail("can't instantiate class [%s], maybe default constructor not exist", formTemplate.getDtoClass());
         }
-        for (FieldTemplate<?> formField : formTemplate.getFieldTemplates(values, args)) {
+        for (FieldTemplate<?> formField : formTemplate.getFieldTemplates(values, args, httpRequest, httpResponse)) {
             TableModeCheckUtils.checkSetter(formTemplate.getDtoClass(), formField.getName());
         }
     }
@@ -59,7 +61,7 @@ public class TableModeCheckUtils {
         //TODO check setter arg by field type (String, Integer, LocalDate, etc)
     }
 
-    public static List<String> checkI18nExistence(TableTemplate template, Map<String, String> args, Locale locale) {
+    public static List<String> checkI18nExistence(TableTemplate template, Map<String, Object> args, Locale locale) {
         List<String> notExistence = new ArrayList<>();
         if (TableModeCheckUtils.isNotExist(template.getTitle(), template.getMessageSource(), locale)) {
             notExistence.add(template.getTitle());
@@ -69,9 +71,9 @@ public class TableModeCheckUtils {
         }
         template.getHeaderTemplates().forEach(header -> notExistence.addAll(TableModeCheckUtils.checkI18nExistence(header, template.getMessageSource(), locale)));
 
-        notExistence.addAll(TableModeCheckUtils.checkI18nExistence(template.getFilterFormTemplate(), Map.of(), args, locale));
-        notExistence.addAll(TableModeCheckUtils.checkI18nExistence(template.getSaveFormTemplate(), Map.of(), args, locale));
-        notExistence.addAll(TableModeCheckUtils.checkI18nExistence(template.getUpdateFormTemplate(), Map.of(), args, locale));
+        notExistence.addAll(TableModeCheckUtils.checkI18nExistence(template.getFilterFormTemplate(), Map.of(), args, locale, null, null));
+        notExistence.addAll(TableModeCheckUtils.checkI18nExistence(template.getSaveFormTemplate(), Map.of(), args, locale, null, null));
+        notExistence.addAll(TableModeCheckUtils.checkI18nExistence(template.getUpdateFormTemplate(), Map.of(), args, locale, null, null));
         return notExistence;
     }
 
@@ -79,12 +81,12 @@ public class TableModeCheckUtils {
         return new ArrayList<>();
     }
 
-    private static List<String> checkI18nExistence(FormTemplate template, Map<String, String> values, Map<String, String> args, Locale locale) {
+    private static List<String> checkI18nExistence(FormTemplate template, Map<String, Object> values, Map<String, Object> args, Locale locale, HttpServletRequest httpRequest, HttpServletResponse httpResponse) {
         if (null == template) {
             return Collections.emptyList();
         }
         List<String> notExistence = new ArrayList<>();
-        template.getFieldTemplates(values, args).forEach(field -> notExistence.addAll(TableModeCheckUtils.checkI18nExistence(field, template.getMessageSource(), locale)));
+        template.getFieldTemplates(values, args, httpRequest, httpResponse).forEach(field -> notExistence.addAll(TableModeCheckUtils.checkI18nExistence(field, template.getMessageSource(), locale)));
         return notExistence;
     }
 
