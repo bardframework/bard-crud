@@ -61,6 +61,14 @@ public abstract class ReadRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
 
     protected abstract Expression<M> getSelectExpression();
 
+    protected Expression<M> getPagedDataSelectExpression() {
+        return this.getSelectExpression();
+    }
+
+    protected Expression<M> getListSelectExpression() {
+        return this.getSelectExpression();
+    }
+
     protected abstract Expression<I> getIdSelectExpression();
 
     protected Predicate getPredicate(IdFilter<I> idFilter, U user) {
@@ -102,7 +110,7 @@ public abstract class ReadRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
         query = query.clone(this.getQueryFactory().getConnection());
         query.offset((long) (pageable.getPageNumber() - 1) * pageable.getPageSize());
         query.limit(pageable.getPageSize());
-        List<M> result = query.select(this.getSelectExpression()).fetch();
+        List<M> result = query.select(this.getPagedDataSelectExpression()).fetch();
         return new PagedData<>(result, total);
     }
 
@@ -177,7 +185,7 @@ public abstract class ReadRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
                 query.limit(pageable.getPageSize());
             }
         }
-        return query.select(this.getSelectExpression()).fetch();
+        return query.select(this.getListSelectExpression()).fetch();
     }
 
     @Transactional(readOnly = true)
@@ -211,7 +219,7 @@ public abstract class ReadRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
             }
             selectExpression = QueryDslUtils.bean(modelClazz, expressions);
         } else {
-            selectExpression = this.getSelectExpression();
+            selectExpression = this.getListSelectExpression();
         }
         return query.select(selectExpression).fetch();
     }
