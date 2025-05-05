@@ -7,7 +7,6 @@ import org.bardframework.crud.api.base.BaseModel;
 import org.bardframework.crud.api.base.BaseService;
 import org.bardframework.crud.api.base.PagedData;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.querydsl.QPageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -48,7 +47,8 @@ public interface TableModelRestController<M extends BaseModel<?>, C extends Base
     @GetMapping(path = TABLE_EXPORT_URL, produces = APPLICATION_OOXML_SHEET)
     default void exportTable(@ModelAttribute C criteria, Locale locale, HttpServletRequest httpRequest, HttpServletResponse httpResponse) throws Exception {
         U user = this.getUser();
-        PagedData<M> pagedData = this.getService().get(criteria, QPageRequest.of(1, Integer.MAX_VALUE), user);
+        Pageable pageable = Pageable.ofSize(Integer.MAX_VALUE).withPage(1);
+        PagedData<M> pagedData = this.getService().get(criteria, pageable, user);
         TableData tableData = ExcelUtils.toTableData(pagedData, this.getTableTemplate(), locale, true, user);
         String fileName = this.getExportFileName(APPLICATION_OOXML_SHEET, locale, user);
         try (OutputStream outputStream = httpResponse.getOutputStream()) {

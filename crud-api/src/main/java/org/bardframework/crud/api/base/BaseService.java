@@ -5,7 +5,6 @@ import org.apache.commons.collections4.CollectionUtils;
 import org.bardframework.commons.utils.AssertionUtils;
 import org.bardframework.commons.utils.ReflectionUtils;
 import org.bardframework.form.model.filter.IdFilter;
-import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -29,13 +28,11 @@ public abstract class BaseService<M extends BaseModel<I>, C extends BaseCriteria
      * @param id identifier of data that must be delete
      * @return count of deleted data
      */
-    @Transactional
     public long delete(I id, U user) {
         AssertionUtils.notNull(id, "id cannot be null.");
         return this.delete(List.of(id), user);
     }
 
-    @Transactional
     public long delete(Collection<I> ids, U user) {
         AssertionUtils.notEmpty(ids, "Given ids cannot be empty.");
         if (ids.isEmpty()) {
@@ -46,7 +43,6 @@ public abstract class BaseService<M extends BaseModel<I>, C extends BaseCriteria
         return this.delete(criteria, user);
     }
 
-    @Transactional
     public long delete(C criteria, U user) {
         AssertionUtils.notNull(criteria, "Given criteria cannot be null.");
         List<M> models = this.getRepository().get(criteria, user);
@@ -98,7 +94,6 @@ public abstract class BaseService<M extends BaseModel<I>, C extends BaseCriteria
      *
      * @return saved data model
      */
-    @Transactional
     public M save(D dto, U user) {
         AssertionUtils.notNull(dto, "dto cannot be null.");
         return this.save(List.of(dto), user).get(0);
@@ -109,7 +104,6 @@ public abstract class BaseService<M extends BaseModel<I>, C extends BaseCriteria
      *
      * @return saved data models
      */
-    @Transactional
     public List<M> save(List<D> dtos, U user) {
         AssertionUtils.notNull(dtos, "Given dtos cannot be null.");
         if (dtos.isEmpty()) {
@@ -151,7 +145,6 @@ public abstract class BaseService<M extends BaseModel<I>, C extends BaseCriteria
     protected void postSave(M savedModel, D dto, U user) {
     }
 
-    @Transactional
     public M patch(I id, Map<String, Object> patches, U user) {
         AssertionUtils.notNull(id, "id cannot be null.");
         AssertionUtils.notEmpty(patches, "patches cannot be empty.");
@@ -172,7 +165,6 @@ public abstract class BaseService<M extends BaseModel<I>, C extends BaseCriteria
     protected void postPatch(M previousModel, M patchedModel, Map<String, Object> patch, U user) {
     }
 
-    @Transactional
     public M update(I id, D dto, U user) {
         AssertionUtils.notNull(id, "id cannot be null.");
         AssertionUtils.notNull(dto, "patch cannot be dto.");
