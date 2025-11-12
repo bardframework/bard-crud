@@ -13,6 +13,7 @@
     <artifactId>bard-crud</artifactId>
     <version>4.5.2</version>
     <packaging>pom</packaging>
+    <name>Bard Framework - CRUD</name>
 
     <properties>
         <bardframework.version>4.5.10</bardframework.version>

@@ -11,6 +11,7 @@
 
     <artifactId>crud-table</artifactId>
     <packaging>jar</packaging>
+    <name>Bard Framework - CRUD - Table</name>
 
     <dependencies>
         <dependency>
