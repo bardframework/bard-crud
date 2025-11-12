@@ -5,7 +5,7 @@ import com.querydsl.core.types.*;
 import com.querydsl.core.types.dsl.ComparableExpression;
 import com.querydsl.core.types.dsl.NumberExpression;
 import com.querydsl.core.types.dsl.SimpleExpression;
-import com.querydsl.core.types.dsl.StringPath;
+import com.querydsl.core.types.dsl.StringExpression;
 import lombok.experimental.UtilityClass;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
@@ -39,7 +39,7 @@ public final class QueryDslUtils {
         return Projections.bean(type, expressions);
     }
 
-    public static Predicate getPredicate(StringFilter filter, StringPath path) {
+    public static Predicate getPredicate(StringFilter filter, StringExpression expression) {
         if (null == filter) {
             return null;
         }
@@ -47,24 +47,24 @@ public final class QueryDslUtils {
             log.error(EMPTY_CRITERIA_ERROR_MESSAGE + ". filter: " + filter);
             throw new IllegalArgumentException(EMPTY_CRITERIA_ERROR_MESSAGE);
         }
-        BooleanBuilder builder = new BooleanBuilder(QueryDslUtils.getPredicate((Filter<String, ?>) filter, path));
-        builder.and(QueryDslUtils.getPredicate((RangeFilter<String, ?>) filter, path));
+        BooleanBuilder builder = new BooleanBuilder(QueryDslUtils.getPredicate((Filter<String, ?>) filter, expression));
+        builder.and(QueryDslUtils.getPredicate((RangeFilter<String, ?>) filter, expression));
         if (StringUtils.isNotBlank(filter.getContains())) {
-            builder.and(path.likeIgnoreCase("%" + filter.getContains() + "%"));
+            builder.and(expression.likeIgnoreCase("%" + filter.getContains() + "%"));
         }
         if (StringUtils.isNotBlank(filter.getDoesNotContain())) {
-            builder.and(path.notLike("%" + filter.getDoesNotContain() + "%"));
+            builder.and(expression.notLike("%" + filter.getDoesNotContain() + "%"));
         }
         if (StringUtils.isNotBlank(filter.getStartWith())) {
-            builder.and(path.likeIgnoreCase(filter.getStartWith() + "%"));
+            builder.and(expression.likeIgnoreCase(filter.getStartWith() + "%"));
         }
         if (StringUtils.isNotBlank(filter.getEndWith())) {
-            builder.and(path.notLike("%" + filter.getDoesNotContain()));
+            builder.and(expression.notLike("%" + filter.getDoesNotContain()));
         }
         return builder;
     }
 
-    public static <T extends Number & Comparable<T>, F extends NumberRangeFilter<T, F>> Predicate getPredicate(NumberRangeFilter<T, F> filter, NumberExpression<T> path) {
+    public static <T extends Number & Comparable<T>, F extends NumberRangeFilter<T, F>> Predicate getPredicate(NumberRangeFilter<T, F> filter, NumberExpression<T> expression) {
         if (null == filter) {
             return null;
         }
@@ -72,17 +72,17 @@ public final class QueryDslUtils {
             log.error(EMPTY_CRITERIA_ERROR_MESSAGE + ". filter: " + filter);
             throw new IllegalArgumentException(EMPTY_CRITERIA_ERROR_MESSAGE);
         }
-        BooleanBuilder builder = new BooleanBuilder(QueryDslUtils.getPredicate((Filter<T, F>) filter, path));
+        BooleanBuilder builder = new BooleanBuilder(QueryDslUtils.getPredicate((Filter<T, F>) filter, expression));
         if (filter.getFrom() != null) {
-            builder.and(path.goe(filter.getFrom()));
+            builder.and(expression.goe(filter.getFrom()));
         }
         if (filter.getTo() != null) {
-            builder.and(path.loe(filter.getTo()));
+            builder.and(expression.loe(filter.getTo()));
         }
         return builder;
     }
 
-    public static <T extends Comparable<?> & Serializable> Predicate getPredicate(RangeFilter<T, ?> filter, ComparableExpression<T> path) {
+    public static <T extends Comparable<?> & Serializable> Predicate getPredicate(RangeFilter<T, ?> filter, ComparableExpression<T> expression) {
         if (null == filter) {
             return null;
         }
@@ -90,18 +90,18 @@ public final class QueryDslUtils {
             log.error(EMPTY_CRITERIA_ERROR_MESSAGE + ". filter: " + filter);
             throw new IllegalArgumentException(EMPTY_CRITERIA_ERROR_MESSAGE);
         }
-        BooleanBuilder builder = new BooleanBuilder(QueryDslUtils.getPredicate((Filter<T, ?>) filter, path));
+        BooleanBuilder builder = new BooleanBuilder(QueryDslUtils.getPredicate((Filter<T, ?>) filter, expression));
         if (filter.getFrom() != null) {
-            builder.and(path.goe(filter.getFrom()));
+            builder.and(expression.goe(filter.getFrom()));
         }
         if (filter.getTo() != null) {
-            builder.and(path.loe(filter.getTo()));
+            builder.and(expression.loe(filter.getTo()));
         }
         return builder;
     }
 
-    public static <I> Predicate getPredicate(Filter<I, ?> filter, SimpleExpression<I> path) {
-        return QueryDslUtils.getPredicate(filter, path::eq, path::ne, path::isNotNull, path::isNull);
+    public static <I> Predicate getPredicate(Filter<I, ?> filter, SimpleExpression<I> expression) {
+        return QueryDslUtils.getPredicate(filter, expression::eq, expression::ne, expression::isNotNull, expression::isNull);
     }
 
     public static <I> Predicate getPredicate(Filter<I, ?> filter, Function<I, Predicate> equals, Function<I, Predicate> notEquals, Supplier<Predicate> isNotNull, Supplier<Predicate> isNull) {

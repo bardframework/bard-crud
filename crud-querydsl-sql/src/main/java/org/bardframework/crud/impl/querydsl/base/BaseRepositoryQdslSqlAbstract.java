@@ -139,6 +139,7 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
         AssertionUtils.notNull(criteria, "Given criteria cannot be null.");
         AssertionUtils.notNull(onUpdate, "onUpdate cannot be null.");
         SQLUpdateClause updateClause = this.getQueryFactory().update(this.getEntity());
+        updateClause.where(this.getPredicate(criteria.getIdFilter(), user));
         updateClause.where(this.getPredicate(criteria, user));
         onUpdate.accept(updateClause);
         return updateClause.execute();
