@@ -5,18 +5,18 @@
     <parent>
         <groupId>org.bardframework</groupId>
         <artifactId>bard-parent</artifactId>
-        <version>26</version>
+        <version>27</version>
         <relativePath/>
     </parent>
 
     <groupId>org.bardframework.crud</groupId>
     <artifactId>bard-crud</artifactId>
-    <version>4.5.2</version>
+    <version>4.7.2</version>
     <packaging>pom</packaging>
     <name>Bard Framework - CRUD</name>
 
     <properties>
-        <bardframework.version>4.5.10</bardframework.version>
+        <bardframework.version>4.7.10</bardframework.version>
     </properties>
 
     <dependencyManagement>

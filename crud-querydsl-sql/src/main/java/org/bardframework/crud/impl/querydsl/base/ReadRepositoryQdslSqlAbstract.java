@@ -10,6 +10,7 @@ import com.querydsl.sql.ProjectableSQLQuery;
 import com.querydsl.sql.RelationalPathBase;
 import com.querydsl.sql.SQLQuery;
 import com.querydsl.sql.SQLQueryFactory;
+import lombok.Getter;
 import org.apache.commons.collections4.CollectionUtils;
 import org.bardframework.commons.utils.AssertionUtils;
 import org.bardframework.commons.utils.ReflectionUtils;
@@ -37,13 +38,14 @@ import java.util.stream.Collectors;
 /**
  * Created by vahid on 1/17/17.
  */
+@Getter
 public abstract class ReadRepositoryQdslSqlAbstract<M extends BaseModel<I>, C extends BaseCriteria<I>, I, U> implements ReadRepository<M, C, I, U> {
 
-    protected final SQLQueryFactory queryFactory;
-    protected final Class<M> modelClazz;
-    protected final Class<C> criteriaClazz;
-    protected final Class<I> idClazz;
-    protected final Map<String, Path<?>> columns;
+    private final SQLQueryFactory queryFactory;
+    private final Class<M> modelClazz;
+    private final Class<C> criteriaClazz;
+    private final Class<I> idClazz;
+    private Map<String, Path<?>> columns;
 
     protected final Logger log = LoggerFactory.getLogger(this.getClass());
 
@@ -52,7 +54,6 @@ public abstract class ReadRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
         this.modelClazz = ReflectionUtils.getGenericArgType(this.getClass(), 0);
         this.criteriaClazz = ReflectionUtils.getGenericArgType(this.getClass(), 1);
         this.idClazz = ReflectionUtils.getGenericArgType(this.getClass(), 2);
-        this.columns = this.getEntity().getColumns().stream().collect(Collectors.toMap(path -> path.getMetadata().getName(), Function.identity()));
     }
 
     protected abstract Predicate getPredicate(C criteria, U user);
@@ -251,7 +252,14 @@ public abstract class ReadRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
     }
 
     protected Path<?> getPath(String columnName) {
-        return columns.get(columnName);
+        return this.getColumns().get(columnName);
+    }
+
+    public Map<String, Path<?>> getColumns() {
+        if (null == this.columns) {
+            this.columns = this.getEntity().getColumns().stream().collect(Collectors.toMap(path -> path.getMetadata().getName(), Function.identity()));
+        }
+        return this.columns;
     }
 
     protected void setSelectJoins(ProjectableSQLQuery<?, ?> query, C criteria, U user) {

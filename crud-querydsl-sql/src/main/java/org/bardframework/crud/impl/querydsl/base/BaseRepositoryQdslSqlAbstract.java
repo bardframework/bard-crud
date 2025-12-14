@@ -126,7 +126,7 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
     protected void update(I identifier, Consumer<SQLUpdateClause> onUpdate, U user) {
         AssertionUtils.notNull(identifier, "Given identifier cannot be null.");
         AssertionUtils.notNull(onUpdate, "onUpdate cannot be null.");
-        C criteria = ReflectionUtils.newInstance(criteriaClazz);
+        C criteria = ReflectionUtils.newInstance(this.getCriteriaClazz());
         criteria.setIdFilter(new IdFilter<I>().setEquals(identifier));
         long affectedRowsCount = this.update(criteria, onUpdate, user);
         if (1 != affectedRowsCount) {
@@ -179,7 +179,7 @@ public abstract class BaseRepositoryQdslSqlAbstract<M extends BaseModel<I>, C ex
     @Override
     public long delete(Collection<I> ids, U user) {
         AssertionUtils.notEmpty(ids, "Given ids cannot be null.");
-        C criteria = ReflectionUtils.newInstance(criteriaClazz);
+        C criteria = ReflectionUtils.newInstance(this.getCriteriaClazz());
         criteria.setIdFilter(new IdFilter<I>().setIn(ids));
         return this.delete(criteria, user);
     }
