@@ -1,6 +1,6 @@
 package org.bardframework.crud.api.base;
 
-import com.fasterxml.jackson.databind.JavaType;
+import tools.jackson.databind.JavaType;
 import org.bardframework.commons.web.WebTestHelper;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpStatus;

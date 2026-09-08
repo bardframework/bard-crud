@@ -1,6 +1,6 @@
 package org.springframework.web.servlet.mvc.method.annotation;
 
-import com.fasterxml.jackson.databind.type.SimpleType;
+import tools.jackson.databind.type.SimpleType;
 import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
