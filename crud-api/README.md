@@ -1,7 +1,7 @@
 crud-api
 ========
 
-[![Maven Central](https://img.shields.io/badge/maven--central-5.3.2-blue.svg)](https://repo1.maven.org/maven2/org/bardframework/crud/crud-api/)
+[![Maven Central](https://img.shields.io/badge/maven--central-6.1.2-blue.svg)](https://repo1.maven.org/maven2/org/bardframework/crud/crud-api/)
 [![License](http://img.shields.io/:license-apache-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
 
 The CRUD contracts and base classes, with **no persistence technology attached**. Depend on this from
@@ -14,7 +14,7 @@ Part of [**Bard CRUD**](../README.md) · [Bard Framework](https://github.com/bar
 <dependency>
     <groupId>org.bardframework.crud</groupId>
     <artifactId>crud-api</artifactId>
-    <version>5.3.2</version>
+    <version>6.1.2</version>
 </dependency>
 ```
 
@@ -93,7 +93,7 @@ your entity's whole surface is exercised:
 <dependency>
     <groupId>org.bardframework.crud</groupId>
     <artifactId>crud-api</artifactId>
-    <version>5.3.2</version>
+    <version>6.1.2</version>
     <type>test-jar</type>
     <scope>test</scope>
 </dependency>
