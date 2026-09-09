@@ -14,7 +14,7 @@ Part of [**Bard CRUD**](../README.md) · [Bard Framework](https://github.com/bar
 <dependency>
     <groupId>org.bardframework.crud</groupId>
     <artifactId>crud-api</artifactId>
-    <version>6.1.2</version>
+    <version>5.6.2</version>
 </dependency>
 ```
 
@@ -93,7 +93,7 @@ your entity's whole surface is exercised:
 <dependency>
     <groupId>org.bardframework.crud</groupId>
     <artifactId>crud-api</artifactId>
-    <version>6.1.2</version>
+    <version>5.6.2</version>
     <type>test-jar</type>
     <scope>test</scope>
 </dependency>

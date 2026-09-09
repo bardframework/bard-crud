@@ -10,7 +10,8 @@ manager, no lazy-loading surprises.
 
 Adding an entity means writing five small classes. You write zero endpoint code and zero SQL strings.
 
-`groupId` `org.bardframework.crud`, version **6.1.2** (managed by [`bard-bom`](https://github.com/bardframework/bard-bom)).
+`groupId` `org.bardframework.crud`, version **5.6.2** (managed by [
+`bard-bom`](https://github.com/bardframework/bard-bom)).
 
 ## Artifacts
 
