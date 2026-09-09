@@ -15,6 +15,31 @@
     <packaging>pom</packaging>
     <name>Bard Framework - CRUD</name>
 
+    <scm>
+        <connection>scm:git:git://github.com/bardframework/bard-crud.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com:bardframework/bard-crud.git</developerConnection>
+        <url>https://github.com/bardframework/bard-crud/tree/master</url>
+    </scm>
+
+    <developers>
+        <developer>
+            <name>Vahid Zafari</name>
+            <email>va.zafari@gmail.com</email>
+        </developer>
+    </developers>
+
+    <licenses>
+        <license>
+            <name>The Apache License, Version 2.0</name>
+            <url>https://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
+    <url>https://github.com/bardframework/bard-crud</url>
+
+    <description>CRUD stack for Spring Boot: typed filter criteria, QueryDSL SQL repositories, and REST controllers as interfaces with default methods.</description>
+
     <properties>
         <bardframework.version>6.1.10</bardframework.version>
     </properties>
