@@ -1,7 +1,7 @@
 Bard CRUD
 =========
 
-[![Maven Central](https://img.shields.io/badge/maven--central-6.1.2-blue.svg)](https://repo1.maven.org/maven2/org/bardframework/crud/)
+[![Maven Central](https://img.shields.io/badge/maven--central-5.6.2-blue.svg)](https://repo1.maven.org/maven2/org/bardframework/crud/)
 [![License](http://img.shields.io/:license-apache-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
 
 A CRUD stack for Spring Boot where the REST layer is **interfaces with default methods**, queries are

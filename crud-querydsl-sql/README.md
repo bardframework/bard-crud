@@ -1,7 +1,7 @@
 crud-querydsl-sql
 =================
 
-[![Maven Central](https://img.shields.io/badge/maven--central-6.1.2-blue.svg)](https://repo1.maven.org/maven2/org/bardframework/crud/crud-querydsl-sql/)
+[![Maven Central](https://img.shields.io/badge/maven--central-5.6.2-blue.svg)](https://repo1.maven.org/maven2/org/bardframework/crud/crud-querydsl-sql/)
 [![License](http://img.shields.io/:license-apache-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0.html)
 
 The [`crud-api`](../crud-api) repository contracts implemented over **QueryDSL SQL** — typed SQL, no
